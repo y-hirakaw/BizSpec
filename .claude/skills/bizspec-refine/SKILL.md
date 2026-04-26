@@ -1,5 +1,5 @@
 ---
-name: bizspec-new
+name: bizspec-refine
 description: 業務プロセスを BizSpec YAML（最小 unit）へ分解する。新規プロセスの分解、および既存プロセスへの unit 追加の両方に使う。
 argument-hint: [プロセスの説明]
 disable-model-invocation: true

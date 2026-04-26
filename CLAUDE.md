@@ -12,7 +12,7 @@ BizSpec は、既存の業務プロセスを AI-Native 形式にリファクタ�
 
 ```
 .claude/skills/
-  bizspec-new/SKILL.md          # /bizspec-new スキル（プロセス分解 → YAML生成）
+  bizspec-refine/SKILL.md       # /bizspec-refine スキル（プロセス分解 → YAML生成・更新）
 bizspec/
   <プロセス名>/                  # プロセスごとにフォルダを切る
     <unit名>.yaml               # unit ごとに1ファイル
