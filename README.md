@@ -18,29 +18,29 @@ The `bizspec/issue-refinement/` directory contains a worked example: a PBI refin
 Each unit is one YAML file:
 
 ```yaml
-unit: Ready判定
-aim: PBI が開発着手可能な状態かを判定する
+unit: ReadinessCheck
+aim: Determine whether a PBI is ready for development
 phase: spec
 job:
-  - 妥当性評価結果をもとに Ready / Not Ready を判定する
+  - Judge Ready / Not Ready based on the validity evaluation results
 rule:
-  - 概要・スコープ・受入基準がすべて OK でなければ Ready にしない
+  - All of summary, scope, and acceptance criteria must be OK to mark Ready
 link:
   up:
-    - 記載内容妥当性評価
+    - ContentValidation
   down:
-    - ストーリーポイント算出
+    - StoryPointEstimation
 core: true
 io:
   in:
-    - 各項目の評価結果
+    - Evaluation results for each item
   run:
-    - 評価結果を総合して判定する
+    - Aggregate evaluation results and make a judgment
   out:
-    - Ready判定結果
+    - Readiness result
 executor:
   type: ai_agent
-  reason: 複数評価結果の統合判断が必要なため
+  reason: Requires synthesis of multiple evaluation results
 ```
 
 `core: true` means the unit is directly required to reach the process goal. `link.up/down` represents execution order, not data dependency.
