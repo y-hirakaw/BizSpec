@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 import yaml
 
 REQUIRED_FIELDS = ["unit", "aim", "phase", "job", "rule", "link", "core", "io", "executor"]
 VALID_EXECUTOR_TYPES = {"script", "ai_agent", "manual"}
+NON_EMPTY_LIST_FIELDS = ["job", "rule"]
 
 
 @dataclass
@@ -17,16 +19,17 @@ class VError:
     message: str
 
 
-def _check_file(path: Path) -> list[VError]:
+def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
+    """単一ファイルを検証する。(errors, data) を返す。"""
     errors: list[VError] = []
 
     try:
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
-        return [VError(path, "parse", f"YAML パースエラー: {e}")]
+        return [VError(path, "parse", f"YAML パースエラー: {e}")], None
 
     if not isinstance(data, dict):
-        return [VError(path, "format", "トップレベルはマッピングである必要があります")]
+        return [VError(path, "format", "トップレベルはマッピングである必要があります")], None
 
     # 必須フィールド
     for f in REQUIRED_FIELDS:
@@ -82,27 +85,30 @@ def _check_file(path: Path) -> list[VError]:
                     errors.append(VError(path, f"io.{key}", "フィールドがありません"))
                 elif not isinstance(io[key], list):
                     errors.append(VError(path, f"io.{key}", "リストである必要があります"))
+                elif len(io[key]) == 0:
+                    errors.append(VError(path, f"io.{key}", "空リストは許可されていません"))
 
-    return errors
+    # job / rule の空リスト
+    for key in NON_EMPTY_LIST_FIELDS:
+        if key in data and isinstance(data[key], list) and len(data[key]) == 0:
+            errors.append(VError(path, key, "空リストは許可されていません"))
+
+    return errors, data
 
 
 def _check_process(process_dir: Path) -> list[VError]:
-    yaml_files = sorted(f for f in process_dir.glob("*.yaml"))
+    yaml_files = sorted(process_dir.glob("*.yaml"))
     if not yaml_files:
         return []
 
     errors: list[VError] = []
-
-    # ファイル単体チェック＋全 unit ロード
     units: dict[str, dict] = {}
+
     for path in yaml_files:
-        errors.extend(_check_file(path))
-        try:
-            data = yaml.safe_load(path.read_text(encoding="utf-8"))
-            if isinstance(data, dict) and isinstance(data.get("unit"), str):
-                units[data["unit"]] = data
-        except Exception:
-            pass
+        file_errors, data = _check_file(path)
+        errors.extend(file_errors)
+        if data is not None and isinstance(data.get("unit"), str):
+            units[data["unit"]] = data
 
     unit_names = set(units)
 
