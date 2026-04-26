@@ -16,6 +16,8 @@ BizSpec は、既存の業務プロセスを AI-Native 形式にリファクタ�
 bizspec/
   <プロセス名>/                  # プロセスごとにフォルダを切る
     <unit名>.yaml               # unit ごとに1ファイル
+  _viz/                         # 生成物（bizspec viz の HTML 出力先）
+    <プロセス名>.html
 BizSpec_要求仕様.md              # 要件定義書
 ```
 
@@ -32,7 +34,7 @@ Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx
 |---------|------|
 | `bizspec list` | `bizspec/` 内の unit 一覧を表示（unit名・core・executor.type） |
 | `bizspec validate` | BizSpec YAML のスキーマ検証 |
-| `bizspec viz` | `link.up/down` を元にフロー図を生成し、unit 詳細を参照できる HTML を出力 |
+| `bizspec viz` | `link.up/down` を元にフロー図を生成し、unit 詳細を参照できる HTML を `bizspec/_viz/<プロセス名>.html` に出力 |
 
 ## BizSpec YAML データ構造 (v1)
 
