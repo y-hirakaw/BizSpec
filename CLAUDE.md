@@ -61,6 +61,13 @@ executor:
 
 `core: undetermined` はユーザー確認が必要な場合に使用。`phase` は自由記述でフォルダ分けではなくフィールドで管理する。
 
+## 開発環境
+
+- **Python:** macOS 標準搭載の Python 3.9 を対象とする（3.9 で動く構文・APIに限定）
+- **依存インストール:** `python3 -m pip install -e ".[dev]"`
+- **テスト実行:** `python3 -m pytest tests/ -v`
+- **動作確認:** `bizspec validate`（PATH が通っていること）
+
 ## Skills の設計方針
 
 - **分解の基準:** IPO（Input-Process-Output）ベースで `unit`（最小単位）へ再帰的分解
