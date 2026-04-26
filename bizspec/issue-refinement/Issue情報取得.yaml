@@ -1,0 +1,23 @@
+unit: Issue情報取得
+aim: GitHub から Issue の本文・ラベル・マイルストーン等を取得する
+job:
+  - gh CLI または GitHub REST API で指定 Issue のデータを取得する
+rule:
+  - 本文・ラベル・担当者・マイルストーンをすべて取得する
+  - 取得失敗時はエラーを返し後続処理を止める
+link:
+  up: []
+  down:
+    - 記載内容妥当性評価
+phase: spec
+core: true
+io:
+  in:
+    - GitHub Issue 番号 または URL
+  run:
+    - gh issue view <number> --json title,body,labels,milestone,assignees
+  out:
+    - Issue データ（JSON）
+executor:
+  type: script
+  reason: gh CLI で一意に取得できる定型処理のため
