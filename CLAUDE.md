@@ -32,6 +32,7 @@ Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx
 |---------|------|
 | `bizspec list` | `bizspec/` 内の unit 一覧を表示（unit名・core・executor.type） |
 | `bizspec validate` | BizSpec YAML のスキーマ検証 |
+| `bizspec viz` | `link.up/down` を元にフロー図を生成し、unit 詳細を参照できる HTML を出力 |
 
 ## BizSpec YAML データ構造 (v1)
 
