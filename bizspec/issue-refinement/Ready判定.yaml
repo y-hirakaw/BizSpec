@@ -1,5 +1,5 @@
 unit: Ready判定
-aim: Issue が開発着手可能な状態かを判定する
+aim: PBI が開発着手可能な状態かを判定する
 job:
   - 妥当性評価結果をもとに Ready / Not Ready を判定する
   - Not Ready の場合は何が揃えば Ready になるかを列挙する

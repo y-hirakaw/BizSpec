@@ -9,14 +9,14 @@ rule:
   - 「書いてあるが不十分」と「記載なし」を区別する
 link:
   up:
-    - Issue情報取得
+    - PBI情報取得
   down:
     - Ready判定
 phase: spec
 core: true
 io:
   in:
-    - Issue データ（JSON）
+    - PBI データ（JSON）
   run:
     - 概要・スコープ・受入基準それぞれを評価基準に照らして評価する
   out:
