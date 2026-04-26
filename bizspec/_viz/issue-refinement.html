@@ -18,7 +18,6 @@ body {
   overflow: hidden;
 }
 
-/* ── Header ─────────────────────────── */
 header {
   flex: 0 0 auto;
   display: flex;
@@ -33,7 +32,6 @@ header {
 header h1 { font-size: 16px; font-weight: 700; }
 header .subtitle { font-size: 12px; color: #6B7280; }
 
-/* ── Legend bar ──────────────────────── */
 .legend-bar {
   flex: 0 0 auto;
   display: flex;
@@ -46,34 +44,28 @@ header .subtitle { font-size: 12px; color: #6B7280; }
   color: #6B7280;
 }
 .legend-item { display: flex; align-items: center; gap: 5px; }
-.lswatch {
-  width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0;
-}
+.lswatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
 .lpill {
   height: 14px; padding: 0 6px; border-radius: 999px;
   font-size: 10px; font-weight: 500; display: flex; align-items: center;
 }
 
-/* ── Main layout ─────────────────────── */
-.layout {
-  flex: 1 1 0;
-  display: flex;
-  min-height: 0;
-}
+.layout { flex: 1 1 0; display: flex; min-height: 0; }
 
-/* ── Flow area ───────────────────────── */
 .flow-area {
-  flex: 0 0 580px;
+  flex: 0 0 auto;
+  min-width: 320px;
+  max-width: 60vw;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
   background: #F8FAFC;
   border-right: 1px solid #E5E7EB;
   padding: 24px 20px 40px;
 }
 .flow-canvas {
   position: relative;
-  width: 540px;
-  height: 810px;
+  width: 640px;
+  height: 762px;
 }
 svg.arrows-layer {
   position: absolute;
@@ -84,7 +76,6 @@ svg.arrows-layer {
   overflow: visible;
 }
 
-/* ── Nodes ───────────────────────────── */
 .node {
   position: absolute;
   width: 200px;
@@ -99,38 +90,19 @@ svg.arrows-layer {
   transition: box-shadow 0.15s ease, transform 0.1s ease;
   user-select: none;
 }
-.node:hover {
-  box-shadow: 0 4px 14px rgba(0,0,0,0.13);
-  transform: translateY(-1px);
-}
-.node.selected {
-  box-shadow: 0 0 0 3px #2563EB, 0 4px 14px rgba(37,99,235,0.18);
-}
+.node:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.13); transform: translateY(-1px); }
+.node.selected { box-shadow: 0 0 0 3px #2563EB, 0 4px 14px rgba(37,99,235,0.18); }
 .node.core-true  { background: #EFF6FF; border: 2px solid #93C5FD; }
 .node.core-false { background: #F9FAFB; border: 2px solid #D1D5DB; }
 
-.node-name {
-  font-size: 11px;
-  font-weight: 600;
-  color: #111827;
-  line-height: 1.35;
-  white-space: normal;
-}
+.node-name { font-size: 11px; font-weight: 600; color: #111827; line-height: 1.35; white-space: normal; }
 .node-badges { display: flex; gap: 4px; align-items: center; }
-.badge {
-  font-size: 9px;
-  font-weight: 600;
-  padding: 1px 5px;
-  border-radius: 999px;
-  white-space: nowrap;
-  line-height: 1.5;
-}
+.badge { font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
 .badge-script   { background: #D1FAE5; color: #065F46; }
 .badge-ai_agent { background: #EDE9FE; color: #5B21B6; }
 .badge-manual   { background: #FEF3C7; color: #92400E; }
 .badge-core     { background: #DBEAFE; color: #1D4ED8; }
 
-/* ── Detail panel ────────────────────── */
 .detail-panel {
   flex: 1 1 0;
   overflow-y: auto;
@@ -147,35 +119,17 @@ svg.arrows-layer {
   font-size: 14px;
 }
 
-.detail-header {
-  padding-bottom: 16px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid #F3F4F6;
-}
-.detail-unit-name {
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.3;
-  margin-bottom: 6px;
-  word-break: break-all;
-}
-.detail-aim {
-  font-size: 13px;
-  color: #4B5563;
-  line-height: 1.75;
-  margin-bottom: 10px;
-}
+.detail-header { padding-bottom: 16px; margin-bottom: 18px; border-bottom: 1px solid #F3F4F6; }
+.detail-unit-name { font-size: 20px; font-weight: 700; line-height: 1.3; margin-bottom: 6px; word-break: break-all; }
+.detail-aim { font-size: 13px; color: #4B5563; line-height: 1.75; margin-bottom: 10px; }
 .detail-tags { display: flex; flex-wrap: wrap; gap: 5px; }
-.tag {
-  font-size: 11px; font-weight: 500;
-  padding: 2px 9px; border-radius: 999px;
-}
-.tag-phase        { background: #ECFDF5; color: #065F46; }
-.tag-core-true    { background: #DBEAFE; color: #1D4ED8; }
-.tag-core-false   { background: #F3F4F6; color: #6B7280; }
-.tag-script       { background: #D1FAE5; color: #065F46; }
-.tag-ai_agent     { background: #EDE9FE; color: #5B21B6; }
-.tag-manual       { background: #FEF3C7; color: #92400E; }
+.tag { font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 999px; }
+.tag-phase      { background: #ECFDF5; color: #065F46; }
+.tag-core-true  { background: #DBEAFE; color: #1D4ED8; }
+.tag-core-false { background: #F3F4F6; color: #6B7280; }
+.tag-script     { background: #D1FAE5; color: #065F46; }
+.tag-ai_agent   { background: #EDE9FE; color: #5B21B6; }
+.tag-manual     { background: #FEF3C7; color: #92400E; }
 
 .section { margin-bottom: 18px; }
 .section-label {
@@ -183,52 +137,27 @@ svg.arrows-layer {
   text-transform: uppercase; letter-spacing: 0.07em;
   color: #9CA3AF; margin-bottom: 7px;
 }
-.item-list {
-  list-style: none; padding: 0;
-  font-size: 13px; color: #374151; line-height: 1.75;
-}
+.item-list { list-style: none; padding: 0; font-size: 13px; color: #374151; line-height: 1.75; }
 .item-list li { padding-left: 14px; position: relative; }
-.item-list li::before {
-  content: "·"; position: absolute; left: 0;
-  color: #9CA3AF; font-size: 18px; line-height: 1.35;
-}
+.item-list li::before { content: "·"; position: absolute; left: 0; color: #9CA3AF; font-size: 18px; line-height: 1.35; }
 
-.io-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-}
-.io-box {
-  background: #F9FAFB; border: 1px solid #E5E7EB;
-  border-radius: 6px; padding: 10px;
-}
-.io-box-label {
-  font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.05em;
-  margin-bottom: 5px;
-}
+.io-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.io-box { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; padding: 10px; }
+.io-box-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
 .io-box-in  .io-box-label { color: #0284C7; }
 .io-box-run .io-box-label { color: #7C3AED; }
 .io-box-out .io-box-label { color: #059669; }
-.io-box ul {
-  list-style: none; padding: 0;
-  font-size: 11px; color: #4B5563; line-height: 1.65;
-}
+.io-box ul { list-style: none; padding: 0; font-size: 11px; color: #4B5563; line-height: 1.65; }
 .io-box ul li { padding-left: 8px; position: relative; }
 .io-box ul li::before { content: "·"; position: absolute; left: 0; color: #9CA3AF; }
 
-.executor-box {
-  background: #F9FAFB; border: 1px solid #E5E7EB;
-  border-radius: 6px; padding: 10px 12px;
-}
+.executor-box { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; padding: 10px 12px; }
 .executor-reason { font-size: 12px; color: #6B7280; margin-top: 5px; line-height: 1.65; }
 
 .link-chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .link-chip {
-  font-size: 11px; padding: 3px 10px;
-  border-radius: 999px;
-  background: #EFF6FF; color: #1D4ED8;
-  border: 1px solid #BFDBFE;
+  font-size: 11px; padding: 3px 10px; border-radius: 999px;
+  background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE;
   cursor: pointer; transition: background 0.1s;
 }
 .link-chip:hover { background: #DBEAFE; }
@@ -257,6 +186,9 @@ svg.arrows-layer {
   <div class="legend-item">
     <div class="lpill" style="background:#EDE9FE;color:#5B21B6;">ai_agent</div>
   </div>
+  <div class="legend-item">
+    <div class="lpill" style="background:#FEF3C7;color:#92400E;">manual</div>
+  </div>
 </div>
 
 <div class="layout">
@@ -269,216 +201,361 @@ svg.arrows-layer {
 </div>
 
 <script>
-const units = {
+const units     = {
   "PBI情報取得": {
-    aim: "GitHub から PBI の本文・ラベル・マイルストーン等を取得する",
-    phase: "spec", core: true,
-    executor: { type: "script", reason: "gh CLI で一意に取得できる定型処理のため" },
-    job: ["gh CLI または GitHub REST API で指定 PBI のデータを取得する"],
-    rule: [
+    "aim": "GitHub から PBI の本文・ラベル・マイルストーン等を取得する",
+    "phase": "spec",
+    "core": true,
+    "job": [
+      "gh CLI または GitHub REST API で指定 PBI のデータを取得する"
+    ],
+    "rule": [
       "本文・ラベル・担当者・マイルストーンをすべて取得する",
       "取得失敗時はエラーを返し後続処理を止める"
     ],
-    io: {
-      in:  ["PBI 番号 または URL（GitHub Issue）"],
-      run: ["gh issue view <number> --json title,body,labels,milestone,assignees"],
-      out: ["PBI データ（JSON）"]
+    "io": {
+      "in": [
+        "PBI 番号 または URL（GitHub Issue）"
+      ],
+      "run": [
+        "gh issue view <number> --json title,body,labels,milestone,assignees"
+      ],
+      "out": [
+        "PBI データ（JSON）"
+      ]
     },
-    link: { up: [], down: ["記載内容妥当性評価"] }
-  },
-  "記載内容妥当性評価": {
-    aim: "概要・スコープ・受入基準が適切に記載されているかを評価する",
-    phase: "spec", core: true,
-    executor: { type: "ai_agent", reason: "自然言語の評価・推論が必要なため" },
-    job: [
-      "概要が目的と背景を含んでいるか確認する",
-      "スコープが明示されているか確認する",
-      "受入基準が具体的かつ検証可能な形で書かれているか確認する"
-    ],
-    rule: [
-      "各項目を独立して評価し、不足点を具体的に指摘する",
-      "「書いてあるが不十分」と「記載なし」を区別する"
-    ],
-    io: {
-      in:  ["PBI データ（JSON）"],
-      run: ["概要・スコープ・受入基準それぞれを評価基準に照らして評価する"],
-      out: ["各項目の評価結果（OK / NG / 不十分）と指摘事項"]
+    "executor": {
+      "type": "script",
+      "reason": "gh CLI で一意に取得できる定型処理のため"
     },
-    link: { up: ["PBI情報取得"], down: ["Ready判定"] }
+    "link": {
+      "up": [],
+      "down": [
+        "記載内容妥当性評価"
+      ]
+    }
   },
   "Ready判定": {
-    aim: "PBI が開発着手可能な状態かを判定する",
-    phase: "spec", core: true,
-    executor: { type: "ai_agent", reason: "複数評価結果の統合判断が必要なため" },
-    job: [
+    "aim": "PBI が開発着手可能な状態かを判定する",
+    "phase": "spec",
+    "core": true,
+    "job": [
       "妥当性評価結果をもとに Ready / Not Ready を判定する",
       "Not Ready の場合は何が揃えば Ready になるかを列挙する"
     ],
-    rule: [
+    "rule": [
       "概要・スコープ・受入基準がすべて OK でなければ Ready にしない",
       "不足事項は「何を・誰が・いつまでに」の粒度で示す"
     ],
-    io: {
-      in:  ["各項目の評価結果（OK / NG / 不十分）と指摘事項"],
-      run: ["評価結果を総合して Ready / Not Ready を判定する"],
-      out: ["Ready判定結果と、Not Ready の場合の必要事項リスト"]
+    "io": {
+      "in": [
+        "各項目の評価結果（OK / NG / 不十分）と指摘事項"
+      ],
+      "run": [
+        "評価結果を総合して Ready / Not Ready を判定する"
+      ],
+      "out": [
+        "Ready判定結果と、Not Ready の場合の必要事項リスト"
+      ]
     },
-    link: { up: ["記載内容妥当性評価"], down: ["ストーリーポイント算出"] }
+    "executor": {
+      "type": "ai_agent",
+      "reason": "複数評価結果の統合判断が必要なため"
+    },
+    "link": {
+      "up": [
+        "記載内容妥当性評価"
+      ],
+      "down": [
+        "ストーリーポイント算出"
+      ]
+    }
+  },
+  "スコープ別PBI分割": {
+    "aim": "独立して実装・テスト可能なスコープ単位にPBIを分割する",
+    "phase": "spec",
+    "core": true,
+    "job": [
+      "分割可能なスコープ境界を特定する（正常系/異常系・レイアウト/データ取得等）",
+      "スコープごとの実装内容を定義する",
+      "分割後の各PBIの依存関係を明記する"
+    ],
+    "rule": [
+      "各子PBIは単独でテスト可能なスコープを持つこと",
+      "正常系を先行PBIとして切り出すことを優先する",
+      "レイアウト作成とデータ取得は原則分割可能とみなす"
+    ],
+    "io": {
+      "in": [
+        "PBI データ（JSON）",
+        "実装スコープの説明"
+      ],
+      "run": [
+        "分割可能なスコープ境界を分析する",
+        "スコープごとの実装内容を定義する",
+        "子PBI間の依存関係を決定する"
+      ],
+      "out": [
+        "スコープ別子PBI一覧（タイトル・スコープ・依存順序）"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "スコープの境界判断と分割後の独立性評価には推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "分解パターン選択"
+      ],
+      "down": []
+    }
   },
   "ストーリーポイント算出": {
-    aim: "PBI の複雑度・不確実性・規模をもとに SP を算出する",
-    phase: "spec", core: true,
-    executor: { type: "ai_agent", reason: "複雑度・不確実性の推論が必要なため" },
-    job: [
+    "aim": "PBI の複雑度・不確実性・規模をもとに SP を算出する",
+    "phase": "spec",
+    "core": true,
+    "job": [
       "PBI 内容から実装の複雑度・不確実性・規模を評価する",
       "フィボナッチ数列（1/2/3/5/8/13）で SP を算出する",
       "算出根拠を添える"
     ],
-    rule: [
+    "rule": [
       "Ready 判定結果に依存せず算出する（Not Ready でも見積もれる範囲で算出する）",
       "SP はリリーススケジュール策定の前提となるため必須"
     ],
-    io: {
-      in:  ["PBI データ（JSON）", "各項目の評価結果"],
-      run: ["複雑度・不確実性・規模を評価して SP を算出する"],
-      out: ["SP 値と算出根拠"]
+    "io": {
+      "in": [
+        "PBI データ（JSON）",
+        "各項目の評価結果"
+      ],
+      "run": [
+        "複雑度・不確実性・規模を評価して SP を算出する"
+      ],
+      "out": [
+        "SP 値と算出根拠"
+      ]
     },
-    link: { up: ["Ready判定"], down: ["技術PBI分解要否判断"] }
+    "executor": {
+      "type": "ai_agent",
+      "reason": "複雑度・不確実性の推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "Ready判定"
+      ],
+      "down": [
+        "技術PBI分解要否判断"
+      ]
+    }
   },
-  "技術PBI分解要否判断": {
-    aim: "SP をもとに技術 PBI への細分化が必要かを判断し、必要な場合は分解案を提示する",
-    phase: "spec", core: true,
-    executor: { type: "ai_agent", reason: "SP と技術的複雑度を組み合わせた状況判断が必要なため" },
-    job: [
-      "SP に基づいて分解要否を判定する",
-      "分解が必要な場合は技術 PBI の分解案を提示する"
+  "スパイクPBI作成": {
+    "aim": "不確実性を排除してSP見積もりを正確化するためのスパイク（調査）PBIを生成する",
+    "phase": "spec",
+    "core": false,
+    "job": [
+      "不確実性の原因を特定する",
+      "スパイクで解消すべき調査項目を列挙する",
+      "タイムボックス（スパイクのSP上限）を設定する"
     ],
-    rule: [
-      "SP 3 以下：この unit をスキップする",
-      "SP 5 / 8：複数コンポーネント・レイヤーにまたがる場合は分解を推奨する",
-      "SP 13 以上：必ず分解する",
-      "分解の目安：実装が 1 スプリントに収まらない、または担当者が複数になるケース"
+    "rule": [
+      "スパイクPBIのSPは3以下を目安とする",
+      "調査項目は具体的な問いの形式で記述する（例：「〇〇は△△で実現できるか？」）",
+      "スパイク完了後に本PBIのリファインメントを再実施する旨を記述する"
     ],
-    io: {
-      in:  ["SP 値と算出根拠", "PBI データ（JSON）"],
-      run: ["SP 値に基づいて分解要否を判定する", "分解が必要な場合は技術 PBI の分解案を作成する"],
-      out: ["分解要否の判定", "分解が必要な場合の技術 PBI 案リスト"]
+    "io": {
+      "in": [
+        "PBI データ（JSON）",
+        "不確実性の説明",
+        "SP 値と見積もり根拠"
+      ],
+      "run": [
+        "不確実性の原因を分析する",
+        "調査項目リストを作成する",
+        "タイムボックスを設定する"
+      ],
+      "out": [
+        "スパイクPBIドラフト（タイトル・調査項目・タイムボックス）"
+      ]
     },
-    link: { up: ["ストーリーポイント算出"], down: ["分解パターン選択"] }
+    "executor": {
+      "type": "ai_agent",
+      "reason": "不確実性の原因特定と調査項目の具体化には推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "分解パターン選択"
+      ],
+      "down": []
+    }
+  },
+  "プラットフォーム別PBI分割": {
+    "aim": "複数プラットフォームにまたがるPBIをプラットフォーム単位の子PBIに分割する",
+    "phase": "spec",
+    "core": true,
+    "job": [
+      "関与するプラットフォーム（バックエンド / フロントエンド / アプリ）を特定する",
+      "プラットフォームごとの実装スコープを定義する",
+      "子PBI間の依存順序（BE → FE/アプリ）を記述する"
+    ],
+    "rule": [
+      "各子PBIは単一プラットフォームの実装のみを含む",
+      "バックエンドAPIを先行PBIとして切り出す場合はその旨を依存関係に明記する",
+      "単独ではスプリントゴールを達成できない旨を子PBIに記述する"
+    ],
+    "io": {
+      "in": [
+        "PBI データ（JSON）",
+        "関与プラットフォームのリスト"
+      ],
+      "run": [
+        "関与プラットフォームを列挙する",
+        "プラットフォームごとのスコープを定義する",
+        "子PBIの依存順序を決定する"
+      ],
+      "out": [
+        "プラットフォーム別子PBI一覧（タイトル・スコープ・依存順序）"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "プラットフォーム間の依存関係と実装スコープの分離には推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "分解パターン選択"
+      ],
+      "down": []
+    }
   },
   "分解パターン選択": {
-    aim: "分解が必要な PBI に対して、適用すべき分解パターンを 1 つ以上選択する",
-    phase: "spec", core: false,
-    executor: { type: "ai_agent", reason: "PBI の技術的特性と各パターンの適用条件を照合する推論が必要なため" },
-    job: [
-      "PBI の技術的特性（複数プラットフォーム・不確実性・スコープ複雑性）を評価する",
+    "aim": "分解が必要なPBIに対して、適用すべき分解パターンを1つ以上選択する",
+    "phase": "spec",
+    "core": false,
+    "job": [
+      "PBIの技術的特性（複数プラットフォーム・不確実性・スコープ複雑性）を評価する",
       "適用パターンをプラットフォーム分解 / スパイク / スコープ分割から選択する",
       "複数パターンが該当する場合はすべて列挙する"
     ],
-    rule: [
+    "rule": [
       "複数プラットフォーム（BE/FE/アプリ）にまたがる実装はプラットフォーム分解を選択",
       "不確実性が高くSP見積もりの根拠が薄い場合はスパイクを選択",
       "実装スコープが独立して分離可能（正常系/異常系・レイアウト/データ等）な場合はスコープ分割を選択",
       "パターンは複数選択可能"
     ],
-    io: {
-      in:  ["PBI データ（JSON）", "SP 値と技術的不確実性の説明"],
-      run: ["PBI の技術的特性を分析する", "各パターンの適用条件を評価する", "適用パターンリストを出力する"],
-      out: ["適用パターンリスト（プラットフォーム分解 / スパイク / スコープ分割）"]
+    "io": {
+      "in": [
+        "PBI データ（JSON）",
+        "SP 値と技術的不確実性の説明"
+      ],
+      "run": [
+        "PBIの技術的特性を分析する",
+        "各パターンの適用条件を評価する",
+        "適用パターンリストを出力する"
+      ],
+      "out": [
+        "適用パターンリスト（プラットフォーム分解 / スパイク / スコープ分割）"
+      ]
     },
-    link: { up: ["技術PBI分解要否判断"], down: ["プラットフォーム別PBI分割", "スパイクPBI作成", "スコープ別PBI分割"] }
+    "executor": {
+      "type": "ai_agent",
+      "reason": "PBIの技術的特性と各パターンの適用条件を照合する推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "技術PBI分解要否判断"
+      ],
+      "down": [
+        "プラットフォーム別PBI分割",
+        "スパイクPBI作成",
+        "スコープ別PBI分割"
+      ]
+    }
   },
-  "プラットフォーム別PBI分割": {
-    aim: "複数プラットフォームにまたがる PBI をプラットフォーム単位の子 PBI に分割する",
-    phase: "spec", core: true,
-    executor: { type: "ai_agent", reason: "プラットフォーム間の依存関係と実装スコープの分離には推論が必要なため" },
-    job: [
-      "関与するプラットフォーム（バックエンド / フロントエンド / アプリ）を特定する",
-      "プラットフォームごとの実装スコープを定義する",
-      "子PBI間の依存順序（BE → FE/アプリ）を記述する"
+  "技術PBI分解要否判断": {
+    "aim": "SP をもとに技術 PBI への細分化が必要かを判断し、必要な場合は分解案を提示する",
+    "phase": "spec",
+    "core": true,
+    "job": [
+      "SP に基づいて分解要否を判定する",
+      "分解が必要な場合は技術 PBI の分解案を提示する"
     ],
-    rule: [
-      "各子PBIは単一プラットフォームの実装のみを含む",
-      "バックエンドAPIを先行PBIとして切り出す場合はその旨を依存関係に明記する",
-      "単独ではスプリントゴールを達成できない旨を子PBIに記述する"
+    "rule": [
+      "SP 3 以下：この unit をスキップする",
+      "SP 5 / 8：複数コンポーネント・レイヤーにまたがる場合は分解を推奨する",
+      "SP 13 以上：必ず分解する",
+      "分解の目安：実装が 1 スプリントに収まらない、または担当者が複数になるケース"
     ],
-    io: {
-      in:  ["PBI データ（JSON）", "関与プラットフォームのリスト"],
-      run: ["関与プラットフォームを列挙する", "プラットフォームごとのスコープを定義する", "子PBIの依存順序を決定する"],
-      out: ["プラットフォーム別子PBI一覧（タイトル・スコープ・依存順序）"]
+    "io": {
+      "in": [
+        "SP 値と算出根拠",
+        "PBI データ（JSON）"
+      ],
+      "run": [
+        "SP 値に基づいて分解要否を判定する",
+        "分解が必要な場合は技術 PBI の分解案を作成する"
+      ],
+      "out": [
+        "分解要否の判定",
+        "分解が必要な場合の技術 PBI 案リスト"
+      ]
     },
-    link: { up: ["分解パターン選択"], down: [] }
+    "executor": {
+      "type": "ai_agent",
+      "reason": "SP と技術的複雑度を組み合わせた状況判断が必要なため"
+    },
+    "link": {
+      "up": [
+        "ストーリーポイント算出",
+        "記載内容妥当性評価"
+      ],
+      "down": [
+        "分解パターン選択"
+      ]
+    }
   },
-  "スパイクPBI作成": {
-    aim: "不確実性を排除してSP見積もりを正確化するためのスパイク（調査）PBI を生成する",
-    phase: "spec", core: false,
-    executor: { type: "ai_agent", reason: "不確実性の原因特定と調査項目の具体化には推論が必要なため" },
-    job: [
-      "不確実性の原因を特定する",
-      "スパイクで解消すべき調査項目を列挙する",
-      "タイムボックス（スパイクのSP上限）を設定する"
+  "記載内容妥当性評価": {
+    "aim": "概要・スコープ・受入基準が適切に記載されているかを評価する",
+    "phase": "spec",
+    "core": true,
+    "job": [
+      "概要が目的と背景を含んでいるか確認する",
+      "スコープが明示されているか確認する",
+      "受入基準が具体的かつ検証可能な形で書かれているか確認する"
     ],
-    rule: [
-      "スパイクPBIのSPは3以下を目安とする",
-      "調査項目は具体的な問いの形式で記述する（例：「〇〇は△△で実現できるか？」）",
-      "スパイク完了後に本PBIのリファインメントを再実施する旨を記述する"
+    "rule": [
+      "各項目を独立して評価し、不足点を具体的に指摘する",
+      "「書いてあるが不十分」と「記載なし」を区別する"
     ],
-    io: {
-      in:  ["PBI データ（JSON）", "不確実性の説明", "SP 値と見積もり根拠"],
-      run: ["不確実性の原因を分析する", "調査項目リストを作成する", "タイムボックスを設定する"],
-      out: ["スパイクPBIドラフト（タイトル・調査項目・タイムボックス）"]
+    "io": {
+      "in": [
+        "PBI データ（JSON）"
+      ],
+      "run": [
+        "概要・スコープ・受入基準それぞれを評価基準に照らして評価する"
+      ],
+      "out": [
+        "各項目の評価結果（OK / NG / 不十分）と指摘事項"
+      ]
     },
-    link: { up: ["分解パターン選択"], down: [] }
-  },
-  "スコープ別PBI分割": {
-    aim: "独立して実装・テスト可能なスコープ単位に PBI を分割する",
-    phase: "spec", core: true,
-    executor: { type: "ai_agent", reason: "スコープの境界判断と分割後の独立性評価には推論が必要なため" },
-    job: [
-      "分割可能なスコープ境界を特定する（正常系/異常系・レイアウト/データ取得等）",
-      "スコープごとの実装内容を定義する",
-      "分割後の各PBIの依存関係を明記する"
-    ],
-    rule: [
-      "各子PBIは単独でテスト可能なスコープを持つこと",
-      "正常系を先行PBIとして切り出すことを優先する",
-      "レイアウト作成とデータ取得は原則分割可能とみなす"
-    ],
-    io: {
-      in:  ["PBI データ（JSON）", "実装スコープの説明"],
-      run: ["分割可能なスコープ境界を分析する", "スコープごとの実装内容を定義する", "子PBI間の依存関係を決定する"],
-      out: ["スコープ別子PBI一覧（タイトル・スコープ・依存順序）"]
+    "executor": {
+      "type": "ai_agent",
+      "reason": "自然言語の評価・推論が必要なため"
     },
-    link: { up: ["分解パターン選択"], down: [] }
+    "link": {
+      "up": [
+        "PBI情報取得"
+      ],
+      "down": [
+        "Ready判定",
+        "技術PBI分解要否判断"
+      ]
+    }
   }
 };
+const positions = {"PBI情報取得": {"left": 220, "top": 24}, "記載内容妥当性評価": {"left": 220, "top": 134}, "Ready判定": {"left": 220, "top": 244}, "ストーリーポイント算出": {"left": 220, "top": 354}, "技術PBI分解要否判断": {"left": 220, "top": 464}, "分解パターン選択": {"left": 220, "top": 574}, "スコープ別PBI分割": {"left": 0, "top": 684}, "スパイクPBI作成": {"left": 220, "top": 684}, "プラットフォーム別PBI分割": {"left": 440, "top": 684}};
+const edges     = [["PBI情報取得", "記載内容妥当性評価"], ["Ready判定", "ストーリーポイント算出"], ["ストーリーポイント算出", "技術PBI分解要否判断"], ["分解パターン選択", "プラットフォーム別PBI分割"], ["分解パターン選択", "スパイクPBI作成"], ["分解パターン選択", "スコープ別PBI分割"], ["技術PBI分解要否判断", "分解パターン選択"], ["記載内容妥当性評価", "Ready判定"], ["記載内容妥当性評価", "技術PBI分解要否判断"]];
 
-// Node positions: { left, top } in px. Node size: 200x54.
 const W = 200, H = 54;
-const CX = 170; // main chain center-x
-const positions = {
-  "PBI情報取得":              { left: CX, top: 24 },
-  "記載内容妥当性評価":        { left: CX, top: 134 },
-  "Ready判定":                { left: CX, top: 244 },
-  "ストーリーポイント算出":    { left: CX, top: 354 },
-  "技術PBI分解要否判断":       { left: CX, top: 464 },
-  "分解パターン選択":          { left: CX, top: 574 },
-  "プラットフォーム別PBI分割": { left: 0,    top: 718 },
-  "スパイクPBI作成":           { left: CX,   top: 718 },
-  "スコープ別PBI分割":         { left: 340,  top: 718 },
-};
-
-const edges = [
-  ["PBI情報取得",           "記載内容妥当性評価"],
-  ["記載内容妥当性評価",    "Ready判定"],
-  ["Ready判定",             "ストーリーポイント算出"],
-  ["ストーリーポイント算出","技術PBI分解要否判断"],
-  ["技術PBI分解要否判断",   "分解パターン選択"],
-  ["分解パターン選択",      "プラットフォーム別PBI分割"],
-  ["分解パターン選択",      "スパイクPBI作成"],
-  ["分解パターン選択",      "スコープ別PBI分割"],
-];
-
 const canvas     = document.getElementById("canvas");
 const detailPane = document.getElementById("detail-panel");
 
@@ -486,7 +563,7 @@ const detailPane = document.getElementById("detail-panel");
 const NS  = "http://www.w3.org/2000/svg";
 const svg = document.createElementNS(NS, "svg");
 svg.classList.add("arrows-layer");
-svg.setAttribute("viewBox", "0 0 540 810");
+svg.setAttribute("viewBox", "0 0 640 762");
 
 const defs   = document.createElementNS(NS, "defs");
 const marker = document.createElementNS(NS, "marker");
@@ -499,6 +576,16 @@ poly.setAttribute("points", "0 0, 9 3.5, 0 7");
 poly.setAttribute("fill", "#94A3B8");
 marker.appendChild(poly);
 defs.appendChild(marker);
+const markerSkip = document.createElementNS(NS, "marker");
+Object.entries({
+  id: "arrowhead-skip", markerWidth: "9", markerHeight: "7",
+  refX: "8", refY: "3.5", orient: "auto"
+}).forEach(([k,v]) => markerSkip.setAttribute(k, v));
+const polySkip = document.createElementNS(NS, "polygon");
+polySkip.setAttribute("points", "0 0, 9 3.5, 0 7");
+polySkip.setAttribute("fill", "#F59E0B");
+markerSkip.appendChild(polySkip);
+defs.appendChild(markerSkip);
 svg.appendChild(defs);
 
 edges.forEach(([from, to]) => {
@@ -507,17 +594,23 @@ edges.forEach(([from, to]) => {
   const tx = tp.left + W / 2, ty = tp.top;
   const path = document.createElementNS(NS, "path");
   let d;
-  if (fx === tx) {
+  const sameCol = Math.abs(fx - tx) < 2;
+  const isSkip  = sameCol && (ty - fy) > 100;
+  if (sameCol && !isSkip) {
     d = `M ${fx} ${fy} L ${tx} ${ty - 1}`;
+  } else if (isSkip) {
+    const ox = fp.left - 40;
+    d = `M ${fx} ${fy} C ${ox} ${fy + 20} ${ox} ${ty - 20} ${tx} ${ty - 1}`;
   } else {
     const my = (fy + ty) / 2;
     d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty - 1}`;
   }
   path.setAttribute("d", d);
-  path.setAttribute("stroke", "#94A3B8");
-  path.setAttribute("stroke-width", "1.5");
+  path.setAttribute("stroke", isSkip ? "#F59E0B" : "#94A3B8");
+  path.setAttribute("stroke-width", isSkip ? "1.5" : "1.5");
+  path.setAttribute("stroke-dasharray", isSkip ? "5 3" : "none");
   path.setAttribute("fill", "none");
-  path.setAttribute("marker-end", "url(#arrowhead)");
+  path.setAttribute("marker-end", isSkip ? "url(#arrowhead-skip)" : "url(#arrowhead)");
   svg.appendChild(path);
 });
 
@@ -526,10 +619,11 @@ canvas.appendChild(svg);
 // ── Nodes ────────────────────────────────────────────────
 Object.entries(positions).forEach(([name, pos]) => {
   const u   = units[name];
+  if (!u) return;
   const div = document.createElement("div");
-  div.className   = `node core-${u.core}`;
-  div.style.left  = pos.left + "px";
-  div.style.top   = pos.top  + "px";
+  div.className    = `node core-${u.core}`;
+  div.style.left   = pos.left + "px";
+  div.style.top    = pos.top  + "px";
   div.dataset.name = name;
 
   div.innerHTML = `
@@ -540,8 +634,7 @@ Object.entries(positions).forEach(([name, pos]) => {
     </div>`;
 
   div.addEventListener("click", () => {
-    document.querySelectorAll(".node.selected")
-            .forEach(n => n.classList.remove("selected"));
+    document.querySelectorAll(".node.selected").forEach(n => n.classList.remove("selected"));
     div.classList.add("selected");
     renderDetail(name);
   });
@@ -552,10 +645,9 @@ Object.entries(positions).forEach(([name, pos]) => {
 // ── Detail panel ─────────────────────────────────────────
 function renderDetail(name) {
   const u = units[name];
-
   const chips = (arr) =>
     arr.length
-      ? arr.map(n => `<span class="link-chip" onclick="jumpTo('${n}')">${n}</span>`).join("")
+      ? arr.map(n => `<span class="link-chip" onclick="jumpTo('${n.replace(/'/g, "\'")}')">${n}</span>`).join("")
       : `<span class="link-empty">なし</span>`;
 
   detailPane.innerHTML = `

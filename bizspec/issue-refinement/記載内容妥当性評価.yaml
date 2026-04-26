@@ -12,6 +12,7 @@ link:
     - PBI情報取得
   down:
     - Ready判定
+    - 技術PBI分解要否判断
 phase: spec
 core: true
 io:

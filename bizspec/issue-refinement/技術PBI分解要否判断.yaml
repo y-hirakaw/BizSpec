@@ -11,6 +11,7 @@ rule:
 link:
   up:
     - ストーリーポイント算出
+    - 記載内容妥当性評価
   down:
     - 分解パターン選択
 phase: spec

@@ -2,6 +2,7 @@ import argparse
 import sys
 from bizspec.list_cmd import run_list
 from bizspec.validate import run_validate
+from bizspec.viz_cmd import run_viz
 
 
 def main() -> None:
@@ -22,12 +23,18 @@ def main() -> None:
     lst = sub.add_parser("list", help="unit 一覧を表示する")
     lst.add_argument("process", nargs="?", help="プロセス名（省略時は全プロセスを表示）")
 
+    # viz
+    viz = sub.add_parser("viz", help="フロー図 HTML を生成する")
+    viz.add_argument("process", nargs="?", help="プロセス名（省略時は全プロセスを出力）")
+
     args = parser.parse_args()
 
     if args.command == "validate":
         sys.exit(run_validate(args))
     elif args.command == "list":
         sys.exit(run_list(args))
+    elif args.command == "viz":
+        sys.exit(run_viz(args))
     else:
         parser.print_help()
         sys.exit(1)

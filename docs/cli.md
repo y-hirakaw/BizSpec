@@ -46,3 +46,20 @@ bizspec list issue-refinement   # 特定プロセスのみ表示
 ```
 
 unit名・core・executor.type をプロセスごとに一覧表示する。
+
+### `bizspec viz [process]`
+
+`bizspec/` 以下の unit から HTML フロー図を生成し、`bizspec/_viz/<プロセス名>.html` に出力する。
+
+```sh
+bizspec viz                    # 全プロセスを出力
+bizspec viz issue-refinement   # 特定プロセスのみ出力
+```
+
+**出力内容:**
+- 左ペイン: `link.up/down` をもとにした DAG フロー図（ノードをクリックで詳細表示）
+- 右ペイン: unit の詳細（aim / job / rule / io / executor / link）
+- ノード色: `core: true` = 青、`core: false` = グレー
+- バッジ: `executor.type`（script / ai_agent / manual）
+
+**終了コード:** `0` = OK、`1` = エラーあり
