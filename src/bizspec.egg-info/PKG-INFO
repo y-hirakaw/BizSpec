@@ -1,8 +1,0 @@
-Metadata-Version: 2.4
-Name: bizspec
-Version: 0.1.0
-Summary: BizSpec YAML tooling
-Requires-Python: >=3.9
-License-File: LICENSE
-Requires-Dist: PyYAML>=6.0
-Dynamic: license-file
