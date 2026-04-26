@@ -1,0 +1,13 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+src/bizspec/__init__.py
+src/bizspec/cli.py
+src/bizspec/validate.py
+src/bizspec.egg-info/PKG-INFO
+src/bizspec.egg-info/SOURCES.txt
+src/bizspec.egg-info/dependency_links.txt
+src/bizspec.egg-info/entry_points.txt
+src/bizspec.egg-info/requires.txt
+src/bizspec.egg-info/top_level.txt
