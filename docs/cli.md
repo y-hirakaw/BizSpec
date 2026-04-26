@@ -35,3 +35,14 @@ bizspec validate issue-refinement   # 特定プロセスのみ検証
 - `link.up/down` の双方向整合性
 
 **終了コード:** `0` = OK、`1` = エラーあり
+
+### `bizspec list [process]`
+
+`bizspec/` 以下の unit 一覧を表示する。
+
+```sh
+bizspec list                    # 全プロセスを表示
+bizspec list issue-refinement   # 特定プロセスのみ表示
+```
+
+unit名・core・executor.type をプロセスごとに一覧表示する。
