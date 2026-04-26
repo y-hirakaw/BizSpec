@@ -1,5 +1,6 @@
 import argparse
 import sys
+from bizspec.init_cmd import run_init
 from bizspec.list_cmd import run_list
 from bizspec.validate import run_validate
 from bizspec.viz_cmd import run_viz
@@ -15,6 +16,9 @@ def main() -> None:
     )
     sub = parser.add_subparsers(dest="command")
 
+    # init
+    sub.add_parser("init", help="Claude Code スキルをインストールする")
+
     # validate
     val = sub.add_parser("validate", help="BizSpec YAML を検証する")
     val.add_argument("process", nargs="?", help="プロセス名（省略時は全プロセスを検証）")
@@ -29,7 +33,9 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    if args.command == "validate":
+    if args.command == "init":
+        sys.exit(run_init(args))
+    elif args.command == "validate":
         sys.exit(run_validate(args))
     elif args.command == "list":
         sys.exit(run_list(args))
