@@ -7,6 +7,7 @@ A tool for decomposing business processes into small, executable units (BizSpec 
 ## What it does
 
 - **Decompose** — Break a business process into minimum units using the `/bizspec-refine` Claude Code skill
+- **Run** — Execute a process unit by unit in topological order using the `/bizspec-run` Claude Code skill
 - **Validate** — Check BizSpec YAML files for schema errors and link consistency (`bizspec validate`)
 - **List** — Show a unit summary table for a process (`bizspec list`)
 - **Visualize** — Generate a clickable HTML flow diagram from the YAML link graph (`bizspec viz`)
@@ -85,8 +86,9 @@ bizspec/
   _viz/                 # generated HTML diagrams (bizspec viz output)
 .claude/skills/
   bizspec-refine/       # Claude Code skill for decomposing processes into units
+  bizspec-run/          # Claude Code skill for executing processes unit by unit
 docs/
-  cli.md                # CLI command reference
+  cli.md                # CLI and skill reference
 ```
 
 ---
@@ -100,6 +102,7 @@ docs/
 ## できること
 
 - **分解** — `/bizspec-refine` スキル（Claude Code）を使って業務プロセスを最小 unit に分解する
+- **実行** — `/bizspec-run` スキル（Claude Code）を使ってプロセスをトポロジカル順に unit 単位で実行する
 - **検証** — BizSpec YAML のスキーマエラーや link の整合性チェック（`bizspec validate`）
 - **一覧表示** — プロセスの unit 一覧をテーブル表示（`bizspec list`）
 - **可視化** — YAML の link グラフからクリッカブルな HTML フロー図を生成（`bizspec viz`）
@@ -178,6 +181,7 @@ bizspec/
   _viz/                 # 生成された HTML 図（bizspec viz の出力先）
 .claude/skills/
   bizspec-refine/       # プロセスを unit に分解する Claude Code スキル
+  bizspec-run/          # プロセスを unit 単位で実行する Claude Code スキル
 docs/
-  cli.md                # CLI コマンドリファレンス
+  cli.md                # CLI・スキルリファレンス
 ```
