@@ -14,6 +14,7 @@ def test_expected_skills_present():
     names = {d.name for d in init_cmd._SKILLS_SRC.iterdir() if d.is_dir()}
     assert "bizspec-refine" in names
     assert "bizspec-run" in names
+    assert "bizspec-refactor" in names
 
 
 def test_all_skills_have_skill_md():
