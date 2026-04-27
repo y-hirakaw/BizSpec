@@ -30,12 +30,7 @@ BizSpec_要求仕様.md              # 要件定義書
 
 Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx` と揃える）。
 
-## 開発フェーズと優先順位
-
-1. **BizSpec Skills（最優先）** — AIエージェントが業務を「分解・仕様化」するためのプロンプトセット・指示セット
-2. **BizSpec CLI** — BizSpec YAML のバリデーションおよび `takt` フォーマットへの変換
-
-### CLI コマンド
+## CLI コマンド
 
 | コマンド | 概要 |
 |---------|------|
