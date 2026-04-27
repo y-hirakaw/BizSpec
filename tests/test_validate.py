@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import pytest
-from bizspec.validate import _check_file, _check_process
+from bizspec.validate import _check_file, _check_process, _detect_yaml_hint
 
 
 # ── ヘルパー ──────────────────────────────────────────────────────────────────
@@ -131,6 +131,53 @@ class TestCheckFile:
         assert any(e.field == "parse" for e in errors)
         assert data is None
 
+    def test_parse_error_shows_line_number(self, tmp_path):
+        # ダブルクォート後に文字が続くと YAML パースエラー → 行番号が表示される
+        path = tmp_path / "TestUnit.yaml"
+        path.write_text('rule:\n  - "02.概要設計" フォルダ\n', encoding="utf-8")
+        errors, _ = _check_file(path)
+        assert any("行" in e.message for e in errors if e.field == "parse")
+
+    def test_parse_error_colon_hint(self, tmp_path):
+        # ダブルクォート後に文字が続く行で `: ` も含む場合 → コロンのヒントが出る
+        path = tmp_path / "TestUnit.yaml"
+        path.write_text('rule:\n  - 対象シート: "考慮漏れ"（Backend用）\n', encoding="utf-8")
+        errors, _ = _check_file(path)
+        parse_errors = [e for e in errors if e.field == "parse"]
+        assert parse_errors
+        assert "ヒント" in parse_errors[0].message
+
+    def test_parse_error_doublequote_hint(self, tmp_path):
+        path = tmp_path / "TestUnit.yaml"
+        path.write_text('rule:\n  - "02.概要設計" フォルダ\n', encoding="utf-8")
+        errors, _ = _check_file(path)
+        parse_errors = [e for e in errors if e.field == "parse"]
+        assert parse_errors
+        assert "ヒント" in parse_errors[0].message
+
+
+# ── _detect_yaml_hint ─────────────────────────────────────────────────────────
+
+class TestDetectYamlHint:
+    def test_colon_space_in_list_item(self):
+        hint = _detect_yaml_hint("  - 対象シート: Backend用")
+        assert hint != ""
+        assert "シングルクォート" in hint
+
+    def test_doublequote_followed_by_text(self):
+        hint = _detect_yaml_hint('  - "02.概要設計" フォルダ')
+        assert hint != ""
+        assert "シングルクォート" in hint
+
+    def test_normal_list_item_no_hint(self):
+        assert _detect_yaml_hint("  - 普通のテキスト") == ""
+
+    def test_non_list_line_no_hint(self):
+        assert _detect_yaml_hint("unit: TestUnit") == ""
+
+    def test_properly_quoted_no_hint(self):
+        assert _detect_yaml_hint("  - '対象: 値'") == ""
+
 
 # ── _check_process ────────────────────────────────────────────────────────────
 
@@ -170,4 +217,9 @@ class TestCheckProcess:
         write_unit(tmp_path, "UnitA", make_unit("UnitA", down=["UnitB", "UnitC"]))
         write_unit(tmp_path, "UnitB", make_unit("UnitB", up=["UnitA"]))
         write_unit(tmp_path, "UnitC", make_unit("UnitC", up=["UnitA"]))
+        assert _check_process(tmp_path) == []
+
+    def test_skips_underscore_yaml(self, tmp_path):
+        write_unit(tmp_path, "UnitA", make_unit("UnitA"))
+        (tmp_path / "_process.yaml").write_text("name: テスト\n", encoding="utf-8")
         assert _check_process(tmp_path) == []

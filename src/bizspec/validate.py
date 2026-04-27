@@ -19,6 +19,47 @@ class VError:
     message: str
 
 
+def _detect_yaml_hint(line: str) -> str:
+    """よくある YAML ミスパターンを検出してヒントを返す。なければ空文字。"""
+    stripped = line.strip()
+    if not stripped.startswith("- "):
+        return ""
+    item = stripped[2:].lstrip()
+    # すでにシングルクォートで正しく囲まれている → ヒント不要
+    if item.startswith("'") and item.endswith("'") and len(item) >= 2:
+        return ""
+    if ": " in item or item.endswith(":"):
+        return (
+            f"リスト要素に `: ` が含まれています。"
+            f"シングルクォートで全体を囲んでください → - '{item}'"
+        )
+    if item.startswith('"'):
+        close = item.find('"', 1)
+        if close != -1 and close < len(item) - 1:
+            return (
+                f"ダブルクォートで囲んだ値の後ろに文字列が続いています。"
+                f"シングルクォートで全体を囲んでください → - '{item}'"
+            )
+    return ""
+
+
+def _yaml_parse_message(path: Path, exc: yaml.YAMLError) -> str:
+    """YAMLError に行情報とヒントを付加したメッセージを組み立てる。"""
+    mark = getattr(exc, "problem_mark", None)
+    if mark is None:
+        return f"YAML パースエラー: {exc}"
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return f"YAML パースエラー: {exc}"
+
+    lineno = mark.line  # 0-indexed
+    line_text = lines[lineno].rstrip() if lineno < len(lines) else ""
+    base = f"YAML パースエラー（{lineno + 1}行目）: {line_text}"
+    hint = _detect_yaml_hint(line_text)
+    return f"{base}  ヒント: {hint}" if hint else base
+
+
 def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
     """単一ファイルを検証する。(errors, data) を返す。"""
     errors: list[VError] = []
@@ -26,7 +67,7 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
     try:
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
-        return [VError(path, "parse", f"YAML パースエラー: {e}")], None
+        return [VError(path, "parse", _yaml_parse_message(path, e))], None
 
     if not isinstance(data, dict):
         return [VError(path, "format", "トップレベルはマッピングである必要があります")], None
@@ -97,7 +138,7 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
 
 
 def _check_process(process_dir: Path) -> list[VError]:
-    yaml_files = sorted(process_dir.glob("*.yaml"))
+    yaml_files = sorted(p for p in process_dir.glob("*.yaml") if not p.name.startswith("_"))
     if not yaml_files:
         return []
 
