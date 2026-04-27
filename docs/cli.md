@@ -18,6 +18,26 @@ export PATH="$PATH:/Users/<your-username>/Library/Python/3.9/bin"
 
 ## コマンドリファレンス
 
+### `bizspec init`
+
+Claude Code スキルを `.claude/skills/` にインストールする。実行すると対話形式でインストール先を選択できる。
+
+```sh
+bizspec init
+```
+
+```
+スキルのインストール先を選択してください:
+  [1] ローカル（このプロジェクトの .claude/skills/）
+  [2] グローバル（~/.claude/skills/）
+選択 [1]:
+```
+
+- そのままエンター（または `1`）→ カレントディレクトリの `.claude/skills/` にインストール
+- `2` → `~/.claude/skills/` にインストール（全プロジェクトで使用可能）
+
+インストールされるスキル: `/bizspec-refine`、`/bizspec-run`
+
 ### `bizspec validate [process]`
 
 `bizspec/` 以下の BizSpec YAML を検証する。
@@ -49,16 +69,30 @@ unit名・core・executor.type をプロセスごとに一覧表示する。
 
 ### `bizspec viz [process]`
 
-`bizspec/` 以下の unit から HTML フロー図を生成し、`bizspec/_viz/<プロセス名>.html` に出力する。
+`bizspec/` 以下の unit から HTML フロー図を生成する。
 
 ```sh
-bizspec viz                    # 全プロセスを出力
+bizspec viz                    # 全プロセスを出力（index.html も生成）
 bizspec viz issue-refinement   # 特定プロセスのみ出力
 ```
 
-**出力内容:**
-- 左ペイン: `link.up/down` をもとにした DAG フロー図（ノードをクリックで詳細表示）
+**引数なし（全プロセス）の出力:**
+
+| ファイル | 内容 |
+|---------|------|
+| `bizspec/_viz/index.html` | 全プロセス統合ビュー |
+| `bizspec/_viz/<プロセス名>.html` | プロセスごとの個別フロー図 |
+
+**`index.html` の構成:**
+- サイドバー: プロセス一覧（unit数バッジ付き）
+- デフォルト表示: 全プロセスの俯瞰カード（unit数・phase・executor内訳・core率）
+- カードをクリック: そのプロセスのフロー図 + unit 詳細パネルに切り替わる
+- 「← 一覧」ボタンで俯瞰に戻る
+
+**フロー図の共通機能:**
+- 左ペイン: `link.up/down` をもとにした DAG フロー図
 - 右ペイン: unit の詳細（aim / job / rule / io / executor / link）
+- ノードをクリックすると詳細表示 + 接続する矢印がハイライト（青）、無関係な矢印はフェード
 - ノード色: `core: true` = 青、`core: false` = グレー
 - バッジ: `executor.type`（script / ai_agent / manual）
 

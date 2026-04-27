@@ -6,13 +6,16 @@ A tool for decomposing business processes into small, executable units (BizSpec 
 
 ## What it does
 
+- **Install skills** — Install Claude Code skills into `.claude/skills/` with an interactive prompt (`bizspec init`)
 - **Decompose** — Break a business process into minimum units using the `/bizspec-refine` Claude Code skill
 - **Run** — Execute a process unit by unit in topological order using the `/bizspec-run` Claude Code skill
 - **Validate** — Check BizSpec YAML files for schema errors and link consistency (`bizspec validate`)
 - **List** — Show a unit summary table for a process (`bizspec list`)
 - **Visualize** — Generate a clickable HTML flow diagram from the YAML link graph (`bizspec viz`)
 
-The `bizspec/issue-refinement/` directory contains a worked example: a PBI refinement process decomposed into 9 units.
+The `bizspec/` directory contains two worked examples:
+- `issue-refinement/` — a PBI refinement process decomposed into 9 units
+- `pr-review/` — a PR review process with a branch-and-merge flow (4 units)
 
 ## BizSpec YAML format
 
@@ -66,6 +69,9 @@ export PATH="$PATH:/Users/<your-username>/Library/Python/3.9/bin"
 ## CLI usage
 
 ```sh
+# Install Claude Code skills (interactive: local or global)
+bizspec init
+
 bizspec validate                    # validate all processes
 bizspec validate issue-refinement   # validate one process
 
@@ -73,9 +79,11 @@ bizspec list                        # list all units
 bizspec list issue-refinement       # list units in one process
 
 bizspec viz                         # generate HTML diagrams for all processes
+                                    # also generates bizspec/_viz/index.html (unified view)
 bizspec viz issue-refinement        # generate HTML diagram for one process
-# output: bizspec/_viz/issue-refinement.html
 ```
+
+The unified `index.html` shows all processes as overview cards and lets you drill into each process flow. Clicking a node highlights its connected edges.
 
 ## Repository layout
 
@@ -84,9 +92,13 @@ bizspec/
   <process-name>/       # one directory per process
     <unit-name>.yaml    # one file per unit
   _viz/                 # generated HTML diagrams (bizspec viz output)
-.claude/skills/
-  bizspec-refine/       # Claude Code skill for decomposing processes into units
-  bizspec-run/          # Claude Code skill for executing processes unit by unit
+    index.html          # unified view of all processes
+src/bizspec/skills/     # skills bundled with the package (copied by bizspec init)
+  bizspec-refine/
+  bizspec-run/
+.claude/skills/         # skills installed for use in Claude Code
+  bizspec-refine/
+  bizspec-run/
 docs/
   cli.md                # CLI and skill reference
 ```
@@ -101,13 +113,16 @@ docs/
 
 ## できること
 
+- **スキルのインストール** — 対話形式で Claude Code スキルを `.claude/skills/` に配置する（`bizspec init`）
 - **分解** — `/bizspec-refine` スキル（Claude Code）を使って業務プロセスを最小 unit に分解する
 - **実行** — `/bizspec-run` スキル（Claude Code）を使ってプロセスをトポロジカル順に unit 単位で実行する
 - **検証** — BizSpec YAML のスキーマエラーや link の整合性チェック（`bizspec validate`）
 - **一覧表示** — プロセスの unit 一覧をテーブル表示（`bizspec list`）
 - **可視化** — YAML の link グラフからクリッカブルな HTML フロー図を生成（`bizspec viz`）
 
-`bizspec/issue-refinement/` には動作例として PBI リファインメントプロセスを 9 unit に分解したサンプルが入っています。
+`bizspec/` には 2 つのサンプルが入っています：
+- `issue-refinement/` — PBI リファインメントプロセスを 9 unit に分解した例
+- `pr-review/` — 分岐と合流を含む PR レビュープロセス（4 unit）
 
 ## BizSpec YAML フォーマット
 
@@ -161,6 +176,9 @@ export PATH="$PATH:/Users/<your-username>/Library/Python/3.9/bin"
 ## CLI の使い方
 
 ```sh
+# Claude Code スキルをインストール（対話形式: ローカル or グローバルを選択）
+bizspec init
+
 bizspec validate                    # 全プロセスを検証
 bizspec validate issue-refinement   # 特定プロセスのみ検証
 
@@ -168,9 +186,11 @@ bizspec list                        # 全 unit を一覧表示
 bizspec list issue-refinement       # 特定プロセスの unit を一覧表示
 
 bizspec viz                         # 全プロセスの HTML 図を生成
+                                    # bizspec/_viz/index.html（統合ビュー）も生成
 bizspec viz issue-refinement        # 特定プロセスの HTML 図を生成
-# 出力先: bizspec/_viz/issue-refinement.html
 ```
+
+`index.html` は全プロセスを俯瞰カードで一覧表示し、クリックで各プロセスのフロー図に遷移できます。ノードをクリックすると接続する矢印がハイライトされます。
 
 ## ディレクトリ構成
 
@@ -179,7 +199,11 @@ bizspec/
   <プロセス名>/          # プロセスごとにフォルダを切る
     <unit名>.yaml       # unit ごとに 1 ファイル
   _viz/                 # 生成された HTML 図（bizspec viz の出力先）
-.claude/skills/
+    index.html          # 全プロセス統合ビュー
+src/bizspec/skills/     # パッケージ同梱スキル（bizspec init のコピー元）
+  bizspec-refine/
+  bizspec-run/
+.claude/skills/         # Claude Code で使用するスキル
   bizspec-refine/       # プロセスを unit に分解する Claude Code スキル
   bizspec-run/          # プロセスを unit 単位で実行する Claude Code スキル
 docs/

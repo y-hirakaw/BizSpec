@@ -13,11 +13,16 @@ BizSpec は、既存の業務プロセスを AI-Native 形式にリファクタ�
 ```
 .claude/skills/
   bizspec-refine/SKILL.md       # /bizspec-refine スキル（プロセス分解 → YAML生成・更新）
+  bizspec-run/SKILL.md          # /bizspec-run スキル（プロセスをunit単位で実行）
 bizspec/
   <プロセス名>/                  # プロセスごとにフォルダを切る
     <unit名>.yaml               # unit ごとに1ファイル
   _viz/                         # 生成物（bizspec viz の HTML 出力先）
+    index.html                  # 全プロセス統合ビュー（引数なし時のみ生成）
     <プロセス名>.html
+src/bizspec/skills/             # パッケージ同梱スキル（bizspec init でコピー元になる）
+  bizspec-refine/SKILL.md
+  bizspec-run/SKILL.md
 BizSpec_要求仕様.md              # 要件定義書
 ```
 
@@ -28,13 +33,14 @@ Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx
 1. **BizSpec Skills（最優先）** — AIエージェントが業務を「分解・仕様化」するためのプロンプトセット・指示セット
 2. **BizSpec CLI** — BizSpec YAML のバリデーションおよび `takt` フォーマットへの変換
 
-### CLI コマンド（予定）
+### CLI コマンド
 
 | コマンド | 概要 |
 |---------|------|
+| `bizspec init` | Claude Code スキルをインタラクティブに `.claude/skills/` へインストールする（ローカル / グローバル選択） |
 | `bizspec list` | `bizspec/` 内の unit 一覧を表示（unit名・core・executor.type） |
 | `bizspec validate` | BizSpec YAML のスキーマ検証 |
-| `bizspec viz` | `link.up/down` を元にフロー図を生成し、unit 詳細を参照できる HTML を `bizspec/_viz/<プロセス名>.html` に出力 |
+| `bizspec viz` | `link.up/down` を元にフロー図を生成する。引数なし時は全プロセス統合ビュー（`index.html`）も生成 |
 
 ## BizSpec YAML データ構造 (v1)
 
@@ -65,8 +71,9 @@ executor:
 
 - **Python:** macOS 標準搭載の Python 3.9 を対象とする（3.9 で動く構文・APIに限定）
 - **依存インストール:** `python3 -m pip install -e ".[dev]"`
-- **テスト実行:** `python3 -m pytest tests/ -v`
+- **テスト実行:** `python3 -m pytest tests/ -v`（または `uv run --with pytest pytest tests/ -v`）
 - **動作確認:** `bizspec validate`（PATH が通っていること）
+- **CI:** GitHub Actions（`.github/workflows/test.yml`）— main への push と PR で自動テスト
 
 ## Skills の設計方針
 
