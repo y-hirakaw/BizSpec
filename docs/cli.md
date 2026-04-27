@@ -98,6 +98,7 @@ bizspec validate issue-refinement   # 特定プロセスのみ検証
 - `executor.type` が `script` / `ai_agent` / `manual` のいずれかであること
 - `link.up/down` の参照先ファイルが存在すること
 - `link.up/down` の双方向整合性
+- `effort.duration`（設定時）が 0 より大きい数値（時間単位）であること
 - `automation.difficulty`（設定時）が `low` / `medium` / `high` のいずれかであること
 - `automation.status`（設定時）が `manual` / `partially-automated` / `automated` のいずれかであること
 
@@ -138,7 +139,7 @@ bizspec viz issue-refinement   # 特定プロセスのみ出力
 
 **フロー図の共通機能:**
 - 左ペイン: `link.up/down` をもとにした DAG フロー図
-- 右ペイン: unit の詳細（aim / job / rule / io / executor / link）
+- 右ペイン: unit の詳細（aim / job / rule / io / executor / effort・automation（設定時）/ link）
 - ノードをクリックすると詳細表示 + 接続する矢印がハイライト（青）、無関係な矢印はフェード
 - ノード色: `core: true` = 青、`core: false` = グレー
 - バッジ: `executor.type`（script / ai_agent / manual）

@@ -10,6 +10,8 @@ A tool for decomposing business processes into small, executable units (BizSpec 
 - **Decompose** — Break a business process into minimum units using the `/bizspec-refine` Claude Code skill
 - **Run** — Execute a process unit by unit in topological order using the `/bizspec-run` Claude Code skill
 - **Refactor** — Analyze processes cross-process and propose refactoring with the `/bizspec-refactor` Claude Code skill
+- **Scaffold** — Generate a skeleton YAML for a new unit (`bizspec new`)
+- **Search** — Find units by keyword across all processes (`bizspec search`)
 - **Validate** — Check BizSpec YAML files for schema errors and link consistency (`bizspec validate`)
 - **List** — Show a unit summary table for a process (`bizspec list`)
 - **Visualize** — Generate a clickable HTML flow diagram from the YAML link graph (`bizspec viz`)
@@ -46,9 +48,15 @@ io:
 executor:
   type: ai_agent
   reason: Requires synthesis of multiple evaluation results
+# optional fields
+effort:
+  duration: 0.5         # hours per execution (0.5 = 30 min)
+automation:
+  difficulty: medium    # low / medium / high
+  status: manual        # manual / partially-automated / automated
 ```
 
-`core: true` means the unit is directly required to reach the process goal. `link.up/down` represents execution order, not data dependency.
+`core: true` means the unit is directly required to reach the process goal. `link.up/down` represents execution order, not data dependency. The `effort` and `automation` fields are optional; when present they appear in `bizspec list` columns and the `bizspec viz` detail panel.
 
 ## Installation
 
@@ -76,6 +84,14 @@ pyenv rehash
 ```sh
 # Install Claude Code skills (interactive: local or global)
 bizspec init
+
+# Scaffold a new unit YAML
+bizspec new issue-refinement ReadinessCheck
+bizspec new issue-refinement ReadinessCheck --executor ai_agent --phase spec --core true
+
+# Search across all processes
+bizspec search "Google Drive"
+bizspec search "PdM" --field aim job
 
 bizspec validate                    # validate all processes
 bizspec validate issue-refinement   # validate one process
@@ -124,6 +140,8 @@ Claude Code スキルと CLI を組み合わせて、業務プロセスをスク
 - **分解** — `/bizspec-refine` スキル（Claude Code）を使って業務プロセスを最小 unit に分解する
 - **実行** — `/bizspec-run` スキル（Claude Code）を使ってプロセスをトポロジカル順に unit 単位で実行する
 - **リファクタリング** — `/bizspec-refactor` スキル（Claude Code）を使って複数プロセスを横断分析し、リファクタリング提案を行う
+- **スケルトン生成** — 新規 unit のスケルトン YAML を生成する（`bizspec new`）
+- **検索** — 全プロセス横断でキーワード検索する（`bizspec search`）
 - **検証** — BizSpec YAML のスキーマエラーや link の整合性チェック（`bizspec validate`）
 - **一覧表示** — プロセスの unit 一覧をテーブル表示（`bizspec list`）
 - **可視化** — YAML の link グラフからクリッカブルな HTML フロー図を生成（`bizspec viz`）
@@ -160,9 +178,15 @@ io:
 executor:
   type: ai_agent
   reason: 複数評価結果の統合判断が必要なため
+# オプションフィールド
+effort:
+  duration: 0.5         # 1回あたりの所要時間（単位: 時間。30分=0.5）
+automation:
+  difficulty: medium    # low / medium / high
+  status: manual        # manual / partially-automated / automated
 ```
 
-`core: true` はそのプロセスのゴール達成に直接必要な unit であることを示します。`link.up/down` はデータの依存関係ではなく実行順序を表します。
+`core: true` はそのプロセスのゴール達成に直接必要な unit であることを示します。`link.up/down` はデータの依存関係ではなく実行順序を表します。`effort` / `automation` は省略可能なオプションフィールドで、設定すると `bizspec list` の列と `bizspec viz` の詳細パネルに表示されます。
 
 ## インストール
 
@@ -190,6 +214,14 @@ pyenv rehash
 ```sh
 # Claude Code スキルをインストール（対話形式: ローカル or グローバルを選択）
 bizspec init
+
+# 新規 unit のスケルトン YAML を生成
+bizspec new issue-refinement Ready判定
+bizspec new issue-refinement Ready判定 --executor ai_agent --phase spec --core true
+
+# 全プロセス横断でキーワード検索
+bizspec search "Google Drive"
+bizspec search "PdM" --field aim job
 
 bizspec validate                    # 全プロセスを検証
 bizspec validate issue-refinement   # 特定プロセスのみ検証
