@@ -9,6 +9,7 @@ A tool for decomposing business processes into small, executable units (BizSpec 
 - **Install skills** — Install Claude Code skills into `.claude/skills/` with an interactive prompt (`bizspec init`)
 - **Decompose** — Break a business process into minimum units using the `/bizspec-refine` Claude Code skill
 - **Run** — Execute a process unit by unit in topological order using the `/bizspec-run` Claude Code skill
+- **Refactor** — Analyze processes cross-process and propose refactoring with the `/bizspec-refactor` Claude Code skill
 - **Validate** — Check BizSpec YAML files for schema errors and link consistency (`bizspec validate`)
 - **List** — Show a unit summary table for a process (`bizspec list`)
 - **Visualize** — Generate a clickable HTML flow diagram from the YAML link graph (`bizspec viz`)
@@ -96,9 +97,11 @@ bizspec/
 src/bizspec/skills/     # skills bundled with the package (copied by bizspec init)
   bizspec-refine/
   bizspec-run/
+  bizspec-refactor/
 .claude/skills/         # skills installed for use in Claude Code
   bizspec-refine/
   bizspec-run/
+  bizspec-refactor/
 docs/
   cli.md                # CLI and skill reference
 ```
@@ -116,6 +119,7 @@ Claude Code スキルと CLI を組み合わせて、業務プロセスをスク
 - **スキルのインストール** — 対話形式で Claude Code スキルを `.claude/skills/` に配置する（`bizspec init`）
 - **分解** — `/bizspec-refine` スキル（Claude Code）を使って業務プロセスを最小 unit に分解する
 - **実行** — `/bizspec-run` スキル（Claude Code）を使ってプロセスをトポロジカル順に unit 単位で実行する
+- **リファクタリング** — `/bizspec-refactor` スキル（Claude Code）を使って複数プロセスを横断分析し、リファクタリング提案を行う
 - **検証** — BizSpec YAML のスキーマエラーや link の整合性チェック（`bizspec validate`）
 - **一覧表示** — プロセスの unit 一覧をテーブル表示（`bizspec list`）
 - **可視化** — YAML の link グラフからクリッカブルな HTML フロー図を生成（`bizspec viz`）
@@ -203,9 +207,11 @@ bizspec/
 src/bizspec/skills/     # パッケージ同梱スキル（bizspec init のコピー元）
   bizspec-refine/
   bizspec-run/
+  bizspec-refactor/
 .claude/skills/         # Claude Code で使用するスキル
   bizspec-refine/       # プロセスを unit に分解する Claude Code スキル
   bizspec-run/          # プロセスを unit 単位で実行する Claude Code スキル
+  bizspec-refactor/     # 複数プロセスを横断してリファクタリング提案を行う Claude Code スキル
 docs/
   cli.md                # CLI・スキルリファレンス
 ```
