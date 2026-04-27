@@ -2,7 +2,7 @@
 
 > **Work in progress.** This project is at an early, experimental stage. APIs and file formats may change.
 
-A tool for decomposing business processes into small, executable units (BizSpec YAML). Each unit describes what to do, who executes it (script / AI agent / human), and how it connects to other units. The goal is to make implicit workflows explicit enough that an AI agent or script can run them without ambiguity.
+A tool for decomposing business processes into small, executable units (BizSpec YAML), using Claude Code skills and a CLI together. Each unit describes what to do, who executes it (script / AI agent / human), and how it connects to other units. The goal is to make implicit workflows explicit enough that an AI agent or script can run them without ambiguity.
 
 ## What it does
 
@@ -109,7 +109,7 @@ docs/
 
 > **試作中です。** 初期の実験的な段階にあります。API やファイルフォーマットは変更される可能性があります。
 
-業務プロセスを、スクリプトや AI エージェントが迷わず実行できる最小単位（BizSpec YAML）へ分解するためのツールです。各 unit は「何をするか」「誰が実行するか（script / AI エージェント / 人間）」「前後の unit との接続」を記述します。暗黙的なワークフローを、AI エージェントやスクリプトが曖昧さなく動かせる形に明文化することを目指しています。
+Claude Code スキルと CLI を組み合わせて、業務プロセスをスクリプトや AI エージェントが迷わず実行できる最小単位（BizSpec YAML）へ分解するためのツールです。各 unit は「何をするか」「誰が実行するか（script / AI エージェント / 人間）」「前後の unit との接続」を記述します。暗黙的なワークフローを、AI エージェントやスクリプトが曖昧さなく動かせる形に明文化することを目指しています。
 
 ## できること
 
