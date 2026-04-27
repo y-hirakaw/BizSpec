@@ -7,6 +7,8 @@ from bizspec.viz_cmd import (
     _compute_layout,
     _build_edges,
     _generate_html,
+    _generate_index_html,
+    _process_stats,
     run_viz,
     NODE_W, NODE_H, H_GAP, V_GAP,
 )
@@ -227,3 +229,89 @@ class TestRunViz:
 
         result = run_viz(FakeArgs(root=str(tmp_path)))
         assert result == 1  # no processable dirs → WARNING + return 1
+
+
+# ── _process_stats ────────────────────────────────────────────────────────────
+
+class TestProcessStats:
+    def test_counts_executors(self):
+        units = [
+            make_unit("A", executor_type="script"),
+            make_unit("B", executor_type="ai_agent"),
+            make_unit("C", executor_type="ai_agent"),
+        ]
+        s = _process_stats(units)
+        assert s["executor"]["script"] == 1
+        assert s["executor"]["ai_agent"] == 2
+        assert s["executor"]["manual"] == 0
+
+    def test_counts_core(self):
+        units = [make_unit("A", core=True), make_unit("B", core=False)]
+        s = _process_stats(units)
+        assert s["core_count"] == 1
+        assert s["unit_count"] == 2
+
+    def test_collects_phases(self):
+        u1 = {**make_unit("A"), "phase": "spec"}
+        u2 = {**make_unit("B"), "phase": "dev"}
+        s = _process_stats([u1, u2])
+        assert set(s["phases"]) == {"spec", "dev"}
+
+
+# ── _generate_index_html ──────────────────────────────────────────────────────
+
+class TestGenerateIndexHtml:
+    def _two_procs(self):
+        proc_a = [make_unit("X", down=["Y"]), make_unit("Y", up=["X"])]
+        proc_b = [make_unit("P")]
+        return {"proc-a": proc_a, "proc-b": proc_b}
+
+    def test_produces_html(self):
+        html = _generate_index_html(self._two_procs())
+        assert html.strip().startswith("<!DOCTYPE html>")
+
+    def test_contains_all_process_names(self):
+        html = _generate_index_html(self._two_procs())
+        assert "proc-a" in html
+        assert "proc-b" in html
+
+    def test_empty_processes_returns_empty(self):
+        assert _generate_index_html({}) == ""
+
+    def test_no_placeholder_tokens_remain(self):
+        html = _generate_index_html(self._two_procs())
+        assert "__ALL_DATA_JSON__" not in html
+
+
+# ── run_viz index.html generation ────────────────────────────────────────────
+
+class TestRunVizIndex:
+    def test_generates_index_html_for_multiple_processes(self, tmp_path):
+        for name in ("proc-a", "proc-b"):
+            d = tmp_path / "bizspec" / name
+            d.mkdir(parents=True)
+            write_yaml(d, "UnitX", make_yaml("UnitX"))
+
+        result = run_viz(FakeArgs(root=str(tmp_path)))
+        assert result == 0
+        index = tmp_path / "bizspec" / "_viz" / "index.html"
+        assert index.exists()
+        content = index.read_text(encoding="utf-8")
+        assert "proc-a" in content
+        assert "proc-b" in content
+
+    def test_no_index_html_for_single_process_with_arg(self, tmp_path):
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        write_yaml(proc, "UnitX", make_yaml("UnitX"))
+
+        run_viz(FakeArgs(root=str(tmp_path), process="proc-a"))
+        assert not (tmp_path / "bizspec" / "_viz" / "index.html").exists()
+
+    def test_no_index_html_for_single_process_no_arg(self, tmp_path):
+        proc = tmp_path / "bizspec" / "only-proc"
+        proc.mkdir(parents=True)
+        write_yaml(proc, "UnitX", make_yaml("UnitX"))
+
+        run_viz(FakeArgs(root=str(tmp_path)))
+        assert not (tmp_path / "bizspec" / "_viz" / "index.html").exists()

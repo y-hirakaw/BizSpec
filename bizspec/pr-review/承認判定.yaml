@@ -1,0 +1,30 @@
+unit: 承認判定
+aim: レビュー結果を総合してマージ可否を判定する
+phase: dev
+job:
+  - ロジック・テスト両レビューのコメントを集約する
+  - ブロック指摘の有無を確認し Approve / Request Changes を決定する
+  - GitHub PR へレビューコメントと判定結果を投稿する
+rule:
+  - ブロック指摘が 1 件でもあれば Request Changes にする
+  - nit のみであれば Approve してコメントを残す
+  - 指摘件数・ブロック有無・判定結果をサマリーに含める
+link:
+  up:
+    - ロジックレビュー
+    - テストレビュー
+  down: []
+core: true
+io:
+  in:
+    - ロジックレビューコメント一覧
+    - テストレビューコメント一覧
+  run:
+    - ブロック指摘を抽出する
+    - Approve / Request Changes を決定する
+    - GitHub API (POST /pulls/{number}/reviews) でレビューを投稿する
+  out:
+    - PRへの投稿済みレビュー（判定・サマリー・コメント一覧）
+executor:
+  type: ai_agent
+  reason: 複数レビュー結果の統合判断と自然言語サマリー生成が必要なため
