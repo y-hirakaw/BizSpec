@@ -9,11 +9,14 @@ python3 -m pip install --upgrade pip
 python3 -m pip install -e .
 ```
 
-インストール後、`bizspec` コマンドのパスを通す（`~/.zshrc` 等に追記）。
+インストール後、`bizspec` コマンドのパスを通す（`~/.zshrc` 等に追記）。環境によって設定方法が異なる。
 
 ```sh
-# macOS (Python 3.9)
+# macOS system Python 3.9 の場合
 export PATH="$PATH:/Users/<your-username>/Library/Python/3.9/bin"
+
+# pyenv の場合
+pyenv rehash
 ```
 
 ## コマンドリファレンス

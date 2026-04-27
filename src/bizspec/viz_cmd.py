@@ -17,6 +17,8 @@ MIN_CANVAS_W = 280
 def _load_units(process_dir: Path) -> list[dict]:
     units = []
     for path in sorted(process_dir.glob("*.yaml")):
+        if path.name.startswith("_"):
+            continue
         try:
             data = yaml.safe_load(path.read_text(encoding="utf-8"))
             if isinstance(data, dict):
@@ -24,6 +26,17 @@ def _load_units(process_dir: Path) -> list[dict]:
         except Exception:
             pass
     return units
+
+
+def _load_process_meta(process_dir: Path) -> dict:
+    meta_path = process_dir / "_process.yaml"
+    if not meta_path.exists():
+        return {}
+    try:
+        data = yaml.safe_load(meta_path.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
 
 
 def _topo_levels(units: list[dict]) -> list[list[str]]:
@@ -126,7 +139,7 @@ def _process_stats(units: list[dict]) -> dict:
     return {"unit_count": len(units), "phases": phases, "executor": exe, "core_count": core_count}
 
 
-def _generate_html(process_name: str, units: list[dict]) -> str:
+def _generate_html(process_name: str, units: list[dict], display_name: str | None = None) -> str:
     if not units:
         return ""
 
@@ -137,14 +150,19 @@ def _generate_html(process_name: str, units: list[dict]) -> str:
     units_js = {str(u["unit"]): _unit_to_js(u) for u in units if u.get("unit")}
     phases = sorted({str(u.get("phase", "")) for u in units if u.get("phase")})
     phase_str = " &nbsp;·&nbsp; phase: " + " · ".join(phases) if phases else ""
-    subtitle = f"{len(units)} units{phase_str}"
+
+    title = display_name or process_name
+    if display_name and display_name != process_name:
+        subtitle = f"{process_name} &nbsp;·&nbsp; {len(units)} units{phase_str}"
+    else:
+        subtitle = f"{len(units)} units{phase_str}"
 
     units_json     = json.dumps(units_js,   ensure_ascii=False, indent=2)
     positions_json = json.dumps(positions,  ensure_ascii=False)
     edges_json     = json.dumps(edges,      ensure_ascii=False)
 
     html = _HTML_TEMPLATE
-    html = html.replace("__PROCESS_NAME__", process_name)
+    html = html.replace("__PROCESS_NAME__", title)
     html = html.replace("__SUBTITLE__",     subtitle)
     html = html.replace("__CANVAS_W__",     str(canvas_w))
     html = html.replace("__CANVAS_H__",     str(canvas_h))
@@ -154,7 +172,10 @@ def _generate_html(process_name: str, units: list[dict]) -> str:
     return html
 
 
-def _generate_index_html(processes: dict[str, list[dict]]) -> str:
+def _generate_index_html(
+    processes: dict[str, list[dict]],
+    display_names: dict[str, str] | None = None,
+) -> str:
     all_data: dict[str, dict] = {}
     for name, units in processes.items():
         if not units:
@@ -163,7 +184,9 @@ def _generate_index_html(processes: dict[str, list[dict]]) -> str:
         positions, canvas_w, canvas_h = _compute_layout(levels)
         edges = _build_edges(units, positions)
         units_js = {str(u["unit"]): _unit_to_js(u) for u in units if u.get("unit")}
+        dn = (display_names or {}).get(name)
         all_data[name] = {
+            "displayName": dn if dn and dn != name else None,
             "units":     units_js,
             "positions": positions,
             "edges":     edges,
@@ -203,17 +226,22 @@ def run_viz(args) -> int:
 
     generated = 0
     all_units: dict[str, list[dict]] = {}
+    all_display_names: dict[str, str] = {}
     for process_dir in process_dirs:
         units = _load_units(process_dir)
         if not units:
             continue
-        html = _generate_html(process_dir.name, units)
+        meta = _load_process_meta(process_dir)
+        display_name = meta.get("name") or None
+        html = _generate_html(process_dir.name, units, display_name=display_name)
         if not html:
             continue
         out_path = out_dir / f"{process_dir.name}.html"
         out_path.write_text(html, encoding="utf-8")
         print(f"  {out_path.relative_to(root)}")
         all_units[process_dir.name] = units
+        if display_name:
+            all_display_names[process_dir.name] = display_name
         generated += 1
 
     if generated == 0:
@@ -222,7 +250,7 @@ def run_viz(args) -> int:
 
     # 引数なし（全プロセス対象）のときだけ index.html も生成する
     if not getattr(args, "process", None) and len(all_units) > 1:
-        index_html = _generate_index_html(all_units)
+        index_html = _generate_index_html(all_units, display_names=all_display_names)
         if index_html:
             index_path = out_dir / "index.html"
             index_path.write_text(index_html, encoding="utf-8")
@@ -775,7 +803,8 @@ body {
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   transform: translateY(-2px);
 }
-.proc-card-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.proc-card-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.proc-card-slug { font-size: 11px; color: #9CA3AF; margin-bottom: 4px; }
 .proc-card-count { font-size: 12px; color: #6B7280; margin-bottom: 14px; }
 .proc-card-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
 .pill { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
@@ -969,10 +998,11 @@ let currentSvg   = null;
 
 // ── Sidebar ───────────────────────────────────────────────
 Object.entries(ALL_DATA).forEach(([name, proc]) => {
+  const label = proc.displayName || name;
   const item = document.createElement("div");
   item.className = "sb-item";
   item.dataset.proc = name;
-  item.innerHTML = `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</span><span class="sb-count">${proc.stats.unit_count}</span>`;
+  item.innerHTML = `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</span><span class="sb-count">${proc.stats.unit_count}</span>`;
   item.addEventListener("click", () => showProcess(name));
   procNav.appendChild(item);
 });
@@ -980,6 +1010,8 @@ Object.entries(ALL_DATA).forEach(([name, proc]) => {
 // ── Overview cards ────────────────────────────────────────
 Object.entries(ALL_DATA).forEach(([name, proc]) => {
   const s = proc.stats;
+  const label = proc.displayName || name;
+  const slugHtml = proc.displayName ? `<div class="proc-card-slug">${name}</div>` : "";
   const exePills = Object.entries(s.executor)
     .filter(([, n]) => n > 0)
     .map(([t, n]) => `<span class="pill pill-${t}">${t}: ${n}</span>`)
@@ -990,7 +1022,8 @@ Object.entries(ALL_DATA).forEach(([name, proc]) => {
   const card = document.createElement("div");
   card.className = "proc-card";
   card.innerHTML = `
-    <div class="proc-card-name">${name}</div>
+    <div class="proc-card-name">${label}</div>
+    ${slugHtml}
     <div class="proc-card-count">${s.unit_count} units</div>
     <div class="proc-card-pills">${phasePills}${exePills}</div>
     <div class="proc-card-footer">core: ${s.core_count} / ${s.unit_count}</div>`;
@@ -1014,8 +1047,8 @@ function showProcess(name) {
   overviewV.style.display = "none";
   flowV.style.display = "flex";
   backBtn.style.display = "flex";
-  topTitle.textContent = name;
-  topSub.textContent = `${proc.stats.unit_count} units`;
+  topTitle.textContent = proc.displayName || name;
+  topSub.textContent = proc.displayName ? `${name} · ${proc.stats.unit_count} units` : `${proc.stats.unit_count} units`;
   document.querySelectorAll(".sb-item").forEach(el =>
     el.classList.toggle("active", el.dataset.proc === name));
   renderFlow(proc);

@@ -94,6 +94,39 @@ def test_init_overwrites_existing(monkeypatch, tmp_path):
     assert (stale / "SKILL.md").exists()
 
 
+def test_init_local_creates_bizspec_dir(monkeypatch, tmp_path):
+    """ローカルインストール時に bizspec/ フォルダが作成される"""
+    dest = tmp_path / ".claude" / "skills"
+    monkeypatch.setattr(init_cmd, "_local_dest", lambda: dest)
+    monkeypatch.setattr("builtins.input", lambda _: "")
+    monkeypatch.chdir(tmp_path)
+    init_cmd.run_init(None)
+    assert (tmp_path / "bizspec").is_dir()
+
+
+def test_init_local_does_not_recreate_bizspec_dir(monkeypatch, tmp_path):
+    """既存の bizspec/ フォルダは上書きされない（内容が消えない）"""
+    dest = tmp_path / ".claude" / "skills"
+    (tmp_path / "bizspec" / "my-proc").mkdir(parents=True)
+    monkeypatch.setattr(init_cmd, "_local_dest", lambda: dest)
+    monkeypatch.setattr("builtins.input", lambda _: "")
+    monkeypatch.chdir(tmp_path)
+    init_cmd.run_init(None)
+    assert (tmp_path / "bizspec" / "my-proc").is_dir()
+
+
+def test_init_global_does_not_create_bizspec_dir(monkeypatch, tmp_path):
+    """グローバルインストール時は bizspec/ フォルダを作成しない"""
+    dest = tmp_path / ".claude" / "skills"
+    cwd = tmp_path / "cwd"
+    cwd.mkdir()
+    monkeypatch.setattr(init_cmd, "_global_dest", lambda: dest)
+    monkeypatch.setattr("builtins.input", lambda _: "2")
+    monkeypatch.chdir(cwd)
+    init_cmd.run_init(None)
+    assert not (cwd / "bizspec").exists()
+
+
 def test_init_skill_md_content_matches_source(monkeypatch, tmp_path):
     """インストール後の SKILL.md がソースと同一内容である"""
     dest = tmp_path / ".claude" / "skills"

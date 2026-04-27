@@ -30,9 +30,11 @@ def run_init(_args) -> int:
     if choice in ("", "1"):
         dest = _local_dest()
         scope = "ローカル"
+        is_local = True
     elif choice == "2":
         dest = _global_dest()
         scope = "グローバル"
+        is_local = False
     else:
         print(f"無効な選択です: {choice!r}", file=sys.stderr)
         return 1
@@ -46,4 +48,11 @@ def run_init(_args) -> int:
         print(f"  ✓ {skill_dir.name}")
 
     print(f"\n{scope}の .claude/skills/ にスキルをインストールしました")
+
+    if is_local:
+        bizspec_dir = Path.cwd() / "bizspec"
+        if not bizspec_dir.exists():
+            bizspec_dir.mkdir()
+            print(f"  bizspec/ フォルダを作成しました")
+
     return 0

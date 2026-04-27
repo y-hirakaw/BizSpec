@@ -61,10 +61,14 @@ python3 -m pip install --upgrade pip
 python3 -m pip install -e .
 ```
 
-Add the installed script to your PATH if needed (macOS):
+Add the installed script to your PATH if needed. The exact path depends on your environment:
 
 ```sh
+# macOS system Python 3.9
 export PATH="$PATH:/Users/<your-username>/Library/Python/3.9/bin"
+
+# pyenv
+pyenv rehash
 ```
 
 ## CLI usage
@@ -171,10 +175,14 @@ python3 -m pip install --upgrade pip
 python3 -m pip install -e .
 ```
 
-PATH が通っていない場合（macOS）：
+PATH が通っていない場合は環境に合わせて設定する：
 
 ```sh
+# macOS system Python 3.9
 export PATH="$PATH:/Users/<your-username>/Library/Python/3.9/bin"
+
+# pyenv の場合
+pyenv rehash
 ```
 
 ## CLI の使い方

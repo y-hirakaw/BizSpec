@@ -8,6 +8,8 @@ from bizspec.viz_cmd import (
     _build_edges,
     _generate_html,
     _generate_index_html,
+    _load_units,
+    _load_process_meta,
     _process_stats,
     run_viz,
     NODE_W, NODE_H, H_GAP, V_GAP,
@@ -149,6 +151,39 @@ class TestBuildEdges:
         assert edges == []
 
 
+# ── _load_units / _load_process_meta ─────────────────────────────────────────
+
+class TestLoadUnits:
+    def test_skips_underscore_yaml(self, tmp_path):
+        write_yaml(tmp_path, "UnitA", make_yaml("UnitA"))
+        (tmp_path / "_process.yaml").write_text("name: テストプロセス", encoding="utf-8")
+        units = _load_units(tmp_path)
+        assert len(units) == 1
+        assert units[0]["unit"] == "UnitA"
+
+    def test_loads_normal_yaml(self, tmp_path):
+        write_yaml(tmp_path, "A", make_yaml("A"))
+        write_yaml(tmp_path, "B", make_yaml("B"))
+        units = _load_units(tmp_path)
+        names = {u["unit"] for u in units}
+        assert names == {"A", "B"}
+
+
+class TestLoadProcessMeta:
+    def test_reads_name_field(self, tmp_path):
+        (tmp_path / "_process.yaml").write_text("name: PRレビュー\n", encoding="utf-8")
+        meta = _load_process_meta(tmp_path)
+        assert meta.get("name") == "PRレビュー"
+
+    def test_returns_empty_dict_when_missing(self, tmp_path):
+        assert _load_process_meta(tmp_path) == {}
+
+    def test_returns_empty_dict_on_invalid_yaml(self, tmp_path):
+        (tmp_path / "_process.yaml").write_text(": invalid: yaml:\n", encoding="utf-8")
+        meta = _load_process_meta(tmp_path)
+        assert isinstance(meta, dict)
+
+
 # ── _generate_html ────────────────────────────────────────────────────────────
 
 class TestGenerateHtml:
@@ -179,6 +214,21 @@ class TestGenerateHtml:
         units = [make_unit("A", down=["B"]), make_unit("B", up=["A"])]
         html = _generate_html("my-proc", units)
         assert "__" not in html
+
+    def test_display_name_shown_when_given(self):
+        units = [make_unit("A")]
+        html = _generate_html("pr-review", units, display_name="PRレビュー")
+        assert "PRレビュー" in html
+
+    def test_display_name_slug_in_subtitle(self):
+        units = [make_unit("A")]
+        html = _generate_html("pr-review", units, display_name="PRレビュー")
+        assert "pr-review" in html
+
+    def test_no_display_name_uses_folder_name(self):
+        units = [make_unit("A")]
+        html = _generate_html("pr-review", units)
+        assert "pr-review" in html
 
 
 # ── run_viz ───────────────────────────────────────────────────────────────────
@@ -282,6 +332,22 @@ class TestGenerateIndexHtml:
         html = _generate_index_html(self._two_procs())
         assert "__ALL_DATA_JSON__" not in html
 
+    def test_display_name_embedded_in_data(self):
+        html = _generate_index_html(
+            self._two_procs(),
+            display_names={"proc-a": "プロセスA"},
+        )
+        assert "プロセスA" in html
+
+    def test_display_name_none_when_same_as_key(self):
+        import json, re
+        m = re.search(r"const ALL_DATA = ({.*?});", _generate_index_html(
+            self._two_procs(),
+            display_names={"proc-a": "proc-a"},
+        ), re.DOTALL)
+        data = json.loads(m.group(1))
+        assert data["proc-a"]["displayName"] is None
+
 
 # ── run_viz index.html generation ────────────────────────────────────────────
 
@@ -315,3 +381,25 @@ class TestRunVizIndex:
 
         run_viz(FakeArgs(root=str(tmp_path)))
         assert not (tmp_path / "bizspec" / "_viz" / "index.html").exists()
+
+    def test_display_name_from_process_yaml(self, tmp_path):
+        proc = tmp_path / "bizspec" / "pr-review"
+        proc.mkdir(parents=True)
+        write_yaml(proc, "UnitX", make_yaml("UnitX"))
+        (proc / "_process.yaml").write_text("name: PRレビュー\n", encoding="utf-8")
+
+        run_viz(FakeArgs(root=str(tmp_path), process="pr-review"))
+        html = (tmp_path / "bizspec" / "_viz" / "pr-review.html").read_text(encoding="utf-8")
+        assert "PRレビュー" in html
+        assert "pr-review" in html
+
+    def test_process_yaml_not_loaded_as_unit(self, tmp_path):
+        proc = tmp_path / "bizspec" / "my-proc"
+        proc.mkdir(parents=True)
+        write_yaml(proc, "UnitA", make_yaml("UnitA"))
+        (proc / "_process.yaml").write_text("name: テスト\n", encoding="utf-8")
+
+        result = run_viz(FakeArgs(root=str(tmp_path), process="my-proc"))
+        assert result == 0
+        html = (tmp_path / "bizspec" / "_viz" / "my-proc.html").read_text(encoding="utf-8")
+        assert "1 units" in html
