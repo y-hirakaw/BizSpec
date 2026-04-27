@@ -37,7 +37,7 @@ Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx
 | `bizspec init` | Claude Code スキルをインタラクティブに `.claude/skills/` へインストールする（ローカル / グローバル選択） |
 | `bizspec new <process> <unit>` | unit のスケルトン YAML を生成する（`--executor` / `--phase` / `--core` / `--up` / `--down`） |
 | `bizspec search <keyword>` | 全プロセス横断でキーワード検索する（`--field` で対象フィールドを絞れる） |
-| `bizspec list` | `bizspec/` 内の unit 一覧を表示（unit名・core・executor.type） |
+| `bizspec list` | `bizspec/` 内の unit 一覧を表示（unit名・core・executor.type、effort/automationフィールドがあれば列追加） |
 | `bizspec validate` | BizSpec YAML のスキーマ検証 |
 | `bizspec viz` | `link.up/down` を元にフロー図を生成する。引数なし時は全プロセス統合ビュー（`index.html`）も生成 |
 
@@ -62,9 +62,15 @@ io:
 executor:
   type: script | ai_agent | manual
   reason: なぜその主体を選んだかの根拠
+# オプションフィールド（省略可）
+effort:
+  duration: 0.5           # 1回あたりの所要時間（単位: 時間。30分=0.5）
+automation:
+  difficulty: low | medium | high
+  status: manual | partially-automated | automated
 ```
 
-`core: undetermined` はユーザー確認が必要な場合に使用。`phase` は自由記述でフォルダ分けではなくフィールドで管理する。
+`core: undetermined` はユーザー確認が必要な場合に使用。`phase` は自由記述でフォルダ分けではなくフィールドで管理する。`effort` / `automation` は省略可能なオプションフィールド。存在する場合は `bizspec list` の列と `bizspec viz` の詳細パネルに表示される。
 
 ## 開発環境
 

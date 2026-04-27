@@ -110,10 +110,16 @@ def _unit_to_js(u: dict) -> dict:
     def lst(v: object) -> list[str]:
         return [str(x) for x in v] if isinstance(v, list) else []
 
+    def opt_str(v: object) -> str | None:
+        return str(v) if v is not None else None
+
     io   = u.get("io")   or {}; io   = io   if isinstance(io,   dict) else {}
     link = u.get("link") or {}; link = link if isinstance(link, dict) else {}
-    exe  = u.get("executor") or {}; exe = exe if isinstance(exe, dict) else {}
+    exe  = u.get("executor")   or {}; exe = exe if isinstance(exe,  dict) else {}
+    eff  = u.get("effort")     or {}; eff = eff if isinstance(eff,  dict) else {}
+    aut  = u.get("automation") or {}; aut = aut if isinstance(aut,  dict) else {}
 
+    dur = eff.get("duration")
     return {
         "aim":      str(u.get("aim", "")),
         "phase":    str(u.get("phase", "")),
@@ -123,6 +129,11 @@ def _unit_to_js(u: dict) -> dict:
         "io":       {"in": lst(io.get("in")), "run": lst(io.get("run")), "out": lst(io.get("out"))},
         "executor": {"type": str(exe.get("type", "")), "reason": str(exe.get("reason", ""))},
         "link":     {"up": lst(link.get("up")), "down": lst(link.get("down"))},
+        "effort":   {"duration": dur if isinstance(dur, (int, float)) and not isinstance(dur, bool) else None},
+        "automation": {
+            "difficulty": opt_str(aut.get("difficulty")),
+            "status":     opt_str(aut.get("status")),
+        },
     }
 
 
@@ -426,6 +437,14 @@ svg.arrows-layer {
 }
 .link-chip:hover { background: #DBEAFE; }
 .link-empty { font-size: 12px; color: #D1D5DB; font-style: italic; }
+
+.meta-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.meta-item { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; padding: 8px 12px; min-width: 120px; }
+.meta-key { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; margin-bottom: 3px; }
+.meta-val { font-size: 13px; font-weight: 500; color: #374151; }
+.meta-diff-low    { color: #059669; }
+.meta-diff-medium { color: #D97706; }
+.meta-diff-high   { color: #DC2626; }
 </style>
 </head>
 <body>
@@ -644,6 +663,16 @@ function renderDetail(name) {
         <div class="executor-reason">${u.executor.reason}</div>
       </div>
     </div>
+
+    ${(u.effort.duration != null || u.automation.difficulty || u.automation.status) ? `
+    <div class="section">
+      <div class="section-label">Effort / Automation</div>
+      <div class="meta-grid">
+        ${u.effort.duration != null ? `<div class="meta-item"><div class="meta-key">所要時間</div><div class="meta-val">${u.effort.duration}h</div></div>` : ''}
+        ${u.automation.difficulty ? `<div class="meta-item"><div class="meta-key">自動化難易度</div><div class="meta-val meta-diff-${u.automation.difficulty}">${u.automation.difficulty}</div></div>` : ''}
+        ${u.automation.status ? `<div class="meta-item"><div class="meta-key">自動化状況</div><div class="meta-val">${u.automation.status}</div></div>` : ''}
+      </div>
+    </div>` : ''}
 
     <div class="section">
       <div class="section-label">Link · Up</div>
@@ -940,6 +969,14 @@ svg.arrows-layer {
 }
 .link-chip:hover { background: #DBEAFE; }
 .link-empty { font-size: 12px; color: #D1D5DB; font-style: italic; }
+
+.meta-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.meta-item { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; padding: 8px 12px; min-width: 120px; }
+.meta-key { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; margin-bottom: 3px; }
+.meta-val { font-size: 13px; font-weight: 500; color: #374151; }
+.meta-diff-low    { color: #059669; }
+.meta-diff-medium { color: #D97706; }
+.meta-diff-high   { color: #DC2626; }
 </style>
 </head>
 <body>
@@ -1205,6 +1242,15 @@ function renderDetail(name) {
         <div class="executor-reason">${u.executor.reason}</div>
       </div>
     </div>
+    ${(u.effort.duration != null || u.automation.difficulty || u.automation.status) ? `
+    <div class="section">
+      <div class="section-label">Effort / Automation</div>
+      <div class="meta-grid">
+        ${u.effort.duration != null ? `<div class="meta-item"><div class="meta-key">所要時間</div><div class="meta-val">${u.effort.duration}h</div></div>` : ''}
+        ${u.automation.difficulty ? `<div class="meta-item"><div class="meta-key">自動化難易度</div><div class="meta-val meta-diff-${u.automation.difficulty}">${u.automation.difficulty}</div></div>` : ''}
+        ${u.automation.status ? `<div class="meta-item"><div class="meta-key">自動化状況</div><div class="meta-val">${u.automation.status}</div></div>` : ''}
+      </div>
+    </div>` : ''}
     <div class="section">
       <div class="section-label">Link · Up</div>
       <div class="link-chips">${chips(u.link.up)}</div>

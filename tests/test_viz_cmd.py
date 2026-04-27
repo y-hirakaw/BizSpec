@@ -11,6 +11,7 @@ from bizspec.viz_cmd import (
     _load_units,
     _load_process_meta,
     _process_stats,
+    _unit_to_js,
     run_viz,
     NODE_W, NODE_H, H_GAP, V_GAP,
 )
@@ -403,3 +404,54 @@ class TestRunVizIndex:
         assert result == 0
         html = (tmp_path / "bizspec" / "_viz" / "my-proc.html").read_text(encoding="utf-8")
         assert "1 units" in html
+
+
+# ── _unit_to_js effort / automation ──────────────────────────────────────────
+
+class TestUnitToJs:
+    def test_effort_duration_included(self):
+        u = {**make_unit("A"), "effort": {"duration": 0.5}}
+        js = _unit_to_js(u)
+        assert js["effort"]["duration"] == 0.5
+
+    def test_effort_duration_none_when_absent(self):
+        js = _unit_to_js(make_unit("A"))
+        assert js["effort"]["duration"] is None
+
+    def test_automation_fields_included(self):
+        u = {**make_unit("A"), "automation": {"difficulty": "high", "status": "manual"}}
+        js = _unit_to_js(u)
+        assert js["automation"]["difficulty"] == "high"
+        assert js["automation"]["status"] == "manual"
+
+    def test_automation_fields_none_when_absent(self):
+        js = _unit_to_js(make_unit("A"))
+        assert js["automation"]["difficulty"] is None
+        assert js["automation"]["status"] is None
+
+
+class TestGenerateHtmlEffortAutomation:
+    def test_effort_section_shown_when_present(self):
+        u = {**make_unit("A"), "effort": {"duration": 0.5}}
+        html = _generate_html("proc", [u])
+        assert "0.5" in html
+        assert "所要時間" in html
+
+    def test_automation_section_shown_when_present(self):
+        u = {**make_unit("A"), "automation": {"difficulty": "low", "status": "automated"}}
+        html = _generate_html("proc", [u])
+        assert "low" in html
+        assert "自動化難易度" in html
+
+    def test_effort_null_when_not_set(self):
+        import json, re
+        html = _generate_html("proc", [make_unit("A")])
+        m = re.search(r"const units\s*=\s*({.*?});", html, re.DOTALL)
+        data = json.loads(m.group(1))
+        assert data["A"]["effort"]["duration"] is None
+        assert data["A"]["automation"]["difficulty"] is None
+
+    def test_effort_string_becomes_null(self):
+        u = {**make_unit("A"), "effort": {"duration": "30m"}}
+        js = _unit_to_js(u)
+        assert js["effort"]["duration"] is None

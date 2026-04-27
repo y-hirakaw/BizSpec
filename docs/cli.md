@@ -98,6 +98,8 @@ bizspec validate issue-refinement   # 特定プロセスのみ検証
 - `executor.type` が `script` / `ai_agent` / `manual` のいずれかであること
 - `link.up/down` の参照先ファイルが存在すること
 - `link.up/down` の双方向整合性
+- `automation.difficulty`（設定時）が `low` / `medium` / `high` のいずれかであること
+- `automation.status`（設定時）が `manual` / `partially-automated` / `automated` のいずれかであること
 
 **終了コード:** `0` = OK、`1` = エラーあり
 
@@ -110,7 +112,7 @@ bizspec list                    # 全プロセスを表示
 bizspec list issue-refinement   # 特定プロセスのみ表示
 ```
 
-unit名・core・executor.type をプロセスごとに一覧表示する。
+unit名・core・executor.type をプロセスごとに一覧表示する。いずれかの unit に `effort.duration` / `automation.difficulty` が設定されている場合は、対応する列が自動的に追加される。
 
 ### `bizspec viz [process]`
 

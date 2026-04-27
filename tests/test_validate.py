@@ -223,3 +223,69 @@ class TestCheckProcess:
         write_unit(tmp_path, "UnitA", make_unit("UnitA"))
         (tmp_path / "_process.yaml").write_text("name: テスト\n", encoding="utf-8")
         assert _check_process(tmp_path) == []
+
+
+# ── automation optional fields ────────────────────────────────────────────────
+
+class TestAutomationOptionalFields:
+    def test_valid_automation_passes(self, tmp_path):
+        content = make_unit("UnitA") + "automation:\n  difficulty: medium\n  status: manual\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert errors == []
+
+    def test_invalid_difficulty_fails(self, tmp_path):
+        content = make_unit("UnitA") + "automation:\n  difficulty: extreme\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert any(e.field == "automation.difficulty" for e in errors)
+
+    def test_invalid_status_fails(self, tmp_path):
+        content = make_unit("UnitA") + "automation:\n  status: unknown\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert any(e.field == "automation.status" for e in errors)
+
+    def test_automation_not_dict_fails(self, tmp_path):
+        content = make_unit("UnitA") + "automation: invalid\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert any(e.field == "automation" for e in errors)
+
+    def test_effort_duration_numeric_passes(self, tmp_path):
+        content = make_unit("UnitA") + "effort:\n  duration: 0.5\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert errors == []
+
+    def test_effort_duration_string_fails(self, tmp_path):
+        content = make_unit("UnitA") + "effort:\n  duration: '30m'\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert any(e.field == "effort.duration" for e in errors)
+
+    def test_effort_duration_zero_fails(self, tmp_path):
+        content = make_unit("UnitA") + "effort:\n  duration: 0\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert any(e.field == "effort.duration" for e in errors)
+
+    def test_effort_not_dict_fails(self, tmp_path):
+        content = make_unit("UnitA") + "effort: invalid\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert any(e.field == "effort" for e in errors)
+
+    def test_all_difficulty_values_valid(self, tmp_path):
+        for diff in ("low", "medium", "high"):
+            content = make_unit("UnitA") + f"automation:\n  difficulty: {diff}\n"
+            write_unit(tmp_path, "UnitA", content)
+            errors, _ = _check_file(tmp_path / "UnitA.yaml")
+            assert errors == [], f"difficulty={diff} should be valid"
+
+    def test_all_status_values_valid(self, tmp_path):
+        for status in ("manual", "partially-automated", "automated"):
+            content = make_unit("UnitA") + f"automation:\n  status: {status}\n"
+            write_unit(tmp_path, "UnitA", content)
+            errors, _ = _check_file(tmp_path / "UnitA.yaml")
+            assert errors == [], f"status={status} should be valid"

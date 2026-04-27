@@ -43,6 +43,13 @@ class TestLoadUnits:
         units = _load_units(tmp_path)
         assert len(units) == 1
 
+    def test_skips_underscore_yaml(self, tmp_path):
+        write_yaml(tmp_path, "UnitA", make_yaml("UnitA"))
+        (tmp_path / "_process.yaml").write_text("name: テスト\n", encoding="utf-8")
+        units = _load_units(tmp_path)
+        assert len(units) == 1
+        assert units[0]["unit"] == "UnitA"
+
 
 # ── run_list ──────────────────────────────────────────────────────────────────
 
@@ -91,3 +98,35 @@ class TestRunList:
         (tmp_path / "bizspec").mkdir()
         result = run_list(FakeArgs(root=str(tmp_path), process="nonexistent"))
         assert result == 1
+
+    def test_shows_duration_column_when_present(self, tmp_path, capsys):
+        proc = tmp_path / "bizspec" / "my-proc"
+        proc.mkdir(parents=True)
+        content = make_yaml("UnitA") + "effort:\n  duration: 0.5\n"
+        write_yaml(proc, "UnitA", content)
+
+        run_list(FakeArgs(root=str(tmp_path)))
+        captured = capsys.readouterr().out
+        assert "duration" in captured
+        assert "0.5h" in captured
+
+    def test_shows_difficulty_column_when_present(self, tmp_path, capsys):
+        proc = tmp_path / "bizspec" / "my-proc"
+        proc.mkdir(parents=True)
+        content = make_yaml("UnitA") + "automation:\n  difficulty: high\n  status: manual\n"
+        write_yaml(proc, "UnitA", content)
+
+        run_list(FakeArgs(root=str(tmp_path)))
+        captured = capsys.readouterr().out
+        assert "difficulty" in captured
+        assert "high" in captured
+
+    def test_no_meta_columns_when_absent(self, tmp_path, capsys):
+        proc = tmp_path / "bizspec" / "my-proc"
+        proc.mkdir(parents=True)
+        write_yaml(proc, "UnitA", make_yaml("UnitA"))
+
+        run_list(FakeArgs(root=str(tmp_path)))
+        captured = capsys.readouterr().out
+        assert "duration" not in captured
+        assert "difficulty" not in captured

@@ -9,6 +9,8 @@ import yaml
 def _load_units(process_dir: Path) -> list[dict]:
     units = []
     for path in sorted(process_dir.glob("*.yaml")):
+        if path.name.startswith("_"):
+            continue
         try:
             data = yaml.safe_load(path.read_text(encoding="utf-8"))
             if isinstance(data, dict):
@@ -47,15 +49,34 @@ def run_list(args) -> int:
         name_w = max(len(str(u.get("unit", ""))) for u in units)
         name_w = max(name_w, 4)
 
-        print(f"  {'unit':<{name_w}}  {'core':<6}  executor")
-        print(f"  {'─' * name_w}  {'─' * 6}  {'─' * 10}")
+        has_duration   = any(isinstance(u.get("effort"), dict) and u["effort"].get("duration") for u in units)
+        has_difficulty = any(isinstance(u.get("automation"), dict) and u["automation"].get("difficulty") for u in units)
+
+        header = f"  {'unit':<{name_w}}  {'core':<6}  {'executor':<12}"
+        sep    = f"  {'─' * name_w}  {'─' * 6}  {'─' * 12}"
+        if has_duration:
+            header += f"  {'duration':<10}"; sep += f"  {'─' * 10}"
+        if has_difficulty:
+            header += f"  difficulty"; sep += f"  {'─' * 10}"
+        print(header)
+        print(sep)
 
         for u in units:
             name     = str(u.get("unit", ""))
             core     = u.get("core", "")
             core_str = str(core).lower() if isinstance(core, bool) else str(core)
             ex_type  = u.get("executor", {}).get("type", "") if isinstance(u.get("executor"), dict) else ""
-            print(f"  {name:<{name_w}}  {core_str:<6}  {ex_type}")
+            row = f"  {name:<{name_w}}  {core_str:<6}  {ex_type:<12}"
+            if has_duration:
+                eff = u.get("effort") or {}
+                d = eff.get("duration") if isinstance(eff, dict) else None
+                dur = f"{d}h" if isinstance(d, (int, float)) and not isinstance(d, bool) else ""
+                row += f"  {dur:<10}"
+            if has_difficulty:
+                aut = u.get("automation") or {}
+                diff = str(aut.get("difficulty", "")) if isinstance(aut, dict) else ""
+                row += f"  {diff}"
+            print(row)
 
     print()
     return 0

@@ -25,6 +25,12 @@ io:
 executor:
   type: {executor}
   reason: TODO
+# --- optional ---
+# effort:
+#   duration: 0.5       # 1回あたりの所要時間（単位: 時間。30分=0.5）
+# automation:
+#   difficulty: medium  # low / medium / high
+#   status: manual      # manual / partially-automated / automated
 """
 
 VALID_EXECUTORS = {"script", "ai_agent", "manual"}

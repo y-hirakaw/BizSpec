@@ -9,6 +9,8 @@ import yaml
 
 REQUIRED_FIELDS = ["unit", "aim", "phase", "job", "rule", "link", "core", "io", "executor"]
 VALID_EXECUTOR_TYPES = {"script", "ai_agent", "manual"}
+VALID_DIFFICULTY     = {"low", "medium", "high"}
+VALID_AUTO_STATUS    = {"manual", "partially-automated", "automated"}
 NON_EMPTY_LIST_FIELDS = ["job", "rule"]
 
 
@@ -128,6 +130,33 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
                     errors.append(VError(path, f"io.{key}", "リストである必要があります"))
                 elif len(io[key]) == 0:
                     errors.append(VError(path, f"io.{key}", "空リストは許可されていません"))
+
+    # effort (optional)
+    if "effort" in data:
+        eff = data["effort"]
+        if not isinstance(eff, dict):
+            errors.append(VError(path, "effort", "マッピングである必要があります"))
+        elif "duration" in eff:
+            dur = eff["duration"]
+            if isinstance(dur, bool) or not isinstance(dur, (int, float)):
+                errors.append(VError(path, "effort.duration",
+                    "数値（時間単位）でなければなりません（例: 0.5 / 1 / 2.5）"))
+            elif dur <= 0:
+                errors.append(VError(path, "effort.duration",
+                    "0より大きい値でなければなりません"))
+
+    # automation (optional)
+    if "automation" in data:
+        aut = data["automation"]
+        if not isinstance(aut, dict):
+            errors.append(VError(path, "automation", "マッピングである必要があります"))
+        else:
+            if "difficulty" in aut and aut["difficulty"] not in VALID_DIFFICULTY:
+                errors.append(VError(path, "automation.difficulty",
+                    f"{sorted(VALID_DIFFICULTY)} のいずれかでなければなりません（現在: {aut['difficulty']!r}）"))
+            if "status" in aut and aut["status"] not in VALID_AUTO_STATUS:
+                errors.append(VError(path, "automation.status",
+                    f"{sorted(VALID_AUTO_STATUS)} のいずれかでなければなりません（現在: {aut['status']!r}）"))
 
     # job / rule の空リスト
     for key in NON_EMPTY_LIST_FIELDS:
