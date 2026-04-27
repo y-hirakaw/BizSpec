@@ -472,6 +472,16 @@ polySkip.setAttribute("points", "0 0, 9 3.5, 0 7");
 polySkip.setAttribute("fill", "#F59E0B");
 markerSkip.appendChild(polySkip);
 defs.appendChild(markerSkip);
+const markerHL = document.createElementNS(NS, "marker");
+Object.entries({
+  id: "arrowhead-hl", markerWidth: "9", markerHeight: "7",
+  refX: "8", refY: "3.5", orient: "auto"
+}).forEach(([k,v]) => markerHL.setAttribute(k, v));
+const polyHL = document.createElementNS(NS, "polygon");
+polyHL.setAttribute("points", "0 0, 9 3.5, 0 7");
+polyHL.setAttribute("fill", "#2563EB");
+markerHL.appendChild(polyHL);
+defs.appendChild(markerHL);
 svg.appendChild(defs);
 
 edges.forEach(([from, to]) => {
@@ -497,10 +507,33 @@ edges.forEach(([from, to]) => {
   path.setAttribute("stroke-dasharray", isSkip ? "5 3" : "none");
   path.setAttribute("fill", "none");
   path.setAttribute("marker-end", isSkip ? "url(#arrowhead-skip)" : "url(#arrowhead)");
+  path.dataset.from = from;
+  path.dataset.to   = to;
+  path.dataset.skip = isSkip ? "true" : "false";
   svg.appendChild(path);
 });
 
 canvas.appendChild(svg);
+
+function highlightEdges(name) {
+  svg.querySelectorAll("path[data-from]").forEach(p => {
+    const skip = p.dataset.skip === "true";
+    const hit  = p.dataset.from === name || p.dataset.to === name;
+    if (hit) {
+      p.setAttribute("stroke", "#2563EB");
+      p.setAttribute("stroke-width", "2.5");
+      p.setAttribute("stroke-dasharray", "none");
+      p.setAttribute("opacity", "1");
+      p.setAttribute("marker-end", "url(#arrowhead-hl)");
+    } else {
+      p.setAttribute("stroke", skip ? "#F59E0B" : "#94A3B8");
+      p.setAttribute("stroke-width", "1.5");
+      p.setAttribute("stroke-dasharray", skip ? "5 3" : "none");
+      p.setAttribute("opacity", "0.15");
+      p.setAttribute("marker-end", skip ? "url(#arrowhead-skip)" : "url(#arrowhead)");
+    }
+  });
+}
 
 // ── Nodes ────────────────────────────────────────────────
 Object.entries(positions).forEach(([name, pos]) => {
@@ -522,6 +555,7 @@ Object.entries(positions).forEach(([name, pos]) => {
   div.addEventListener("click", () => {
     document.querySelectorAll(".node.selected").forEach(n => n.classList.remove("selected"));
     div.classList.add("selected");
+    highlightEdges(name);
     renderDetail(name);
   });
 
@@ -931,6 +965,7 @@ const flowArea   = document.getElementById("flow-area");
 const detPanel   = document.getElementById("detail-panel");
 
 let currentUnits = {};
+let currentSvg   = null;
 
 // ── Sidebar ───────────────────────────────────────────────
 Object.entries(ALL_DATA).forEach(([name, proc]) => {
@@ -1005,7 +1040,7 @@ function renderFlow(proc) {
   svg.style.height = canvasH + "px";
 
   const defs = document.createElementNS(NS, "defs");
-  [["arr", "#94A3B8"], ["arr-skip", "#F59E0B"]].forEach(([id, color]) => {
+  [["arr", "#94A3B8"], ["arr-skip", "#F59E0B"], ["arr-hl", "#2563EB"]].forEach(([id, color]) => {
     const m = document.createElementNS(NS, "marker");
     Object.entries({ id, markerWidth:"9", markerHeight:"7", refX:"8", refY:"3.5", orient:"auto" })
       .forEach(([k, v]) => m.setAttribute(k, v));
@@ -1041,8 +1076,12 @@ function renderFlow(proc) {
     if (isSkip) path.setAttribute("stroke-dasharray", "5 3");
     path.setAttribute("fill", "none");
     path.setAttribute("marker-end", isSkip ? "url(#arr-skip)" : "url(#arr)");
+    path.dataset.from = from;
+    path.dataset.to   = to;
+    path.dataset.skip = isSkip ? "true" : "false";
     svg.appendChild(path);
   });
+  currentSvg = svg;
   flowCanvas.appendChild(svg);
 
   // Nodes
@@ -1063,9 +1102,31 @@ function renderFlow(proc) {
     div.addEventListener("click", () => {
       document.querySelectorAll(".node.selected").forEach(n => n.classList.remove("selected"));
       div.classList.add("selected");
+      highlightEdges(name);
       renderDetail(name);
     });
     flowCanvas.appendChild(div);
+  });
+}
+
+function highlightEdges(name) {
+  if (!currentSvg) return;
+  currentSvg.querySelectorAll("path[data-from]").forEach(p => {
+    const skip = p.dataset.skip === "true";
+    const hit  = p.dataset.from === name || p.dataset.to === name;
+    if (hit) {
+      p.setAttribute("stroke", "#2563EB");
+      p.setAttribute("stroke-width", "2.5");
+      p.setAttribute("stroke-dasharray", "none");
+      p.setAttribute("opacity", "1");
+      p.setAttribute("marker-end", "url(#arr-hl)");
+    } else {
+      p.setAttribute("stroke", skip ? "#F59E0B" : "#94A3B8");
+      p.setAttribute("stroke-width", "1.5");
+      p.setAttribute("stroke-dasharray", skip ? "5 3" : "none");
+      p.setAttribute("opacity", "0.15");
+      p.setAttribute("marker-end", skip ? "url(#arr-skip)" : "url(#arr)");
+    }
   });
 }
 
