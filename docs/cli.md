@@ -41,6 +41,29 @@ bizspec init
 
 インストールされるスキル: `/bizspec-refine`、`/bizspec-run`、`/bizspec-refactor`
 
+### `bizspec new <process> <unit-name>`
+
+`bizspec/<process>/` に unit のスケルトン YAML を生成する。
+
+```sh
+bizspec new issue-refinement Ready判定
+bizspec new issue-refinement Ready判定 --executor ai_agent --phase spec --core true
+bizspec new issue-refinement Ready判定 --up 記載内容妥当性評価 --down ストーリーポイント算出
+```
+
+**オプション:**
+
+| オプション | 説明 | デフォルト |
+|-----------|------|-----------|
+| `--executor` | `script` / `ai_agent` / `manual` | `manual` |
+| `--phase` | フェーズ名 | `TODO` |
+| `--core` | `true` / `false` | `false` |
+| `--up UNIT ...` | `link.up` に追加する unit 名（複数可） | なし |
+| `--down UNIT ...` | `link.down` に追加する unit 名（複数可） | なし |
+| `--force` | 既存ファイルを上書きする | false |
+
+プロセスディレクトリが存在しない場合は自動作成される。生成後は `bizspec validate` で検証し、`TODO` 箇所を埋める。
+
 ### `bizspec validate [process]`
 
 `bizspec/` 以下の BizSpec YAML を検証する。
