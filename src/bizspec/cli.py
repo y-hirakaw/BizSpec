@@ -3,6 +3,7 @@ import sys
 from bizspec.init_cmd import run_init
 from bizspec.list_cmd import run_list
 from bizspec.new_cmd import run_new
+from bizspec.search_cmd import run_search, FIELD_CHOICES
 from bizspec.validate import run_validate
 from bizspec.viz_cmd import run_viz
 
@@ -43,6 +44,15 @@ def main() -> None:
     nw.add_argument("--down", nargs="*", metavar="UNIT", help="link.down に追加する unit 名")
     nw.add_argument("--force", action="store_true", help="既存ファイルを上書きする")
 
+    # search
+    srch = sub.add_parser("search", help="全プロセス横断でキーワード検索する")
+    srch.add_argument("keyword", help="検索キーワード")
+    srch.add_argument(
+        "--field", nargs="*", choices=FIELD_CHOICES,
+        metavar="FIELD",
+        help=f"検索対象フィールド（複数可、省略時は全フィールド）: {FIELD_CHOICES}",
+    )
+
     args = parser.parse_args()
 
     if args.command == "init":
@@ -55,6 +65,8 @@ def main() -> None:
         sys.exit(run_viz(args))
     elif args.command == "new":
         sys.exit(run_new(args))
+    elif args.command == "search":
+        sys.exit(run_search(args))
     else:
         parser.print_help()
         sys.exit(1)

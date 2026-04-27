@@ -36,6 +36,7 @@ Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx
 |---------|------|
 | `bizspec init` | Claude Code スキルをインタラクティブに `.claude/skills/` へインストールする（ローカル / グローバル選択） |
 | `bizspec new <process> <unit>` | unit のスケルトン YAML を生成する（`--executor` / `--phase` / `--core` / `--up` / `--down`） |
+| `bizspec search <keyword>` | 全プロセス横断でキーワード検索する（`--field` で対象フィールドを絞れる） |
 | `bizspec list` | `bizspec/` 内の unit 一覧を表示（unit名・core・executor.type） |
 | `bizspec validate` | BizSpec YAML のスキーマ検証 |
 | `bizspec viz` | `link.up/down` を元にフロー図を生成する。引数なし時は全プロセス統合ビュー（`index.html`）も生成 |

@@ -64,6 +64,25 @@ bizspec new issue-refinement Ready判定 --up 記載内容妥当性評価 --down
 
 プロセスディレクトリが存在しない場合は自動作成される。生成後は `bizspec validate` で検証し、`TODO` 箇所を埋める。
 
+### `bizspec search <keyword>`
+
+全プロセス横断でキーワードを検索する。
+
+```sh
+bizspec search "Google Drive"
+bizspec search "PdM" --field aim job
+```
+
+**オプション:**
+
+| オプション | 説明 |
+|-----------|------|
+| `--field FIELD ...` | 検索対象フィールドを絞る（`unit` / `aim` / `job` / `rule` / `io`）。省略時は全フィールドを対象 |
+
+マッチした unit のプロセス名・unit 名・ヒットしたフィールドと内容を一覧表示する。ヒットが0件の場合は終了コード 1。
+
+**終了コード:** `0` = 1件以上ヒット、`1` = ヒットなし or エラー
+
 ### `bizspec validate [process]`
 
 `bizspec/` 以下の BizSpec YAML を検証する。
