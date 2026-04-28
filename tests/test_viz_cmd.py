@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import re
+import shutil
+import subprocess
 from pathlib import Path
 import pytest
 from bizspec.viz_cmd import (
@@ -455,3 +458,68 @@ class TestGenerateHtmlEffortAutomation:
         u = {**make_unit("A"), "effort": {"duration": "30m"}}
         js = _unit_to_js(u)
         assert js["effort"]["duration"] is None
+
+
+# ── JS 構文チェック ───────────────────────────────────────────────────────────
+
+def _extract_scripts(html: str) -> list[str]:
+    return re.findall(r"<script>(.*?)</script>", html, re.DOTALL)
+
+
+def _check_js(script: str, tmp_path: Path, name: str) -> subprocess.CompletedProcess:
+    js_file = tmp_path / name
+    js_file.write_text(script, encoding="utf-8")
+    return subprocess.run(
+        ["node", "--check", str(js_file)],
+        capture_output=True,
+    )
+
+
+def _full_unit(name: str) -> dict:
+    """effort + automation をすべて持つユニット（最多コードパス）。"""
+    return {
+        **make_unit(name),
+        "effort": {"duration": 1, "frequency": 4},
+        "automation": {"difficulty": "medium", "status": "manual"},
+    }
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node not installed")
+class TestGeneratedJsSyntax:
+    def test_process_html_no_effort(self, tmp_path):
+        html = _generate_html("proc", [make_unit("A"), make_unit("B")])
+        for i, script in enumerate(_extract_scripts(html)):
+            r = _check_js(script, tmp_path, f"no_effort_{i}.js")
+            assert r.returncode == 0, r.stderr.decode()
+
+    def test_process_html_with_effort_and_automation(self, tmp_path):
+        units = [_full_unit("A"), _full_unit("B")]
+        html = _generate_html("proc", units)
+        for i, script in enumerate(_extract_scripts(html)):
+            r = _check_js(script, tmp_path, f"effort_auto_{i}.js")
+            assert r.returncode == 0, r.stderr.decode()
+
+    def test_process_html_partial_effort(self, tmp_path):
+        """duration のみ（frequency なし）のケース。"""
+        u = {**make_unit("A"), "effort": {"duration": 2}}
+        html = _generate_html("proc", [u])
+        for i, script in enumerate(_extract_scripts(html)):
+            r = _check_js(script, tmp_path, f"partial_effort_{i}.js")
+            assert r.returncode == 0, r.stderr.decode()
+
+    def test_index_html_no_effort(self, tmp_path):
+        procs = {"proc-a": [make_unit("X")], "proc-b": [make_unit("Y")]}
+        html = _generate_index_html(procs)
+        for i, script in enumerate(_extract_scripts(html)):
+            r = _check_js(script, tmp_path, f"index_no_effort_{i}.js")
+            assert r.returncode == 0, r.stderr.decode()
+
+    def test_index_html_with_effort_and_automation(self, tmp_path):
+        procs = {
+            "proc-a": [_full_unit("X"), _full_unit("Y")],
+            "proc-b": [_full_unit("Z")],
+        }
+        html = _generate_index_html(procs)
+        for i, script in enumerate(_extract_scripts(html)):
+            r = _check_js(script, tmp_path, f"index_effort_{i}.js")
+            assert r.returncode == 0, r.stderr.decode()
