@@ -31,3 +31,9 @@ io:
 executor:
   type: ai_agent
   reason: PBIの技術的特性と各パターンの適用条件を照合する推論が必要なため
+effort:
+  duration: 0.5
+  frequency: 8
+automation:
+  difficulty: medium
+  status: manual

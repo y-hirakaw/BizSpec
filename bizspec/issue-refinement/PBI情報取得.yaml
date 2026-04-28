@@ -21,3 +21,9 @@ io:
 executor:
   type: script
   reason: gh CLI で一意に取得できる定型処理のため
+effort:
+  duration: 0.5
+  frequency: 20
+automation:
+  difficulty: low
+  status: automated

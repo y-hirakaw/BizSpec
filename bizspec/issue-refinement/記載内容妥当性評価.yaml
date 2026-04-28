@@ -25,3 +25,9 @@ io:
 executor:
   type: ai_agent
   reason: 自然言語の評価・推論が必要なため
+effort:
+  duration: 0.5
+  frequency: 20
+automation:
+  difficulty: medium
+  status: manual

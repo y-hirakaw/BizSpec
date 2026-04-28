@@ -27,3 +27,9 @@ io:
 executor:
   type: ai_agent
   reason: スコープの境界判断と分割後の独立性評価には推論が必要なため
+effort:
+  duration: 1
+  frequency: 5
+automation:
+  difficulty: high
+  status: manual

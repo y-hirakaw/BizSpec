@@ -28,3 +28,9 @@ io:
 executor:
   type: ai_agent
   reason: 複数レビュー結果の統合判断と自然言語サマリー生成が必要なため
+effort:
+  duration: 0.5
+  frequency: 40
+automation:
+  difficulty: medium
+  status: manual

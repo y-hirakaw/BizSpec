@@ -25,3 +25,9 @@ io:
 executor:
   type: ai_agent
   reason: 複雑度・不確実性の推論が必要なため
+effort:
+  duration: 1
+  frequency: 20
+automation:
+  difficulty: medium
+  status: manual

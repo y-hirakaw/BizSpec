@@ -360,12 +360,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 0.5,
+          "frequency": 20
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "low",
+          "status": "automated"
         }
       },
       "Ready判定": {
@@ -405,12 +405,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 0.5,
+          "frequency": 20
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "medium",
+          "status": "manual"
         }
       },
       "スコープ別PBI分割": {
@@ -453,12 +453,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 1,
+          "frequency": 5
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "high",
+          "status": "manual"
         }
       },
       "ストーリーポイント算出": {
@@ -500,12 +500,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 1,
+          "frequency": 20
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "medium",
+          "status": "manual"
         }
       },
       "スパイクPBI作成": {
@@ -549,12 +549,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 1,
+          "frequency": 3
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "high",
+          "status": "manual"
         }
       },
       "プラットフォーム別PBI分割": {
@@ -597,12 +597,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 1,
+          "frequency": 5
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "high",
+          "status": "manual"
         }
       },
       "分解パターン選択": {
@@ -650,12 +650,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 0.5,
+          "frequency": 8
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "medium",
+          "status": "manual"
         }
       },
       "技術PBI分解要否判断": {
@@ -701,12 +701,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 0.5,
+          "frequency": 10
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "medium",
+          "status": "manual"
         }
       },
       "記載内容妥当性評価": {
@@ -748,12 +748,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 0.5,
+          "frequency": 20
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "medium",
+          "status": "manual"
         }
       }
     },
@@ -891,12 +891,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 1,
+          "frequency": 40
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "medium",
+          "status": "partially-automated"
         }
       },
       "ロジックレビュー": {
@@ -939,12 +939,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 2,
+          "frequency": 40
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "medium",
+          "status": "partially-automated"
         }
       },
       "差分取得": {
@@ -982,14 +982,16 @@ const ALL_DATA = {
             "テストレビュー"
           ]
         },
-        "depends_on": [],
+        "depends_on": [
+          "issue-refinement:Ready判定"
+        ],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 0.5,
+          "frequency": 40
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "low",
+          "status": "automated"
         }
       },
       "承認判定": {
@@ -1033,12 +1035,12 @@ const ALL_DATA = {
         },
         "depends_on": [],
         "effort": {
-          "duration": null,
-          "frequency": null
+          "duration": 0.5,
+          "frequency": 40
         },
         "automation": {
-          "difficulty": null,
-          "status": null
+          "difficulty": "medium",
+          "status": "manual"
         }
       }
     },

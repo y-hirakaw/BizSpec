@@ -24,3 +24,11 @@ io:
 executor:
   type: script
   reason: GitHub API の定型呼び出しで完結するため
+depends_on:
+  - issue-refinement:Ready判定
+effort:
+  duration: 0.5
+  frequency: 40
+automation:
+  difficulty: low
+  status: automated

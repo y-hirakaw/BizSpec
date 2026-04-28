@@ -26,3 +26,9 @@ io:
 executor:
   type: ai_agent
   reason: テストの意図・網羅性の判断に推論が必要なため
+effort:
+  duration: 1
+  frequency: 40
+automation:
+  difficulty: medium
+  status: partially-automated

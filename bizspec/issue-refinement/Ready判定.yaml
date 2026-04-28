@@ -23,3 +23,9 @@ io:
 executor:
   type: ai_agent
   reason: 複数評価結果の統合判断が必要なため
+effort:
+  duration: 0.5
+  frequency: 20
+automation:
+  difficulty: medium
+  status: manual

@@ -26,3 +26,9 @@ io:
 executor:
   type: ai_agent
   reason: コードの意図理解と設計判断に自然言語推論が必要なため
+effort:
+  duration: 2
+  frequency: 40
+automation:
+  difficulty: medium
+  status: partially-automated

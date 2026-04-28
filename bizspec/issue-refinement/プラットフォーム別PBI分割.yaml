@@ -27,3 +27,9 @@ io:
 executor:
   type: ai_agent
   reason: プラットフォーム間の依存関係と実装スコープの分離には推論が必要なため
+effort:
+  duration: 1
+  frequency: 5
+automation:
+  difficulty: high
+  status: manual

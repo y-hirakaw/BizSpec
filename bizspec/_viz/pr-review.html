@@ -266,12 +266,12 @@ const units     = {
     },
     "depends_on": [],
     "effort": {
-      "duration": null,
-      "frequency": null
+      "duration": 1,
+      "frequency": 40
     },
     "automation": {
-      "difficulty": null,
-      "status": null
+      "difficulty": "medium",
+      "status": "partially-automated"
     }
   },
   "ロジックレビュー": {
@@ -314,12 +314,12 @@ const units     = {
     },
     "depends_on": [],
     "effort": {
-      "duration": null,
-      "frequency": null
+      "duration": 2,
+      "frequency": 40
     },
     "automation": {
-      "difficulty": null,
-      "status": null
+      "difficulty": "medium",
+      "status": "partially-automated"
     }
   },
   "差分取得": {
@@ -357,14 +357,16 @@ const units     = {
         "テストレビュー"
       ]
     },
-    "depends_on": [],
+    "depends_on": [
+      "issue-refinement:Ready判定"
+    ],
     "effort": {
-      "duration": null,
-      "frequency": null
+      "duration": 0.5,
+      "frequency": 40
     },
     "automation": {
-      "difficulty": null,
-      "status": null
+      "difficulty": "low",
+      "status": "automated"
     }
   },
   "承認判定": {
@@ -408,12 +410,12 @@ const units     = {
     },
     "depends_on": [],
     "effort": {
-      "duration": null,
-      "frequency": null
+      "duration": 0.5,
+      "frequency": 40
     },
     "automation": {
-      "difficulty": null,
-      "status": null
+      "difficulty": "medium",
+      "status": "manual"
     }
   }
 };

@@ -29,3 +29,9 @@ io:
 executor:
   type: ai_agent
   reason: SP と技術的複雑度を組み合わせた状況判断が必要なため
+effort:
+  duration: 0.5
+  frequency: 10
+automation:
+  difficulty: medium
+  status: manual

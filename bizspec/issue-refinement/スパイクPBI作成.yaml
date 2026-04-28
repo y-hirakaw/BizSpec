@@ -28,3 +28,9 @@ io:
 executor:
   type: ai_agent
   reason: 不確実性の原因特定と調査項目の具体化には推論が必要なため
+effort:
+  duration: 1
+  frequency: 3
+automation:
+  difficulty: high
+  status: manual
