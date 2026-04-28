@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import pytest
-from bizspec.search_cmd import run_search, _search_process, _extract_texts
+from bizspec.search_cmd import run_search, _search_process, _extract_texts, _ALL_FIELDS
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -55,6 +55,20 @@ class TestExtractTexts:
         fields = {f for f, _ in pairs}
         assert "io.run" in fields
 
+    def test_extracts_executor_type(self):
+        data = make_unit_data()
+        data["executor"] = {"type": "script", "reason": "定型処理"}
+        pairs = _extract_texts(data, ("executor",))
+        fields_vals = {f: t for f, t in pairs}
+        assert fields_vals.get("executor.type") == "script"
+
+    def test_extracts_executor_reason(self):
+        data = make_unit_data()
+        data["executor"] = {"type": "ai_agent", "reason": "推論が必要"}
+        pairs = _extract_texts(data, ("executor",))
+        fields_vals = {f: t for f, t in pairs}
+        assert fields_vals.get("executor.reason") == "推論が必要"
+
 
 # ── _search_process ────────────────────────────────────────────────────────────
 
@@ -87,6 +101,29 @@ class TestSearchProcess:
         hits_rule = _search_process(tmp_path, "Google Drive", ("rule",))
         assert len(hits_aim) == 1
         assert len(hits_rule) == 0
+
+    def test_finds_keyword_in_executor_type(self, tmp_path):
+        data = make_unit_data()
+        data["executor"] = {"type": "script", "reason": "定型処理"}
+        write_yaml(tmp_path / "UnitA.yaml", data)
+        hits = _search_process(tmp_path, "script", ("executor",))
+        assert len(hits) == 1
+        assert any(f == "executor.type" for f, _ in hits[0]["matches"])
+
+    def test_finds_keyword_in_executor_reason(self, tmp_path):
+        data = make_unit_data()
+        data["executor"] = {"type": "ai_agent", "reason": "API呼び出しで完結"}
+        write_yaml(tmp_path / "UnitA.yaml", data)
+        hits = _search_process(tmp_path, "API", ("executor",))
+        assert len(hits) == 1
+        assert any(f == "executor.reason" for f, _ in hits[0]["matches"])
+
+    def test_executor_not_in_default_field_restriction(self, tmp_path):
+        data = make_unit_data(aim="無関係")
+        data["executor"] = {"type": "script", "reason": "定型"}
+        write_yaml(tmp_path / "UnitA.yaml", data)
+        hits_all = _search_process(tmp_path, "script", _ALL_FIELDS)
+        assert len(hits_all) == 1
 
 
 # ── run_search ────────────────────────────────────────────────────────────────

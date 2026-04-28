@@ -71,13 +71,15 @@ bizspec new issue-refinement Ready判定 --up 記載内容妥当性評価 --down
 ```sh
 bizspec search "Google Drive"
 bizspec search "PdM" --field aim job
+bizspec search "ai_agent" --field executor
+bizspec search "API" --field executor
 ```
 
 **オプション:**
 
 | オプション | 説明 |
 |-----------|------|
-| `--field FIELD ...` | 検索対象フィールドを絞る（`unit` / `aim` / `job` / `rule` / `io`）。省略時は全フィールドを対象 |
+| `--field FIELD ...` | 検索対象フィールドを絞る（`unit` / `aim` / `job` / `rule` / `io` / `executor`）。省略時は全フィールドを対象 |
 
 マッチした unit のプロセス名・unit 名・ヒットしたフィールドと内容を一覧表示する。ヒットが0件の場合は終了コード 1。
 
