@@ -289,3 +289,50 @@ class TestAutomationOptionalFields:
             write_unit(tmp_path, "UnitA", content)
             errors, _ = _check_file(tmp_path / "UnitA.yaml")
             assert errors == [], f"status={status} should be valid"
+
+
+class TestDependsOn:
+    def test_valid_depends_on_passes(self, tmp_path):
+        content = make_unit("UnitA") + "depends_on:\n  - other-proc:UnitB\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert errors == []
+
+    def test_multiple_deps_pass(self, tmp_path):
+        content = make_unit("UnitA") + "depends_on:\n  - proc-a:X\n  - proc-b:Y\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert errors == []
+
+    def test_not_list_fails(self, tmp_path):
+        content = make_unit("UnitA") + "depends_on: other-proc:UnitB\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert any(e.field == "depends_on" for e in errors)
+
+    def test_missing_colon_fails(self, tmp_path):
+        content = make_unit("UnitA") + "depends_on:\n  - other-proc-UnitB\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert any(e.field == "depends_on" for e in errors)
+
+    def test_cross_process_exists_passes(self, tmp_path):
+        bizspec = tmp_path / "bizspec"
+        proc_a = bizspec / "proc-a"
+        proc_b = bizspec / "proc-b"
+        proc_a.mkdir(parents=True)
+        proc_b.mkdir(parents=True)
+        write_unit(proc_b, "UnitB", make_unit("UnitB"))
+        content = make_unit("UnitA") + "depends_on:\n  - proc-b:UnitB\n"
+        write_unit(proc_a, "UnitA", content)
+        errors = _check_process(proc_a, bizspec)
+        assert errors == []
+
+    def test_cross_process_missing_fails(self, tmp_path):
+        bizspec = tmp_path / "bizspec"
+        proc_a = bizspec / "proc-a"
+        proc_a.mkdir(parents=True)
+        content = make_unit("UnitA") + "depends_on:\n  - proc-b:UnitB\n"
+        write_unit(proc_a, "UnitA", content)
+        errors = _check_process(proc_a, bizspec)
+        assert any(e.field == "depends_on" for e in errors)

@@ -52,6 +52,7 @@ def run_list(args) -> int:
         has_duration   = any(isinstance(u.get("effort"), dict) and u["effort"].get("duration") for u in units)
         has_frequency  = any(isinstance(u.get("effort"), dict) and u["effort"].get("frequency") for u in units)
         has_difficulty = any(isinstance(u.get("automation"), dict) and u["automation"].get("difficulty") for u in units)
+        has_deps       = any(isinstance(u.get("depends_on"), list) and u["depends_on"] for u in units)
 
         header = f"  {'unit':<{name_w}}  {'core':<6}  {'executor':<12}"
         sep    = f"  {'─' * name_w}  {'─' * 6}  {'─' * 12}"
@@ -61,6 +62,8 @@ def run_list(args) -> int:
             header += f"  {'freq/月':<8}"; sep += f"  {'─' * 8}"
         if has_difficulty:
             header += f"  difficulty"; sep += f"  {'─' * 10}"
+        if has_deps:
+            header += f"  deps"; sep += f"  {'─' * 4}"
         print(header)
         print(sep)
 
@@ -84,6 +87,10 @@ def run_list(args) -> int:
                 aut = u.get("automation") or {}
                 diff = str(aut.get("difficulty", "")) if isinstance(aut, dict) else ""
                 row += f"  {diff}"
+            if has_deps:
+                dep_list = u.get("depends_on")
+                dep_count = str(len(dep_list)) if isinstance(dep_list, list) and dep_list else ""
+                row += f"  {dep_count}"
             print(row)
 
     print()

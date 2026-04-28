@@ -100,6 +100,8 @@ bizspec validate issue-refinement   # 特定プロセスのみ検証
 - `executor.type` が `script` / `ai_agent` / `manual` のいずれかであること
 - `link.up/down` の参照先ファイルが存在すること
 - `link.up/down` の双方向整合性
+- `depends_on`（設定時）が `プロセス名:unit名` 形式のリストであること
+- `depends_on` の参照先ファイル（`bizspec/<process>/<unit>.yaml`）が存在すること
 - `effort.duration`（設定時）がフィボナッチ数列（0.5 / 1 / 2 / 3 / 5 / 8 / 13 / 21）のいずれかであること
 - `effort.frequency`（設定時）が 1 以上の整数（月間実行回数）であること
 - `automation.difficulty`（設定時）が `low` / `medium` / `high` のいずれかであること

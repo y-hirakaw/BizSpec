@@ -60,6 +60,8 @@ io:
 executor:
   type: script | ai_agent | manual
   reason: なぜその主体を選んだかの根拠
+depends_on:              # 他プロセスの unit への依存（省略可）
+  - other-process:UnitName  # 形式: プロセス名:unit名
 # オプションフィールド（省略可）
 effort:
   duration: 0.5           # 1回あたりの所要時間（時間単位、フィボナッチ数列: 0.5/1/2/3/5/8/13/21）
@@ -69,7 +71,7 @@ automation:
   status: manual | partially-automated | automated
 ```
 
-`core: undetermined` はユーザー確認が必要な場合に使用。`phase` は自由記述でフォルダ分けではなくフィールドで管理する。`effort` / `automation` は省略可能なオプションフィールド。存在する場合は `bizspec list` の列と `bizspec viz` の詳細パネルに表示される。`effort.duration × effort.frequency` で月間コストを算出し、`bizspec viz` のヒートマップ（低/中/高）に反映される。
+`core: undetermined` はユーザー確認が必要な場合に使用。`phase` は自由記述でフォルダ分けではなくフィールドで管理する。`depends_on` は他プロセスの unit への依存を `プロセス名:unit名` 形式で記述する（省略可）。`effort` / `automation` は省略可能なオプションフィールド。存在する場合は `bizspec list` の列と `bizspec viz` の詳細パネルに表示される。`effort.duration × effort.frequency` で月間コストを算出し、`bizspec viz` のヒートマップ（低/中/高）に反映される。
 
 ## 開発環境
 

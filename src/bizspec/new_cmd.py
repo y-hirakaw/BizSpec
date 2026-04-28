@@ -25,6 +25,8 @@ io:
 executor:
   type: {executor}
   reason: TODO
+# depends_on:                # 他プロセスの unit への依存（省略可）
+#   - other-process:UnitName # 形式: プロセス名:unit名
 # --- optional ---
 # effort:
 #   duration: 0.5       # 1回あたりの所要時間（単位: 時間。30分=0.5）フィボナッチ数列のみ

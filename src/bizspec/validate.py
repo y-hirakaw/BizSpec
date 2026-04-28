@@ -169,10 +169,21 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
         if key in data and isinstance(data[key], list) and len(data[key]) == 0:
             errors.append(VError(path, key, "空リストは許可されていません"))
 
+    # depends_on (optional)
+    if "depends_on" in data:
+        deps = data["depends_on"]
+        if not isinstance(deps, list):
+            errors.append(VError(path, "depends_on", "リストである必要があります"))
+        else:
+            for entry in deps:
+                if not isinstance(entry, str) or ":" not in entry:
+                    errors.append(VError(path, "depends_on",
+                        f"'process:unit' 形式で記述してください（現在: {entry!r}）"))
+
     return errors, data
 
 
-def _check_process(process_dir: Path) -> list[VError]:
+def _check_process(process_dir: Path, bizspec_dir: Optional[Path] = None) -> list[VError]:
     yaml_files = sorted(p for p in process_dir.glob("*.yaml") if not p.name.startswith("_"))
     if not yaml_files:
         return []
@@ -209,6 +220,20 @@ def _check_process(process_dir: Path) -> list[VError]:
                         errors.append(VError(path, f"link.{direction}",
                             f"'{target}' の link.{opposite} に '{unit_name}' がありません（双方向リンク不整合）"))
 
+        # depends_on のクロスプロセス存在確認
+        if bizspec_dir is not None:
+            deps = data.get("depends_on")
+            if not isinstance(deps, list):
+                continue
+            for entry in deps:
+                if not isinstance(entry, str) or ":" not in entry:
+                    continue
+                ref_proc, ref_unit = entry.split(":", 1)
+                ref_file = bizspec_dir / ref_proc / f"{ref_unit}.yaml"
+                if not ref_file.exists():
+                    errors.append(VError(path, "depends_on",
+                        f"'{entry}' が存在しません（{ref_file} が見つかりません）"))
+
     return errors
 
 
@@ -235,7 +260,7 @@ def run_validate(args) -> int:
     print()
 
     for process_dir in process_dirs:
-        errors = _check_process(process_dir)
+        errors = _check_process(process_dir, bizspec_dir)
         label = process_dir.relative_to(root)
 
         if errors:

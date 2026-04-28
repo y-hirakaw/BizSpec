@@ -132,7 +132,8 @@ def _unit_to_js(u: dict) -> dict:
         "rule":     lst(u.get("rule")),
         "io":       {"in": lst(io.get("in")), "run": lst(io.get("run")), "out": lst(io.get("out"))},
         "executor": {"type": str(exe.get("type", "")), "reason": str(exe.get("reason", ""))},
-        "link":     {"up": lst(link.get("up")), "down": lst(link.get("down"))},
+        "link":       {"up": lst(link.get("up")), "down": lst(link.get("down"))},
+        "depends_on": lst(u.get("depends_on")),
         "effort":   {"duration": dur, "frequency": freq},
         "automation": {
             "difficulty": opt_str(aut.get("difficulty")),
@@ -446,6 +447,10 @@ svg.arrows-layer {
   cursor: pointer; transition: background 0.1s;
 }
 .link-chip:hover { background: #DBEAFE; }
+.link-chip-ext {
+  background: #F5F3FF; color: #6D28D9; border-color: #DDD6FE; cursor: default;
+}
+.link-chip-ext:hover { background: #EDE9FE; }
 .link-empty { font-size: 12px; color: #D1D5DB; font-style: italic; }
 
 .meta-grid { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -722,7 +727,12 @@ function renderDetail(name) {
     <div class="section">
       <div class="section-label">Link · Down</div>
       <div class="link-chips">${chips(u.link.down)}</div>
-    </div>`;
+    </div>
+    ${u.depends_on && u.depends_on.length ? `
+    <div class="section">
+      <div class="section-label">Depends On（外部プロセス）</div>
+      <div class="link-chips">${u.depends_on.map(d => '<span class="link-chip link-chip-ext" title="' + d + '">' + d + '</span>').join("")}</div>
+    </div>` : ''}`;
 }
 
 function jumpTo(name) {
@@ -1015,6 +1025,10 @@ svg.arrows-layer {
   cursor: pointer; transition: background 0.1s;
 }
 .link-chip:hover { background: #DBEAFE; }
+.link-chip-ext {
+  background: #F5F3FF; color: #6D28D9; border-color: #DDD6FE; cursor: default;
+}
+.link-chip-ext:hover { background: #EDE9FE; }
 .link-empty { font-size: 12px; color: #D1D5DB; font-style: italic; }
 
 .meta-grid { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -1331,7 +1345,12 @@ function renderDetail(name) {
     <div class="section">
       <div class="section-label">Link · Down</div>
       <div class="link-chips">${chips(u.link.down)}</div>
-    </div>`;
+    </div>
+    ${u.depends_on && u.depends_on.length ? `
+    <div class="section">
+      <div class="section-label">Depends On（外部プロセス）</div>
+      <div class="link-chips">${u.depends_on.map(d => '<span class="link-chip link-chip-ext" title="' + d + '">' + d + '</span>').join("")}</div>
+    </div>` : ''}`;
 }
 
 function jumpTo(name) {
