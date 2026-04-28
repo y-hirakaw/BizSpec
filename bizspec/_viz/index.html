@@ -130,7 +130,8 @@ body {
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   transform: translateY(-2px);
 }
-.proc-card-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.proc-card-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.proc-card-slug { font-size: 11px; color: #9CA3AF; margin-bottom: 4px; }
 .proc-card-count { font-size: 12px; color: #6B7280; margin-bottom: 14px; }
 .proc-card-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
 .pill { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
@@ -204,6 +205,9 @@ svg.arrows-layer {
 .node.selected { box-shadow: 0 0 0 3px #2563EB, 0 4px 14px rgba(37,99,235,0.18); }
 .node.core-true  { background: #EFF6FF; border: 2px solid #93C5FD; }
 .node.core-false { background: #F9FAFB; border: 2px solid #D1D5DB; }
+.node.heat-low    { background: #FEF9C3 !important; border-color: #FDE047 !important; }
+.node.heat-medium { background: #FFEDD5 !important; border-color: #FB923C !important; }
+.node.heat-high   { background: #FEE2E2 !important; border-color: #F87171 !important; }
 .node-name   { font-size: 11px; font-weight: 600; color: #111827; line-height: 1.35; }
 .node-badges { display: flex; gap: 4px; align-items: center; }
 .badge { font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
@@ -211,6 +215,9 @@ svg.arrows-layer {
 .badge-ai_agent { background: #EDE9FE; color: #5B21B6; }
 .badge-manual   { background: #FEF3C7; color: #92400E; }
 .badge-core     { background: #DBEAFE; color: #1D4ED8; }
+.badge-heat-low    { background: #FEF9C3; color: #854D0E; }
+.badge-heat-medium { background: #FFEDD5; color: #9A3412; }
+.badge-heat-high   { background: #FEE2E2; color: #991B1B; }
 
 #detail-panel {
   flex: 1 1 0;
@@ -265,7 +272,19 @@ svg.arrows-layer {
   cursor: pointer; transition: background 0.1s;
 }
 .link-chip:hover { background: #DBEAFE; }
+.link-chip-ext {
+  background: #F5F3FF; color: #6D28D9; border-color: #DDD6FE; cursor: default;
+}
+.link-chip-ext:hover { background: #EDE9FE; }
 .link-empty { font-size: 12px; color: #D1D5DB; font-style: italic; }
+
+.meta-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.meta-item { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; padding: 8px 12px; min-width: 120px; }
+.meta-key { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #9CA3AF; margin-bottom: 3px; }
+.meta-val { font-size: 13px; font-weight: 500; color: #374151; }
+.meta-diff-low    { color: #059669; }
+.meta-diff-medium { color: #D97706; }
+.meta-diff-high   { color: #DC2626; }
 </style>
 </head>
 <body>
@@ -305,6 +324,7 @@ svg.arrows-layer {
 <script>
 const ALL_DATA = {
   "issue-refinement": {
+    "displayName": "PBIリファインメント",
     "units": {
       "PBI情報取得": {
         "aim": "GitHub から PBI の本文・ラベル・マイルストーン等を取得する",
@@ -337,6 +357,15 @@ const ALL_DATA = {
           "down": [
             "記載内容妥当性評価"
           ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       },
       "Ready判定": {
@@ -373,6 +402,15 @@ const ALL_DATA = {
           "down": [
             "ストーリーポイント算出"
           ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       },
       "スコープ別PBI分割": {
@@ -412,6 +450,15 @@ const ALL_DATA = {
             "分解パターン選択"
           ],
           "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       },
       "ストーリーポイント算出": {
@@ -450,6 +497,15 @@ const ALL_DATA = {
           "down": [
             "技術PBI分解要否判断"
           ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       },
       "スパイクPBI作成": {
@@ -490,6 +546,15 @@ const ALL_DATA = {
             "分解パターン選択"
           ],
           "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       },
       "プラットフォーム別PBI分割": {
@@ -529,6 +594,15 @@ const ALL_DATA = {
             "分解パターン選択"
           ],
           "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       },
       "分解パターン選択": {
@@ -573,6 +647,15 @@ const ALL_DATA = {
             "スパイクPBI作成",
             "スコープ別PBI分割"
           ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       },
       "技術PBI分解要否判断": {
@@ -615,6 +698,15 @@ const ALL_DATA = {
           "down": [
             "分解パターン選択"
           ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       },
       "記載内容妥当性評価": {
@@ -653,6 +745,15 @@ const ALL_DATA = {
             "Ready判定",
             "技術PBI分解要否判断"
           ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       }
     },
@@ -748,6 +849,7 @@ const ALL_DATA = {
     }
   },
   "pr-review": {
+    "displayName": "PRレビュー",
     "units": {
       "テストレビュー": {
         "aim": "テストコードの網羅性と品質を評価する",
@@ -786,6 +888,15 @@ const ALL_DATA = {
           "down": [
             "承認判定"
           ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       },
       "ロジックレビュー": {
@@ -825,6 +936,15 @@ const ALL_DATA = {
           "down": [
             "承認判定"
           ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       },
       "差分取得": {
@@ -861,6 +981,15 @@ const ALL_DATA = {
             "ロジックレビュー",
             "テストレビュー"
           ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       },
       "承認判定": {
@@ -901,6 +1030,15 @@ const ALL_DATA = {
             "テストレビュー"
           ],
           "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": null,
+          "frequency": null
+        },
+        "automation": {
+          "difficulty": null,
+          "status": null
         }
       }
     },
@@ -976,10 +1114,11 @@ let currentSvg   = null;
 
 // ── Sidebar ───────────────────────────────────────────────
 Object.entries(ALL_DATA).forEach(([name, proc]) => {
+  const label = proc.displayName || name;
   const item = document.createElement("div");
   item.className = "sb-item";
   item.dataset.proc = name;
-  item.innerHTML = `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</span><span class="sb-count">${proc.stats.unit_count}</span>`;
+  item.innerHTML = `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</span><span class="sb-count">${proc.stats.unit_count}</span>`;
   item.addEventListener("click", () => showProcess(name));
   procNav.appendChild(item);
 });
@@ -987,6 +1126,8 @@ Object.entries(ALL_DATA).forEach(([name, proc]) => {
 // ── Overview cards ────────────────────────────────────────
 Object.entries(ALL_DATA).forEach(([name, proc]) => {
   const s = proc.stats;
+  const label = proc.displayName || name;
+  const slugHtml = proc.displayName ? `<div class="proc-card-slug">${name}</div>` : "";
   const exePills = Object.entries(s.executor)
     .filter(([, n]) => n > 0)
     .map(([t, n]) => `<span class="pill pill-${t}">${t}: ${n}</span>`)
@@ -997,7 +1138,8 @@ Object.entries(ALL_DATA).forEach(([name, proc]) => {
   const card = document.createElement("div");
   card.className = "proc-card";
   card.innerHTML = `
-    <div class="proc-card-name">${name}</div>
+    <div class="proc-card-name">${label}</div>
+    ${slugHtml}
     <div class="proc-card-count">${s.unit_count} units</div>
     <div class="proc-card-pills">${phasePills}${exePills}</div>
     <div class="proc-card-footer">core: ${s.core_count} / ${s.unit_count}</div>`;
@@ -1021,11 +1163,28 @@ function showProcess(name) {
   overviewV.style.display = "none";
   flowV.style.display = "flex";
   backBtn.style.display = "flex";
-  topTitle.textContent = name;
-  topSub.textContent = `${proc.stats.unit_count} units`;
+  topTitle.textContent = proc.displayName || name;
+  topSub.textContent = proc.displayName ? `${name} · ${proc.stats.unit_count} units` : `${proc.stats.unit_count} units`;
   document.querySelectorAll(".sb-item").forEach(el =>
     el.classList.toggle("active", el.dataset.proc === name));
   renderFlow(proc);
+}
+
+// ── Heat map ─────────────────────────────────────────────
+function computeHeat(unitMap) {
+  const costs = Object.entries(unitMap)
+    .map(([n, u]) => {
+      const d = u.effort && u.effort.duration, f = u.effort && u.effort.frequency;
+      return (d != null && f != null) ? {name: n, cost: d * f} : null;
+    }).filter(Boolean);
+  if (!costs.length) return {};
+  const sorted = [...costs].sort((a, b) => a.cost - b.cost);
+  const n = sorted.length;
+  const heat = {};
+  sorted.forEach(({name}, i) => {
+    heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
+  });
+  return heat;
 }
 
 // ── Flow rendering ────────────────────────────────────────
@@ -1091,20 +1250,27 @@ function renderFlow(proc) {
   currentSvg = svg;
   flowCanvas.appendChild(svg);
 
+  // Heat map
+  const heatMap = computeHeat(units);
+
   // Nodes
   Object.entries(positions).forEach(([name, pos]) => {
     const u = units[name];
     if (!u) return;
     const div = document.createElement("div");
-    div.className  = `node core-${u.core}`;
+    const heatClass = heatMap[name] ? ` heat-${heatMap[name]}` : "";
+    div.className  = `node core-${u.core}${heatClass}`;
     div.style.left = pos.left + "px";
     div.style.top  = pos.top  + "px";
     div.dataset.name = name;
+    const costVal = (u.effort.duration != null && u.effort.frequency != null)
+      ? u.effort.duration * u.effort.frequency : null;
     div.innerHTML = `
       <div class="node-name">${name}</div>
       <div class="node-badges">
         <span class="badge badge-${u.executor.type}">${u.executor.type}</span>
         ${u.core ? '<span class="badge badge-core">core</span>' : ''}
+        ${costVal != null ? `<span class="badge badge-heat-${heatMap[name]}">${costVal}h/mo</span>` : ''}
       </div>`;
     div.addEventListener("click", () => {
       document.querySelectorAll(".node.selected").forEach(n => n.classList.remove("selected"));
@@ -1179,6 +1345,17 @@ function renderDetail(name) {
         <div class="executor-reason">${u.executor.reason}</div>
       </div>
     </div>
+    ${(u.effort.duration != null || u.effort.frequency != null || u.automation.difficulty || u.automation.status) ? `
+    <div class="section">
+      <div class="section-label">Effort / Automation</div>
+      <div class="meta-grid">
+        ${u.effort.duration != null ? `<div class="meta-item"><div class="meta-key">所要時間</div><div class="meta-val">${u.effort.duration}h</div></div>` : ''}
+        ${u.effort.frequency != null ? `<div class="meta-item"><div class="meta-key">月間頻度</div><div class="meta-val">${u.effort.frequency}回/月</div></div>` : ''}
+        ${(u.effort.duration != null && u.effort.frequency != null) ? (() => { const cost = u.effort.duration * u.effort.frequency; const diffNum = {low:1,medium:2,high:3}[u.automation.difficulty] || null; const lev = diffNum ? Math.round(cost / diffNum * 10) / 10 : null; let html = '<div class="meta-item"><div class="meta-key">月間コスト</div><div class="meta-val">' + cost + 'h/月</div></div>'; if (lev != null) { html += '<div class="meta-item"><div class="meta-key">自動化レバレッジ</div><div class="meta-val">' + lev + '</div></div>'; } return html; })() : ''}
+        ${u.automation.difficulty ? `<div class="meta-item"><div class="meta-key">自動化難易度</div><div class="meta-val meta-diff-${u.automation.difficulty}">${u.automation.difficulty}</div></div>` : ''}
+        ${u.automation.status ? `<div class="meta-item"><div class="meta-key">自動化状況</div><div class="meta-val">${u.automation.status}</div></div>` : ''}
+      </div>
+    </div>` : ''}
     <div class="section">
       <div class="section-label">Link · Up</div>
       <div class="link-chips">${chips(u.link.up)}</div>
@@ -1186,7 +1363,12 @@ function renderDetail(name) {
     <div class="section">
       <div class="section-label">Link · Down</div>
       <div class="link-chips">${chips(u.link.down)}</div>
-    </div>`;
+    </div>
+    ${u.depends_on && u.depends_on.length ? `
+    <div class="section">
+      <div class="section-label">Depends On（外部プロセス）</div>
+      <div class="link-chips">${u.depends_on.map(d => '<span class="link-chip link-chip-ext" title="' + d + '">' + d + '</span>').join("")}</div>
+    </div>` : ''}`;
 }
 
 function jumpTo(name) {
