@@ -39,7 +39,7 @@ bizspec init
 - そのままエンター（または `1`）→ カレントディレクトリの `.claude/skills/` にインストール
 - `2` → `~/.claude/skills/` にインストール（全プロジェクトで使用可能）
 
-インストールされるスキル: `/bizspec-refine`、`/bizspec-run`、`/bizspec-refactor`
+インストールされるスキル: `/bizspec-refine`、`/bizspec-refactor`
 
 ### `bizspec new <process> <unit-name>`
 
@@ -98,7 +98,8 @@ bizspec validate issue-refinement   # 特定プロセスのみ検証
 - `executor.type` が `script` / `ai_agent` / `manual` のいずれかであること
 - `link.up/down` の参照先ファイルが存在すること
 - `link.up/down` の双方向整合性
-- `effort.duration`（設定時）が 0 より大きい数値（時間単位）であること
+- `effort.duration`（設定時）がフィボナッチ数列（0.5 / 1 / 2 / 3 / 5 / 8 / 13 / 21）のいずれかであること
+- `effort.frequency`（設定時）が 1 以上の整数（月間実行回数）であること
 - `automation.difficulty`（設定時）が `low` / `medium` / `high` のいずれかであること
 - `automation.status`（設定時）が `manual` / `partially-automated` / `automated` のいずれかであること
 
@@ -113,7 +114,7 @@ bizspec list                    # 全プロセスを表示
 bizspec list issue-refinement   # 特定プロセスのみ表示
 ```
 
-unit名・core・executor.type をプロセスごとに一覧表示する。いずれかの unit に `effort.duration` / `automation.difficulty` が設定されている場合は、対応する列が自動的に追加される。
+unit名・core・executor.type をプロセスごとに一覧表示する。いずれかの unit に `effort.duration` / `effort.frequency` / `automation.difficulty` が設定されている場合は、対応する列が自動的に追加される。
 
 ### `bizspec viz [process]`
 
@@ -168,33 +169,6 @@ Claude Code（`claude` CLI またはデスクトップアプリ）上で `/` コ
 4. `bizspec/<プロセス名>/<unit名>.yaml` に保存する
 5. `bizspec validate` で検証し、結果を報告する
 
-### `/bizspec-run [プロセス名]`
-
-BizSpec プロセスを unit 単位でトポロジカル順に実行する。
-
-```
-/bizspec-run                    # 全プロセスを実行
-/bizspec-run issue-refinement   # 特定プロセスのみ実行
-```
-
-**executor.type ごとの動作:**
-
-| type | 動作 |
-|------|------|
-| `script` | `io.run` のコマンドを Bash で実行する |
-| `ai_agent` | Claude が `job` / `rule` / `io` に従って処理を実行する |
-| `manual` | 作業内容を表示してユーザーの完了報告を待つ |
-
-**実行記録の出力先:**
-
-```
-bizspec/_run/<YYYYMMDD-HHMMSS>/<プロセス名>/
-  state.json          # 全 unit のステータス（pending / running / done / failed / skipped）と出力
-  <unit名>.out.md     # ai_agent / manual の出力内容
-```
-
-実行のたびに新しいディレクトリが作られるため、過去の実行記録は上書きされない。`bizspec/_run/` はリポジトリに含めない（`.gitignore` 済み）。
-
 ### `/bizspec-refactor`
 
 複数の BizSpec プロセスを横断してリファクタリング提案を行う。引数なしで起動し、対話形式で対象プロセスと観点を設定する。
@@ -208,7 +182,7 @@ bizspec/_run/<YYYYMMDD-HHMMSS>/<プロセス名>/
 1. **対象プロセスの選択** — `bizspec/` 以下のプロセスを番号で選択（複数可、`a` で全選択）
 2. **リファクタリングの観点**（省略可）— 例: `manual を減らしたい` / `AI 化できる unit を探したい`
 
-**分析の4軸:**
+**分析の7軸:**
 
 | 軸 | 内容 |
 |----|------|
@@ -216,6 +190,9 @@ bizspec/_run/<YYYYMMDD-HHMMSS>/<プロセス名>/
 | 不要候補 | ゴール達成への貢献が薄い unit を検出（core: false / 末端ノード / manual など） |
 | 統合候補 | 同一プロセス内で分割しすぎている隣接 unit を検出 |
 | 順序最適化 | 直列になっているが実は並列実行できる unit を検出 |
+| Dead End | フロー途中に後続がなく、ゴールに繋がっていない孤立末端 unit を検出 |
+| Serial Bottleneck | 多数の上流が1 unit に集中しており流れを絞り込んでいる箇所を検出 |
+| Context Fragmentation | 同一文脈の処理が不必要に複数 unit に断片化されている箇所を検出 |
 
 **提案の適用:**
 - **順序最適化 / 不要候補の削除 / 統合マージ**: ユーザー確認後に YAML を直接更新

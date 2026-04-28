@@ -11,6 +11,7 @@ REQUIRED_FIELDS = ["unit", "aim", "phase", "job", "rule", "link", "core", "io", 
 VALID_EXECUTOR_TYPES = {"script", "ai_agent", "manual"}
 VALID_DIFFICULTY     = {"low", "medium", "high"}
 VALID_AUTO_STATUS    = {"manual", "partially-automated", "automated"}
+FIBONACCI_HOURS      = {0.5, 1, 2, 3, 5, 8, 13, 21}
 NON_EMPTY_LIST_FIELDS = ["job", "rule"]
 
 
@@ -140,10 +141,15 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
             dur = eff["duration"]
             if isinstance(dur, bool) or not isinstance(dur, (int, float)):
                 errors.append(VError(path, "effort.duration",
-                    "数値（時間単位）でなければなりません（例: 0.5 / 1 / 2.5）"))
-            elif dur <= 0:
+                    "数値（時間単位）でなければなりません（例: 0.5 / 1 / 2 / 3 / 5 / 8 / 13 / 21）"))
+            elif dur not in FIBONACCI_HOURS:
                 errors.append(VError(path, "effort.duration",
-                    "0より大きい値でなければなりません"))
+                    f"フィボナッチ数列 {sorted(FIBONACCI_HOURS)} のいずれかでなければなりません（現在: {dur}）"))
+        if "frequency" in eff and isinstance(eff, dict):
+            freq = eff["frequency"]
+            if isinstance(freq, bool) or not isinstance(freq, int) or freq <= 0:
+                errors.append(VError(path, "effort.frequency",
+                    "1以上の整数（月間実行回数）でなければなりません"))
 
     # automation (optional)
     if "automation" in data:

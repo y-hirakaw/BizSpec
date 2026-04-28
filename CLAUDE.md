@@ -13,7 +13,6 @@ BizSpec は、既存の業務プロセスを AI-Native 形式にリファクタ�
 ```
 .claude/skills/
   bizspec-refine/SKILL.md       # /bizspec-refine スキル（プロセス分解 → YAML生成・更新）
-  bizspec-run/SKILL.md          # /bizspec-run スキル（プロセスをunit単位で実行）
   bizspec-refactor/SKILL.md     # /bizspec-refactor スキル（横断リファクタリング提案）
 bizspec/
   <プロセス名>/                  # プロセスごとにフォルダを切る
@@ -23,7 +22,6 @@ bizspec/
     <プロセス名>.html
 src/bizspec/skills/             # パッケージ同梱スキル（bizspec init でコピー元になる）
   bizspec-refine/SKILL.md
-  bizspec-run/SKILL.md
   bizspec-refactor/SKILL.md
 BizSpec_要求仕様.md              # 要件定義書
 ```
@@ -64,13 +62,14 @@ executor:
   reason: なぜその主体を選んだかの根拠
 # オプションフィールド（省略可）
 effort:
-  duration: 0.5           # 1回あたりの所要時間（単位: 時間。30分=0.5）
+  duration: 0.5           # 1回あたりの所要時間（時間単位、フィボナッチ数列: 0.5/1/2/3/5/8/13/21）
+  frequency: 4            # 月間実行回数（1以上の整数）
 automation:
   difficulty: low | medium | high
   status: manual | partially-automated | automated
 ```
 
-`core: undetermined` はユーザー確認が必要な場合に使用。`phase` は自由記述でフォルダ分けではなくフィールドで管理する。`effort` / `automation` は省略可能なオプションフィールド。存在する場合は `bizspec list` の列と `bizspec viz` の詳細パネルに表示される。
+`core: undetermined` はユーザー確認が必要な場合に使用。`phase` は自由記述でフォルダ分けではなくフィールドで管理する。`effort` / `automation` は省略可能なオプションフィールド。存在する場合は `bizspec list` の列と `bizspec viz` の詳細パネルに表示される。`effort.duration × effort.frequency` で月間コストを算出し、`bizspec viz` のヒートマップ（低/中/高）に反映される。
 
 ## 開発環境
 

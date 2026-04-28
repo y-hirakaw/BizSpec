@@ -8,7 +8,6 @@ A tool for decomposing business processes into small, executable units (BizSpec 
 
 - **Install skills** — Install Claude Code skills into `.claude/skills/` with an interactive prompt (`bizspec init`)
 - **Decompose** — Break a business process into minimum units using the `/bizspec-refine` Claude Code skill
-- **Run** — Execute a process unit by unit in topological order using the `/bizspec-run` Claude Code skill
 - **Refactor** — Analyze processes cross-process and propose refactoring with the `/bizspec-refactor` Claude Code skill
 - **Scaffold** — Generate a skeleton YAML for a new unit (`bizspec new`)
 - **Search** — Find units by keyword across all processes (`bizspec search`)
@@ -50,13 +49,14 @@ executor:
   reason: Requires synthesis of multiple evaluation results
 # optional fields
 effort:
-  duration: 0.5         # hours per execution (0.5 = 30 min)
+  duration: 0.5         # hours per execution (Fibonacci: 0.5/1/2/3/5/8/13/21)
+  frequency: 4          # monthly execution count (positive integer)
 automation:
   difficulty: medium    # low / medium / high
   status: manual        # manual / partially-automated / automated
 ```
 
-`core: true` means the unit is directly required to reach the process goal. `link.up/down` represents execution order, not data dependency. The `effort` and `automation` fields are optional; when present they appear in `bizspec list` columns and the `bizspec viz` detail panel.
+`core: true` means the unit is directly required to reach the process goal. `link.up/down` represents execution order, not data dependency. The `effort` and `automation` fields are optional; when present they appear in `bizspec list` columns and the `bizspec viz` detail panel. `duration × frequency` gives monthly cost, which drives the heatmap coloring in `bizspec viz`.
 
 ## Installation
 
@@ -116,11 +116,9 @@ bizspec/
     index.html          # unified view of all processes
 src/bizspec/skills/     # skills bundled with the package (copied by bizspec init)
   bizspec-refine/
-  bizspec-run/
   bizspec-refactor/
 .claude/skills/         # skills installed for use in Claude Code
   bizspec-refine/
-  bizspec-run/
   bizspec-refactor/
 docs/
   cli.md                # CLI and skill reference
@@ -138,7 +136,6 @@ Claude Code スキルと CLI を組み合わせて、業務プロセスをスク
 
 - **スキルのインストール** — 対話形式で Claude Code スキルを `.claude/skills/` に配置する（`bizspec init`）
 - **分解** — `/bizspec-refine` スキル（Claude Code）を使って業務プロセスを最小 unit に分解する
-- **実行** — `/bizspec-run` スキル（Claude Code）を使ってプロセスをトポロジカル順に unit 単位で実行する
 - **リファクタリング** — `/bizspec-refactor` スキル（Claude Code）を使って複数プロセスを横断分析し、リファクタリング提案を行う
 - **スケルトン生成** — 新規 unit のスケルトン YAML を生成する（`bizspec new`）
 - **検索** — 全プロセス横断でキーワード検索する（`bizspec search`）
@@ -180,13 +177,14 @@ executor:
   reason: 複数評価結果の統合判断が必要なため
 # オプションフィールド
 effort:
-  duration: 0.5         # 1回あたりの所要時間（単位: 時間。30分=0.5）
+  duration: 0.5         # 1回あたりの所要時間（フィボナッチ数列: 0.5/1/2/3/5/8/13/21）
+  frequency: 4          # 月間実行回数（1以上の整数）
 automation:
   difficulty: medium    # low / medium / high
   status: manual        # manual / partially-automated / automated
 ```
 
-`core: true` はそのプロセスのゴール達成に直接必要な unit であることを示します。`link.up/down` はデータの依存関係ではなく実行順序を表します。`effort` / `automation` は省略可能なオプションフィールドで、設定すると `bizspec list` の列と `bizspec viz` の詳細パネルに表示されます。
+`core: true` はそのプロセスのゴール達成に直接必要な unit であることを示します。`link.up/down` はデータの依存関係ではなく実行順序を表します。`effort` / `automation` は省略可能なオプションフィールドで、設定すると `bizspec list` の列と `bizspec viz` の詳細パネルに表示されます。`duration × frequency` で月間コストを算出し、`bizspec viz` のヒートマップ色分けに反映されます。
 
 ## インストール
 
@@ -246,11 +244,9 @@ bizspec/
     index.html          # 全プロセス統合ビュー
 src/bizspec/skills/     # パッケージ同梱スキル（bizspec init のコピー元）
   bizspec-refine/
-  bizspec-run/
   bizspec-refactor/
 .claude/skills/         # Claude Code で使用するスキル
   bizspec-refine/       # プロセスを unit に分解する Claude Code スキル
-  bizspec-run/          # プロセスを unit 単位で実行する Claude Code スキル
   bizspec-refactor/     # 複数プロセスを横断してリファクタリング提案を行う Claude Code スキル
 docs/
   cli.md                # CLI・スキルリファレンス

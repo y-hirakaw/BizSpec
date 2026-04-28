@@ -119,7 +119,11 @@ def _unit_to_js(u: dict) -> dict:
     eff  = u.get("effort")     or {}; eff = eff if isinstance(eff,  dict) else {}
     aut  = u.get("automation") or {}; aut = aut if isinstance(aut,  dict) else {}
 
-    dur = eff.get("duration")
+    def opt_num(v: object) -> int | float | None:
+        return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+    dur  = opt_num(eff.get("duration"))
+    freq = opt_num(eff.get("frequency"))
     return {
         "aim":      str(u.get("aim", "")),
         "phase":    str(u.get("phase", "")),
@@ -129,7 +133,7 @@ def _unit_to_js(u: dict) -> dict:
         "io":       {"in": lst(io.get("in")), "run": lst(io.get("run")), "out": lst(io.get("out"))},
         "executor": {"type": str(exe.get("type", "")), "reason": str(exe.get("reason", ""))},
         "link":     {"up": lst(link.get("up")), "down": lst(link.get("down"))},
-        "effort":   {"duration": dur if isinstance(dur, (int, float)) and not isinstance(dur, bool) else None},
+        "effort":   {"duration": dur, "frequency": freq},
         "automation": {
             "difficulty": opt_str(aut.get("difficulty")),
             "status":     opt_str(aut.get("status")),
@@ -369,6 +373,9 @@ svg.arrows-layer {
 .node.selected { box-shadow: 0 0 0 3px #2563EB, 0 4px 14px rgba(37,99,235,0.18); }
 .node.core-true  { background: #EFF6FF; border: 2px solid #93C5FD; }
 .node.core-false { background: #F9FAFB; border: 2px solid #D1D5DB; }
+.node.heat-low    { background: #FEF9C3 !important; border-color: #FDE047 !important; }
+.node.heat-medium { background: #FFEDD5 !important; border-color: #FB923C !important; }
+.node.heat-high   { background: #FEE2E2 !important; border-color: #F87171 !important; }
 
 .node-name { font-size: 11px; font-weight: 600; color: #111827; line-height: 1.35; white-space: normal; }
 .node-badges { display: flex; gap: 4px; align-items: center; }
@@ -377,6 +384,9 @@ svg.arrows-layer {
 .badge-ai_agent { background: #EDE9FE; color: #5B21B6; }
 .badge-manual   { background: #FEF3C7; color: #92400E; }
 .badge-core     { background: #DBEAFE; color: #1D4ED8; }
+.badge-heat-low    { background: #FEF9C3; color: #854D0E; }
+.badge-heat-medium { background: #FFEDD5; color: #9A3412; }
+.badge-heat-high   { background: #FEE2E2; color: #991B1B; }
 
 .detail-panel {
   flex: 1 1 0;
@@ -471,6 +481,12 @@ svg.arrows-layer {
   </div>
   <div class="legend-item">
     <div class="lpill" style="background:#FEF3C7;color:#92400E;">manual</div>
+  </div>
+  <div class="legend-item" id="heat-legend" style="display:none;gap:4px;">
+    <span style="font-size:10px;color:#9CA3AF;">heat:</span>
+    <div class="lswatch" style="background:#FEF9C3;border:2px solid #FDE047;" title="低コスト"></div>
+    <div class="lswatch" style="background:#FFEDD5;border:2px solid #FB923C;" title="中コスト"></div>
+    <div class="lswatch" style="background:#FEE2E2;border:2px solid #F87171;" title="高コスト"></div>
   </div>
 </div>
 
@@ -582,21 +598,44 @@ function highlightEdges(name) {
   });
 }
 
+// ── Heat map ──────────────────────────────────────────────
+function computeHeat(unitMap) {
+  const costs = Object.entries(unitMap)
+    .map(([n, u]) => {
+      const d = u.effort && u.effort.duration, f = u.effort && u.effort.frequency;
+      return (d != null && f != null) ? {name: n, cost: d * f} : null;
+    }).filter(Boolean);
+  if (!costs.length) return {};
+  const sorted = [...costs].sort((a, b) => a.cost - b.cost);
+  const n = sorted.length;
+  const heat = {};
+  sorted.forEach(({name, cost}, i) => {
+    heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
+  });
+  return heat;
+}
+const heatMap = computeHeat(units);
+if (Object.keys(heatMap).length) document.getElementById("heat-legend").style.display = "flex";
+
 // ── Nodes ────────────────────────────────────────────────
 Object.entries(positions).forEach(([name, pos]) => {
   const u   = units[name];
   if (!u) return;
   const div = document.createElement("div");
-  div.className    = `node core-${u.core}`;
+  const heatClass = heatMap[name] ? ` heat-${heatMap[name]}` : "";
+  div.className    = `node core-${u.core}${heatClass}`;
   div.style.left   = pos.left + "px";
   div.style.top    = pos.top  + "px";
   div.dataset.name = name;
 
+  const costVal = (u.effort.duration != null && u.effort.frequency != null)
+    ? u.effort.duration * u.effort.frequency : null;
   div.innerHTML = `
     <div class="node-name">${name}</div>
     <div class="node-badges">
       <span class="badge badge-${u.executor.type}">${u.executor.type}</span>
       ${u.core ? '<span class="badge badge-core">core</span>' : ''}
+      ${costVal != null ? `<span class="badge badge-heat-${heatMap[name]}">${costVal}h/mo</span>` : ''}
     </div>`;
 
   div.addEventListener("click", () => {
@@ -664,11 +703,13 @@ function renderDetail(name) {
       </div>
     </div>
 
-    ${(u.effort.duration != null || u.automation.difficulty || u.automation.status) ? `
+    ${(u.effort.duration != null || u.effort.frequency != null || u.automation.difficulty || u.automation.status) ? `
     <div class="section">
       <div class="section-label">Effort / Automation</div>
       <div class="meta-grid">
         ${u.effort.duration != null ? `<div class="meta-item"><div class="meta-key">所要時間</div><div class="meta-val">${u.effort.duration}h</div></div>` : ''}
+        ${u.effort.frequency != null ? `<div class="meta-item"><div class="meta-key">月間頻度</div><div class="meta-val">${u.effort.frequency}回/月</div></div>` : ''}
+        ${(u.effort.duration != null && u.effort.frequency != null) ? (() => { const cost = u.effort.duration * u.effort.frequency; const diffNum = {low:1,medium:2,high:3}[u.automation.difficulty] || null; const lev = diffNum ? Math.round(cost / diffNum * 10) / 10 : null; return `<div class="meta-item"><div class="meta-key">月間コスト</div><div class="meta-val">${cost}h/月</div></div>${lev != null ? \\`<div class="meta-item"><div class="meta-key">自動化レバレッジ</div><div class="meta-val">${lev}</div></div>\\` : ''}`; })() : ''}
         ${u.automation.difficulty ? `<div class="meta-item"><div class="meta-key">自動化難易度</div><div class="meta-val meta-diff-${u.automation.difficulty}">${u.automation.difficulty}</div></div>` : ''}
         ${u.automation.status ? `<div class="meta-item"><div class="meta-key">自動化状況</div><div class="meta-val">${u.automation.status}</div></div>` : ''}
       </div>
@@ -907,6 +948,9 @@ svg.arrows-layer {
 .node.selected { box-shadow: 0 0 0 3px #2563EB, 0 4px 14px rgba(37,99,235,0.18); }
 .node.core-true  { background: #EFF6FF; border: 2px solid #93C5FD; }
 .node.core-false { background: #F9FAFB; border: 2px solid #D1D5DB; }
+.node.heat-low    { background: #FEF9C3 !important; border-color: #FDE047 !important; }
+.node.heat-medium { background: #FFEDD5 !important; border-color: #FB923C !important; }
+.node.heat-high   { background: #FEE2E2 !important; border-color: #F87171 !important; }
 .node-name   { font-size: 11px; font-weight: 600; color: #111827; line-height: 1.35; }
 .node-badges { display: flex; gap: 4px; align-items: center; }
 .badge { font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
@@ -914,6 +958,9 @@ svg.arrows-layer {
 .badge-ai_agent { background: #EDE9FE; color: #5B21B6; }
 .badge-manual   { background: #FEF3C7; color: #92400E; }
 .badge-core     { background: #DBEAFE; color: #1D4ED8; }
+.badge-heat-low    { background: #FEF9C3; color: #854D0E; }
+.badge-heat-medium { background: #FFEDD5; color: #9A3412; }
+.badge-heat-high   { background: #FEE2E2; color: #991B1B; }
 
 #detail-panel {
   flex: 1 1 0;
@@ -1091,6 +1138,23 @@ function showProcess(name) {
   renderFlow(proc);
 }
 
+// ── Heat map ─────────────────────────────────────────────
+function computeHeat(unitMap) {
+  const costs = Object.entries(unitMap)
+    .map(([n, u]) => {
+      const d = u.effort && u.effort.duration, f = u.effort && u.effort.frequency;
+      return (d != null && f != null) ? {name: n, cost: d * f} : null;
+    }).filter(Boolean);
+  if (!costs.length) return {};
+  const sorted = [...costs].sort((a, b) => a.cost - b.cost);
+  const n = sorted.length;
+  const heat = {};
+  sorted.forEach(({name}, i) => {
+    heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
+  });
+  return heat;
+}
+
 // ── Flow rendering ────────────────────────────────────────
 function renderFlow(proc) {
   const { units, positions, edges, canvasW, canvasH } = proc;
@@ -1154,20 +1218,27 @@ function renderFlow(proc) {
   currentSvg = svg;
   flowCanvas.appendChild(svg);
 
+  // Heat map
+  const heatMap = computeHeat(units);
+
   // Nodes
   Object.entries(positions).forEach(([name, pos]) => {
     const u = units[name];
     if (!u) return;
     const div = document.createElement("div");
-    div.className  = `node core-${u.core}`;
+    const heatClass = heatMap[name] ? ` heat-${heatMap[name]}` : "";
+    div.className  = `node core-${u.core}${heatClass}`;
     div.style.left = pos.left + "px";
     div.style.top  = pos.top  + "px";
     div.dataset.name = name;
+    const costVal = (u.effort.duration != null && u.effort.frequency != null)
+      ? u.effort.duration * u.effort.frequency : null;
     div.innerHTML = `
       <div class="node-name">${name}</div>
       <div class="node-badges">
         <span class="badge badge-${u.executor.type}">${u.executor.type}</span>
         ${u.core ? '<span class="badge badge-core">core</span>' : ''}
+        ${costVal != null ? `<span class="badge badge-heat-${heatMap[name]}">${costVal}h/mo</span>` : ''}
       </div>`;
     div.addEventListener("click", () => {
       document.querySelectorAll(".node.selected").forEach(n => n.classList.remove("selected"));
@@ -1242,11 +1313,13 @@ function renderDetail(name) {
         <div class="executor-reason">${u.executor.reason}</div>
       </div>
     </div>
-    ${(u.effort.duration != null || u.automation.difficulty || u.automation.status) ? `
+    ${(u.effort.duration != null || u.effort.frequency != null || u.automation.difficulty || u.automation.status) ? `
     <div class="section">
       <div class="section-label">Effort / Automation</div>
       <div class="meta-grid">
         ${u.effort.duration != null ? `<div class="meta-item"><div class="meta-key">所要時間</div><div class="meta-val">${u.effort.duration}h</div></div>` : ''}
+        ${u.effort.frequency != null ? `<div class="meta-item"><div class="meta-key">月間頻度</div><div class="meta-val">${u.effort.frequency}回/月</div></div>` : ''}
+        ${(u.effort.duration != null && u.effort.frequency != null) ? (() => { const cost = u.effort.duration * u.effort.frequency; const diffNum = {low:1,medium:2,high:3}[u.automation.difficulty] || null; const lev = diffNum ? Math.round(cost / diffNum * 10) / 10 : null; return `<div class="meta-item"><div class="meta-key">月間コスト</div><div class="meta-val">${cost}h/月</div></div>${lev != null ? \\`<div class="meta-item"><div class="meta-key">自動化レバレッジ</div><div class="meta-val">${lev}</div></div>\\` : ''}`; })() : ''}
         ${u.automation.difficulty ? `<div class="meta-item"><div class="meta-key">自動化難易度</div><div class="meta-val meta-diff-${u.automation.difficulty}">${u.automation.difficulty}</div></div>` : ''}
         ${u.automation.status ? `<div class="meta-item"><div class="meta-key">自動化状況</div><div class="meta-val">${u.automation.status}</div></div>` : ''}
       </div>

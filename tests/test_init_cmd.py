@@ -13,7 +13,6 @@ def test_skills_src_exists():
 def test_expected_skills_present():
     names = {d.name for d in init_cmd._SKILLS_SRC.iterdir() if d.is_dir()}
     assert "bizspec-refine" in names
-    assert "bizspec-run" in names
     assert "bizspec-refactor" in names
 
 
@@ -48,7 +47,6 @@ def test_init_local_default(monkeypatch, tmp_path):
     assert dest.is_dir()
     installed = {d.name for d in dest.iterdir()}
     assert "bizspec-refine" in installed
-    assert "bizspec-run" in installed
 
 
 def test_init_local_explicit(monkeypatch, tmp_path):

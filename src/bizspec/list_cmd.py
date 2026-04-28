@@ -50,12 +50,15 @@ def run_list(args) -> int:
         name_w = max(name_w, 4)
 
         has_duration   = any(isinstance(u.get("effort"), dict) and u["effort"].get("duration") for u in units)
+        has_frequency  = any(isinstance(u.get("effort"), dict) and u["effort"].get("frequency") for u in units)
         has_difficulty = any(isinstance(u.get("automation"), dict) and u["automation"].get("difficulty") for u in units)
 
         header = f"  {'unit':<{name_w}}  {'core':<6}  {'executor':<12}"
         sep    = f"  {'─' * name_w}  {'─' * 6}  {'─' * 12}"
         if has_duration:
             header += f"  {'duration':<10}"; sep += f"  {'─' * 10}"
+        if has_frequency:
+            header += f"  {'freq/月':<8}"; sep += f"  {'─' * 8}"
         if has_difficulty:
             header += f"  difficulty"; sep += f"  {'─' * 10}"
         print(header)
@@ -67,11 +70,16 @@ def run_list(args) -> int:
             core_str = str(core).lower() if isinstance(core, bool) else str(core)
             ex_type  = u.get("executor", {}).get("type", "") if isinstance(u.get("executor"), dict) else ""
             row = f"  {name:<{name_w}}  {core_str:<6}  {ex_type:<12}"
+            eff = u.get("effort") or {}
+            eff = eff if isinstance(eff, dict) else {}
             if has_duration:
-                eff = u.get("effort") or {}
-                d = eff.get("duration") if isinstance(eff, dict) else None
+                d = eff.get("duration")
                 dur = f"{d}h" if isinstance(d, (int, float)) and not isinstance(d, bool) else ""
                 row += f"  {dur:<10}"
+            if has_frequency:
+                f = eff.get("frequency")
+                freq = str(f) if isinstance(f, int) and not isinstance(f, bool) else ""
+                row += f"  {freq:<8}"
             if has_difficulty:
                 aut = u.get("automation") or {}
                 diff = str(aut.get("difficulty", "")) if isinstance(aut, dict) else ""

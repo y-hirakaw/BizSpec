@@ -27,7 +27,8 @@ executor:
   reason: TODO
 # --- optional ---
 # effort:
-#   duration: 0.5       # 1回あたりの所要時間（単位: 時間。30分=0.5）
+#   duration: 0.5       # 1回あたりの所要時間（単位: 時間。30分=0.5）フィボナッチ数列のみ
+#   frequency: 4        # 月間実行回数（1以上の整数）
 # automation:
 #   difficulty: medium  # low / medium / high
 #   status: manual      # manual / partially-automated / automated
