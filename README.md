@@ -45,18 +45,24 @@ io:
   out:
     - Readiness result
 executor:
-  type: ai_agent
+  type: ai_agent        # script / ai_agent / manual — target executor (design intent)
   reason: Requires synthesis of multiple evaluation results
 # optional fields
+depends_on:             # cross-process dependencies
+  - other-process:UnitName  # format: process-name:unit-name
 effort:
   duration: 0.5         # hours per execution (Fibonacci: 0.5/1/2/3/5/8/13/21)
   frequency: 4          # monthly execution count (positive integer)
 automation:
-  difficulty: medium    # low / medium / high
-  status: manual        # manual / partially-automated / automated
+  difficulty: medium    # low / medium / high — how hard to automate
+  status: manual        # manual / partially-automated / automated — current state
 ```
 
-`core: true` means the unit is directly required to reach the process goal. `link.up/down` represents execution order, not data dependency. The `effort` and `automation` fields are optional; when present they appear in `bizspec list` columns and the `bizspec viz` detail panel. `duration × frequency` gives monthly cost, which drives the heatmap coloring in `bizspec viz`.
+`core: true` means the unit is directly required to reach the process goal. `link.up/down` represents execution order, not data dependency.
+
+`executor.type` captures the **design intent** — whether this unit should be run by a script, an AI agent, or a human. `automation.status` captures the **current reality** — whether that intent has been implemented yet. A unit with `executor.type: script` and `automation.status: manual` means "we want to automate this, but haven't done it yet."
+
+`depends_on` lists units in other processes that this unit depends on (optional). The `effort` and `automation` fields are also optional; when present they appear in `bizspec list` columns and the `bizspec viz` detail panel. `duration × frequency` gives monthly cost, which drives the heatmap coloring in `bizspec viz`.
 
 ## Installation
 
@@ -173,18 +179,24 @@ io:
   out:
     - Ready判定結果
 executor:
-  type: ai_agent
+  type: ai_agent        # script / ai_agent / manual — あるべき実行主体（設計意図）
   reason: 複数評価結果の統合判断が必要なため
 # オプションフィールド
+depends_on:             # 他プロセスの unit への依存（省略可）
+  - other-process:UnitName  # 形式: プロセス名:unit名
 effort:
   duration: 0.5         # 1回あたりの所要時間（フィボナッチ数列: 0.5/1/2/3/5/8/13/21）
   frequency: 4          # 月間実行回数（1以上の整数）
 automation:
-  difficulty: medium    # low / medium / high
-  status: manual        # manual / partially-automated / automated
+  difficulty: medium    # low / medium / high — 自動化の難易度
+  status: manual        # manual / partially-automated / automated — 現在の対応状況
 ```
 
-`core: true` はそのプロセスのゴール達成に直接必要な unit であることを示します。`link.up/down` はデータの依存関係ではなく実行順序を表します。`effort` / `automation` は省略可能なオプションフィールドで、設定すると `bizspec list` の列と `bizspec viz` の詳細パネルに表示されます。`duration × frequency` で月間コストを算出し、`bizspec viz` のヒートマップ色分けに反映されます。
+`core: true` はそのプロセスのゴール達成に直接必要な unit であることを示します。`link.up/down` はデータの依存関係ではなく実行順序を表します。
+
+`executor.type` は**設計意図**を表します（スクリプト化できる / AI で自動化できる / 手動でないと無理）。`automation.status` は**現在の対応状況**を表します。`executor.type: script` かつ `automation.status: manual` は「スクリプト化したいが、まだ対応していない」を意味します。
+
+`depends_on` は他プロセスの unit への依存を記述します（省略可）。`effort` / `automation` も省略可能なオプションフィールドで、設定すると `bizspec list` の列と `bizspec viz` の詳細パネルに表示されます。`duration × frequency` で月間コストを算出し、`bizspec viz` のヒートマップ色分けに反映されます。
 
 ## インストール
 
