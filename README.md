@@ -70,13 +70,11 @@ execution:              # execution coordination hints (optional)
 
 `core: true` means the unit is directly required to reach the process goal. `link.up/down` represents execution order, not data dependency.
 
-`executor.type` captures the **design intent** — whether this unit should be run by a script, an AI agent, or a human. `automation.status` captures the **current reality** — whether that intent has been implemented yet. A unit with `executor.type: script` and `automation.status: manual` means "we want to automate this, but haven't done it yet."
+`executor.type` is the **design intent** (script / ai_agent / manual). `automation.status` is the **current reality** — `executor.type: script` with `automation.status: manual` means "planned for automation but not yet done."
 
-`status` is the lifecycle state of the unit. Use `draft` while designing, `review` during review, `stable` for units in steady operation, and `deprecated` for units that are no longer active. When `status: deprecated`, you can optionally add `deprecated_reason` to explain why.
+`status` is the lifecycle state: `draft` → `review` → `stable` → `deprecated`. Add `deprecated_reason` when deprecating.
 
-`depends_on` lists units in other processes that this unit depends on (optional). The `effort`, `automation`, and `status` fields are also optional; when present they appear in `bizspec list` columns and the `bizspec viz` detail panel. `duration × frequency` gives monthly cost, which drives the heatmap coloring in `bizspec viz`.
-
-`precondition` is an optional list of conditions that must hold before this unit can start. `execution.parallel_with` is an optional list of unit names that can run concurrently with this unit; these are visualized as green dotted edges in `bizspec viz`.
+The optional fields `depends_on`, `effort`, `automation`, `status`, `precondition`, and `execution.parallel_with` are all omittable. When present, `effort` and `automation` appear in `bizspec list` columns and the `bizspec viz` detail panel. `duration × frequency` drives the heatmap in `bizspec viz`. `execution.parallel_with` is rendered as green dotted edges.
 
 ### Field responsibility rubric
 
@@ -98,23 +96,18 @@ Each field has a distinct responsibility. Do not duplicate the same content acro
 
 ## Installation
 
-Requires Python 3.9+.
+Requires Python 3.9+. Using [uv](https://github.com/astral-sh/uv) is recommended:
 
 ```sh
 git clone https://github.com/y-hirakaw/BizSpec.git
 cd BizSpec
-python3 -m pip install --upgrade pip
-python3 -m pip install -e .
+uv pip install -e .
 ```
 
-Add the installed script to your PATH if needed. The exact path depends on your environment:
+Or with plain pip (inside a virtualenv):
 
 ```sh
-# macOS system Python 3.9
-export PATH="$PATH:/Users/<your-username>/Library/Python/3.9/bin"
-
-# pyenv
-pyenv rehash
+pip install -e .
 ```
 
 ## CLI usage
@@ -241,15 +234,13 @@ execution:              # 実行制御ヒント（省略可）
     - AnotherUnit
 ```
 
-`core: true` はそのプロセスのゴール達成に直接必要な unit であることを示します。`link.up/down` はデータの依存関係ではなく実行順序を表します。
+`core: true` はそのプロセスのゴール達成に直接必要な unit であることを示します。`link.up/down` はデータ依存ではなく実行順序を表します。
 
-`executor.type` は**設計意図**を表します（スクリプト化できる / AI で自動化できる / 手動でないと無理）。`automation.status` は**現在の対応状況**を表します。`executor.type: script` かつ `automation.status: manual` は「スクリプト化したいが、まだ対応していない」を意味します。
+`executor.type` は**設計意図**（script / ai_agent / manual）。`automation.status` は**現在の対応状況** — `executor.type: script` かつ `automation.status: manual` は「スクリプト化したいが未対応」を意味します。
 
-`status` は unit のライフサイクル状態です。設計中は `draft`、レビュー中は `review`、安定運用中は `stable`、廃止済みは `deprecated` を使います。`status: deprecated` のときは `deprecated_reason` で廃止理由を記録できます。
+`status` はライフサイクル状態：`draft` → `review` → `stable` → `deprecated`。廃止時は `deprecated_reason` で理由を記録できます。
 
-`depends_on` は他プロセスの unit への依存を記述します（省略可）。`effort` / `automation` / `status` も省略可能なオプションフィールドで、設定すると `bizspec list` の列と `bizspec viz` の詳細パネルに表示されます。`duration × frequency` で月間コストを算出し、`bizspec viz` のヒートマップ色分けに反映されます。
-
-`precondition` はこの unit が開始できる前提条件のリストです（省略可）。`execution.parallel_with` はこの unit と並行実行できる unit 名のリストです（省略可）。`bizspec viz` では緑の点線エッジとして可視化されます。
+省略可能フィールド（`depends_on` / `effort` / `automation` / `status` / `precondition` / `execution.parallel_with`）はすべて任意です。`effort` / `automation` は `bizspec list` の列と `bizspec viz` の詳細パネルに表示されます。`duration × frequency` で月間コストを算出し viz のヒートマップに反映されます。`execution.parallel_with` は viz で緑の点線エッジとして可視化されます。
 
 ### フィールド責務ルーブリック
 
@@ -271,23 +262,18 @@ execution:              # 実行制御ヒント（省略可）
 
 ## インストール
 
-Python 3.9 以上が必要です。
+Python 3.9 以上が必要です。[uv](https://github.com/astral-sh/uv) 推奨：
 
 ```sh
-git clone https://github.com/y-hirakawa/BizSpec.git
+git clone https://github.com/y-hirakaw/BizSpec.git
 cd BizSpec
-python3 -m pip install --upgrade pip
-python3 -m pip install -e .
+uv pip install -e .
 ```
 
-PATH が通っていない場合は環境に合わせて設定する：
+通常の pip の場合（virtualenv 内）：
 
 ```sh
-# macOS system Python 3.9
-export PATH="$PATH:/Users/<your-username>/Library/Python/3.9/bin"
-
-# pyenv の場合
-pyenv rehash
+pip install -e .
 ```
 
 ## CLI の使い方

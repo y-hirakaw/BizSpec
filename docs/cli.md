@@ -2,21 +2,18 @@
 
 ## インストール
 
+[uv](https://github.com/astral-sh/uv) 推奨：
+
 ```sh
 git clone https://github.com/y-hirakaw/BizSpec.git
 cd BizSpec
-python3 -m pip install --upgrade pip
-python3 -m pip install -e .
+uv pip install -e .
 ```
 
-インストール後、`bizspec` コマンドのパスを通す（`~/.zshrc` 等に追記）。環境によって設定方法が異なる。
+通常の pip の場合（virtualenv 内）：
 
 ```sh
-# macOS system Python 3.9 の場合
-export PATH="$PATH:/Users/<your-username>/Library/Python/3.9/bin"
-
-# pyenv の場合
-pyenv rehash
+pip install -e .
 ```
 
 ## コマンドリファレンス

@@ -81,14 +81,22 @@ execution:                 # 実行制御ヒント（省略可）
     - AnotherUnit
 ```
 
-`core: undetermined` はユーザー確認が必要な場合に使用。`phase` は自由記述でフォルダ分けではなくフィールドで管理する。`depends_on` は他プロセスの unit への依存を `プロセス名:unit名` 形式で記述する（省略可）。`effort` / `automation` / `status` は省略可能なオプションフィールド。存在する場合は `bizspec list` の列と `bizspec viz` の詳細パネルに表示される。`effort.duration × effort.frequency` で月間コストを算出し、`bizspec viz` のヒートマップ（低/中/高）に反映される。`status` は viz でノード色分けに使われる（draft=黄、review=橙、stable=緑、deprecated=グレー）。`precondition` は開始前提条件のリスト、`execution.parallel_with` は並行実行できる unit 名のリスト（省略可）。`execution.parallel_with` は viz で緑の点線エッジとして可視化される。
+フィールドの補足：
+- `core: undetermined` — ユーザー確認が必要な場合に使用
+- `phase` — 自由記述。フォルダではなくフィールドで管理
+- `depends_on` — 他プロセスの unit への依存を `プロセス名:unit名` 形式で記述（省略可）
+- `effort` / `automation` / `status` — 省略可。`bizspec list` の列と `bizspec viz` 詳細パネルに表示
+- `effort.duration × effort.frequency` — 月間コストを算出し viz ヒートマップに反映
+- `status` — viz でノード色分けに使用（draft=黄、review=橙、stable=緑、deprecated=グレー）
+- `precondition` — 開始前提条件のリスト（省略可）
+- `execution.parallel_with` — 並行実行できる unit 名のリスト（省略可）。viz で緑の点線エッジとして可視化
 
 ## 開発環境
 
-- **Python:** macOS 標準搭載の Python 3.9 を対象とする（3.9 で動く構文・APIに限定）
-- **依存インストール:** `python3 -m pip install -e ".[dev]"`
-- **テスト実行:** `python3 -m pytest tests/ -v`（または `uv run --with pytest pytest tests/ -v`）
-- **動作確認:** `bizspec validate`（PATH が通っていること）
+- **Python:** 3.9 以上（3.9 で動く構文・API に限定）
+- **依存インストール:** `uv pip install -e ".[dev]"`
+- **テスト実行:** `uv run --with pytest pytest tests/ -v`
+- **動作確認:** `uv run bizspec validate`
 - **CI:** GitHub Actions（`.github/workflows/test.yml`）— main への push と PR で自動テスト
 
 ## フィールド責務ルーブリック
