@@ -22,14 +22,17 @@ from bizspec.viz_cmd import (
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-def make_unit(name: str, up=None, down=None, core=True, executor_type="script") -> dict:
-    return {
+def make_unit(name: str, up=None, down=None, core=True, executor_type="script", extra=None) -> dict:
+    d = {
         "unit": name, "aim": f"{name}のaim", "phase": "spec", "core": core,
         "job": ["作業"], "rule": ["制約"],
         "io": {"in": ["入力"], "run": ["実行"], "out": ["出力"]},
         "executor": {"type": executor_type, "reason": "理由"},
         "link": {"up": up or [], "down": down or []},
     }
+    if extra:
+        d.update(extra)
+    return d
 
 
 def make_yaml(name: str, up=None, down=None, core: bool = True, executor_type: str = "script") -> str:
@@ -140,19 +143,41 @@ class TestBuildEdges:
         units = [make_unit("A", down=["B"]), make_unit("B")]
         positions = {"A": {"left": 0, "top": 0}, "B": {"left": 0, "top": 110}}
         edges = _build_edges(units, positions)
-        assert ["A", "B"] in edges
+        assert ["A", "B", "seq"] in edges
 
     def test_no_duplicate_edges(self):
         units = [make_unit("A", down=["B"]), make_unit("B", up=["A"])]
         positions = {"A": {"left": 0, "top": 0}, "B": {"left": 0, "top": 110}}
         edges = _build_edges(units, positions)
-        assert edges.count(["A", "B"]) == 1
+        assert edges.count(["A", "B", "seq"]) == 1
 
     def test_unknown_target_skipped(self):
         units = [make_unit("A", down=["Ghost"])]
         positions = {"A": {"left": 0, "top": 0}}
         edges = _build_edges(units, positions)
         assert edges == []
+
+    def test_parallel_edge(self):
+        units = [
+            make_unit("A"),
+            make_unit("B", extra={"execution": {"parallel_with": ["C"]}}),
+            make_unit("C"),
+        ]
+        positions = {"A": {"left": 0, "top": 0}, "B": {"left": 0, "top": 110}, "C": {"left": 200, "top": 110}}
+        edges = _build_edges(units, positions)
+        parallel_edges = [e for e in edges if e[2] == "parallel"]
+        assert len(parallel_edges) == 1
+        assert set(parallel_edges[0][:2]) == {"B", "C"}
+
+    def test_parallel_edge_no_duplicate(self):
+        units = [
+            make_unit("A", extra={"execution": {"parallel_with": ["B"]}}),
+            make_unit("B", extra={"execution": {"parallel_with": ["A"]}}),
+        ]
+        positions = {"A": {"left": 0, "top": 0}, "B": {"left": 200, "top": 0}}
+        edges = _build_edges(units, positions)
+        parallel_edges = [e for e in edges if e[2] == "parallel"]
+        assert len(parallel_edges) == 1
 
 
 # ── _load_units / _load_process_meta ─────────────────────────────────────────

@@ -61,6 +61,11 @@ automation:
   status: manual        # manual / partially-automated / automated — current state
 status: stable          # draft | review | stable | deprecated — lifecycle state
 deprecated_reason: ...  # only when status: deprecated
+precondition:           # conditions that must hold before this unit can start (optional)
+  - Previous unit output is finalized
+execution:              # execution coordination hints (optional)
+  parallel_with:        # units that can run concurrently with this unit
+    - AnotherUnit
 ```
 
 `core: true` means the unit is directly required to reach the process goal. `link.up/down` represents execution order, not data dependency.
@@ -70,6 +75,8 @@ deprecated_reason: ...  # only when status: deprecated
 `status` is the lifecycle state of the unit. Use `draft` while designing, `review` during review, `stable` for units in steady operation, and `deprecated` for units that are no longer active. When `status: deprecated`, you can optionally add `deprecated_reason` to explain why.
 
 `depends_on` lists units in other processes that this unit depends on (optional). The `effort`, `automation`, and `status` fields are also optional; when present they appear in `bizspec list` columns and the `bizspec viz` detail panel. `duration × frequency` gives monthly cost, which drives the heatmap coloring in `bizspec viz`.
+
+`precondition` is an optional list of conditions that must hold before this unit can start. `execution.parallel_with` is an optional list of unit names that can run concurrently with this unit; these are visualized as green dotted edges in `bizspec viz`.
 
 ### Field responsibility rubric
 
@@ -227,6 +234,11 @@ automation:
   status: manual        # manual / partially-automated / automated — 現在の対応状況
 status: stable          # draft | review | stable | deprecated — ライフサイクル状態
 deprecated_reason: ...  # status: deprecated のときのみ
+precondition:           # この unit が開始できる前提条件（省略可）
+  - 前の unit の出力が確定していること
+execution:              # 実行制御ヒント（省略可）
+  parallel_with:        # この unit と並行実行できる unit 名
+    - AnotherUnit
 ```
 
 `core: true` はそのプロセスのゴール達成に直接必要な unit であることを示します。`link.up/down` はデータの依存関係ではなく実行順序を表します。
@@ -236,6 +248,8 @@ deprecated_reason: ...  # status: deprecated のときのみ
 `status` は unit のライフサイクル状態です。設計中は `draft`、レビュー中は `review`、安定運用中は `stable`、廃止済みは `deprecated` を使います。`status: deprecated` のときは `deprecated_reason` で廃止理由を記録できます。
 
 `depends_on` は他プロセスの unit への依存を記述します（省略可）。`effort` / `automation` / `status` も省略可能なオプションフィールドで、設定すると `bizspec list` の列と `bizspec viz` の詳細パネルに表示されます。`duration × frequency` で月間コストを算出し、`bizspec viz` のヒートマップ色分けに反映されます。
+
+`precondition` はこの unit が開始できる前提条件のリストです（省略可）。`execution.parallel_with` はこの unit と並行実行できる unit 名のリストです（省略可）。`bizspec viz` では緑の点線エッジとして可視化されます。
 
 ### フィールド責務ルーブリック
 

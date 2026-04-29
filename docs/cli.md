@@ -108,6 +108,8 @@ bizspec validate issue-refinement   # 特定プロセスのみ検証
 - `automation.status`（設定時）が `manual` / `partially-automated` / `automated` のいずれかであること
 - `status`（設定時）が `draft` / `review` / `stable` / `deprecated` のいずれかであること
 - `deprecated_reason`（設定時）は `status: deprecated` のときのみ使用可能であること
+- `precondition`（設定時）が空でないリストであること
+- `execution.parallel_with`（設定時）がリストであること
 
 **終了コード:** `0` = OK、`1` = エラーあり
 
@@ -194,11 +196,12 @@ bizspec viz issue-refinement   # 特定プロセスのみ出力
 
 **フロー図の共通機能:**
 - 左ペイン: `link.up/down` をもとにした DAG フロー図
-- 右ペイン: unit の詳細（aim / job / rule / io / executor / effort・automation（設定時）/ link）
+- 右ペイン: unit の詳細（aim / job / rule / io / executor / effort・automation（設定時）/ precondition・parallel_with（設定時）/ link）
 - ノードをクリックすると詳細表示 + 接続する矢印がハイライト（青）、無関係な矢印はフェード
 - ノード色: `core: true` = 青、`core: false` = グレー（`status` が設定されている場合は status の色が優先）
 - バッジ: `executor.type`（script / ai_agent / manual）
 - `status` が設定された unit があるときは凡例バーに status 色凡例を表示（draft=黄、review=橙、stable=緑、deprecated=グレー・半透明）
+- `execution.parallel_with` が設定された unit 間には緑の点線エッジを表示（並行実行可能を示す）
 
 **終了コード:** `0` = OK、`1` = エラーあり
 

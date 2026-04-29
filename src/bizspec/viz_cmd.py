@@ -93,6 +93,7 @@ def _compute_layout(levels: list[list[str]]) -> tuple[dict[str, dict], int, int]
 
 
 def _build_edges(units: list[dict], positions: dict[str, dict]) -> list[list[str]]:
+    """Return edges as [from, to, type]. type: 'seq' | 'parallel'."""
     edges: list[list[str]] = []
     seen: set[tuple[str, str]] = set()
     for u in units:
@@ -101,8 +102,15 @@ def _build_edges(units: list[dict], positions: dict[str, dict]) -> list[list[str
             continue
         for down in (u.get("link") or {}).get("down") or []:
             if isinstance(down, str) and down in positions and (src, down) not in seen:
-                edges.append([src, down])
+                edges.append([src, down, "seq"])
                 seen.add((src, down))
+        exe = u.get("execution") or {}
+        for par in (exe.get("parallel_with") or []):
+            if isinstance(par, str) and par in positions:
+                key = (min(src, par), max(src, par))
+                if key not in seen:
+                    edges.append([src, par, "parallel"])
+                    seen.add(key)
     return edges
 
 
@@ -141,6 +149,8 @@ def _unit_to_js(u: dict) -> dict:
         },
         "lifecycle_status":     opt_str(u.get("status")),
         "deprecated_reason":    opt_str(u.get("deprecated_reason")),
+        "precondition":         lst(u.get("precondition")),
+        "parallel_with":        lst((u.get("execution") or {}).get("parallel_with")),
     }
 
 
@@ -623,32 +633,44 @@ markerHL.appendChild(polyHL);
 defs.appendChild(markerHL);
 svg.appendChild(defs);
 
-edges.forEach(([from, to]) => {
+edges.forEach(([from, to, etype]) => {
   const fp = positions[from], tp = positions[to];
-  const fx = fp.left + W / 2, fy = fp.top + H;
-  const tx = tp.left + W / 2, ty = tp.top;
+  if (!fp || !tp) return;
+  const isParallel = etype === "parallel";
+  const fx = fp.left + W / 2, fy = fp.top + H / 2;
+  const tx = tp.left + W / 2, ty = tp.top + H / 2;
+  const fxb = fp.left + W / 2, fyb = fp.top + H;
+  const txb = tp.left + W / 2, tyb = tp.top;
   const path = document.createElementNS(NS, "path");
   let d;
-  const sameCol = Math.abs(fx - tx) < 2;
-  const isSkip  = sameCol && (ty - fy) > 100;
-  if (sameCol && !isSkip) {
-    d = `M ${fx} ${fy} L ${tx} ${ty - 1}`;
-  } else if (isSkip) {
-    const ox = fp.left - 40;
-    d = `M ${fx} ${fy} C ${ox} ${fy + 20} ${ox} ${ty - 20} ${tx} ${ty - 1}`;
-  } else {
+  if (isParallel) {
     const my = (fy + ty) / 2;
-    d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty - 1}`;
+    d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty}`;
+  } else {
+    const sameCol = Math.abs(fxb - txb) < 2;
+    const isSkip  = sameCol && (tyb - fyb) > 100;
+    if (sameCol && !isSkip) {
+      d = `M ${fxb} ${fyb} L ${txb} ${tyb - 1}`;
+    } else if (isSkip) {
+      const ox = fp.left - 40;
+      d = `M ${fxb} ${fyb} C ${ox} ${fyb + 20} ${ox} ${tyb - 20} ${txb} ${tyb - 1}`;
+    } else {
+      const my = (fyb + tyb) / 2;
+      d = `M ${fxb} ${fyb} C ${fxb} ${my} ${txb} ${my} ${txb} ${tyb - 1}`;
+    }
   }
+  const sameColSeq = !isParallel && Math.abs(fxb - txb) < 2;
+  const isSkipSeq  = sameColSeq && (tp.top - fp.top - H) > 100;
   path.setAttribute("d", d);
-  path.setAttribute("stroke", isSkip ? "#F59E0B" : "#94A3B8");
-  path.setAttribute("stroke-width", isSkip ? "1.5" : "1.5");
-  path.setAttribute("stroke-dasharray", isSkip ? "5 3" : "none");
+  path.setAttribute("stroke", isParallel ? "#10B981" : isSkipSeq ? "#F59E0B" : "#94A3B8");
+  path.setAttribute("stroke-width", "1.5");
+  path.setAttribute("stroke-dasharray", isParallel ? "4 3" : isSkipSeq ? "5 3" : "none");
   path.setAttribute("fill", "none");
-  path.setAttribute("marker-end", isSkip ? "url(#arrowhead-skip)" : "url(#arrowhead)");
+  if (!isParallel) path.setAttribute("marker-end", isSkipSeq ? "url(#arrowhead-skip)" : "url(#arrowhead)");
   path.dataset.from = from;
   path.dataset.to   = to;
-  path.dataset.skip = isSkip ? "true" : "false";
+  path.dataset.skip     = isSkipSeq ? "true" : "false";
+  path.dataset.parallel = isParallel ? "true" : "false";
   svg.appendChild(path);
 });
 
@@ -656,7 +678,8 @@ canvas.appendChild(svg);
 
 function highlightEdges(name) {
   svg.querySelectorAll("path[data-from]").forEach(p => {
-    const skip = p.dataset.skip === "true";
+    const skip     = p.dataset.skip === "true";
+    const parallel = p.dataset.parallel === "true";
     const hit  = p.dataset.from === name || p.dataset.to === name;
     if (hit) {
       p.setAttribute("stroke", "#2563EB");
@@ -665,11 +688,11 @@ function highlightEdges(name) {
       p.setAttribute("opacity", "1");
       p.setAttribute("marker-end", "url(#arrowhead-hl)");
     } else {
-      p.setAttribute("stroke", skip ? "#F59E0B" : "#94A3B8");
+      p.setAttribute("stroke", parallel ? "#10B981" : skip ? "#F59E0B" : "#94A3B8");
       p.setAttribute("stroke-width", "1.5");
-      p.setAttribute("stroke-dasharray", skip ? "5 3" : "none");
+      p.setAttribute("stroke-dasharray", parallel ? "4 3" : skip ? "5 3" : "none");
       p.setAttribute("opacity", "0.15");
-      p.setAttribute("marker-end", skip ? "url(#arrowhead-skip)" : "url(#arrowhead)");
+      if (!parallel) p.setAttribute("marker-end", skip ? "url(#arrowhead-skip)" : "url(#arrowhead)");
     }
   });
 }
@@ -1404,33 +1427,46 @@ function renderFlow(proc) {
   });
   svg.appendChild(defs);
 
-  edges.forEach(([from, to]) => {
+  edges.forEach(([from, to, etype]) => {
     const fp = positions[from], tp = positions[to];
     if (!fp || !tp) return;
-    const fx = fp.left + W/2, fy = fp.top + H;
-    const tx = tp.left + W/2, ty = tp.top;
-    const sameCol = Math.abs(fx - tx) < 2;
-    const isSkip  = sameCol && (ty - fy) > 100;
+    const isParallel = etype === "parallel";
     let d;
-    if (sameCol && !isSkip) {
-      d = `M ${fx} ${fy} L ${tx} ${ty-1}`;
-    } else if (isSkip) {
-      const ox = fp.left - 40;
-      d = `M ${fx} ${fy} C ${ox} ${fy+20} ${ox} ${ty-20} ${tx} ${ty-1}`;
-    } else {
+    if (isParallel) {
+      const fx = fp.left + W/2, fy = fp.top + H/2;
+      const tx = tp.left + W/2, ty = tp.top + H/2;
       const my = (fy + ty) / 2;
-      d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty-1}`;
+      d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty}`;
+    } else {
+      const fx = fp.left + W/2, fy = fp.top + H;
+      const tx = tp.left + W/2, ty = tp.top;
+      const sameCol = Math.abs(fx - tx) < 2;
+      const isSkip  = sameCol && (ty - fy) > 100;
+      if (sameCol && !isSkip) {
+        d = `M ${fx} ${fy} L ${tx} ${ty-1}`;
+      } else if (isSkip) {
+        const ox = fp.left - 40;
+        d = `M ${fx} ${fy} C ${ox} ${fy+20} ${ox} ${ty-20} ${tx} ${ty-1}`;
+      } else {
+        const my = (fy + ty) / 2;
+        d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty-1}`;
+      }
     }
+    const fxSeq = fp.left + W/2, fySeq = fp.top + H;
+    const txSeq = tp.left + W/2, tySeq = tp.top;
+    const sameColSeq = !isParallel && Math.abs(fxSeq - txSeq) < 2;
+    const isSkipSeq  = sameColSeq && (tySeq - fySeq) > 100;
     const path = document.createElementNS(NS, "path");
     path.setAttribute("d", d);
-    path.setAttribute("stroke", isSkip ? "#F59E0B" : "#94A3B8");
+    path.setAttribute("stroke", isParallel ? "#10B981" : isSkipSeq ? "#F59E0B" : "#94A3B8");
     path.setAttribute("stroke-width", "1.5");
-    if (isSkip) path.setAttribute("stroke-dasharray", "5 3");
+    path.setAttribute("stroke-dasharray", isParallel ? "4 3" : isSkipSeq ? "5 3" : "none");
     path.setAttribute("fill", "none");
-    path.setAttribute("marker-end", isSkip ? "url(#arr-skip)" : "url(#arr)");
-    path.dataset.from = from;
-    path.dataset.to   = to;
-    path.dataset.skip = isSkip ? "true" : "false";
+    if (!isParallel) path.setAttribute("marker-end", isSkipSeq ? "url(#arr-skip)" : "url(#arr)");
+    path.dataset.from     = from;
+    path.dataset.to       = to;
+    path.dataset.skip     = isSkipSeq ? "true" : "false";
+    path.dataset.parallel = isParallel ? "true" : "false";
     svg.appendChild(path);
   });
   currentSvg = svg;
@@ -1476,20 +1512,21 @@ function renderFlow(proc) {
 function highlightEdges(name) {
   if (!currentSvg) return;
   currentSvg.querySelectorAll("path[data-from]").forEach(p => {
-    const skip = p.dataset.skip === "true";
+    const skip     = p.dataset.skip === "true";
+    const parallel = p.dataset.parallel === "true";
     const hit  = p.dataset.from === name || p.dataset.to === name;
     if (hit) {
       p.setAttribute("stroke", "#2563EB");
       p.setAttribute("stroke-width", "2.5");
       p.setAttribute("stroke-dasharray", "none");
       p.setAttribute("opacity", "1");
-      p.setAttribute("marker-end", "url(#arr-hl)");
+      if (!parallel) p.setAttribute("marker-end", "url(#arr-hl)");
     } else {
-      p.setAttribute("stroke", skip ? "#F59E0B" : "#94A3B8");
+      p.setAttribute("stroke", parallel ? "#10B981" : skip ? "#F59E0B" : "#94A3B8");
       p.setAttribute("stroke-width", "1.5");
-      p.setAttribute("stroke-dasharray", skip ? "5 3" : "none");
+      p.setAttribute("stroke-dasharray", parallel ? "4 3" : skip ? "5 3" : "none");
       p.setAttribute("opacity", "0.15");
-      p.setAttribute("marker-end", skip ? "url(#arr-skip)" : "url(#arr)");
+      if (!parallel) p.setAttribute("marker-end", skip ? "url(#arr-skip)" : "url(#arr)");
     }
   });
 }
@@ -1565,6 +1602,16 @@ function renderDetail(name) {
     <div class="section">
       <div class="section-label">Depends On（外部プロセス）</div>
       <div class="link-chips">${u.depends_on.map(d => '<span class="link-chip link-chip-ext" title="' + d + '">' + d + '</span>').join("")}</div>
+    </div>` : ''}
+    ${u.precondition && u.precondition.length ? `
+    <div class="section">
+      <div class="section-label">Precondition</div>
+      <ul class="item-list">${u.precondition.map(p => `<li>${p}</li>`).join("")}</ul>
+    </div>` : ''}
+    ${u.parallel_with && u.parallel_with.length ? `
+    <div class="section">
+      <div class="section-label">Parallel With</div>
+      <div class="link-chips">${u.parallel_with.map(n => `<span class="link-chip" onclick="jumpTo('${n.replace(/'/g, "\\'")}')">${n}</span>`).join("")}</div>
     </div>` : ''}`;
 }
 
