@@ -1377,6 +1377,35 @@ function showProcess(name) {
   document.querySelectorAll(".sb-item").forEach(el =>
     el.classList.toggle("active", el.dataset.proc === name));
   renderFlow(proc);
+
+  // Reset filter and rebuild dynamic phase/status buttons
+  resetFilter();
+  const phases = [...new Set(Object.values(proc.units).map(u => u.phase).filter(Boolean))].sort();
+  const pf = document.getElementById("idx-phase-filter");
+  pf.querySelectorAll(".filter-btn:not([data-val='all'])").forEach(b => b.remove());
+  if (phases.length > 1) {
+    pf.style.display = "";
+    phases.forEach(p => {
+      const btn = document.createElement("button");
+      btn.className = "filter-btn"; btn.dataset.filter = "phase"; btn.dataset.val = p; btn.textContent = p;
+      pf.appendChild(btn);
+    });
+  } else {
+    pf.style.display = "none";
+  }
+  const sts = [...new Set(Object.values(proc.units).map(u => u.lifecycle_status).filter(Boolean))].sort();
+  const sf = document.getElementById("idx-status-filter");
+  sf.querySelectorAll(".filter-btn:not([data-val='all'])").forEach(b => b.remove());
+  if (sts.length) {
+    sf.style.display = "";
+    sts.forEach(s => {
+      const btn = document.createElement("button");
+      btn.className = "filter-btn"; btn.dataset.filter = "status"; btn.dataset.val = s; btn.textContent = s;
+      sf.appendChild(btn);
+    });
+  } else {
+    sf.style.display = "none";
+  }
 }
 
 // ── Heat map ─────────────────────────────────────────────
@@ -1663,44 +1692,6 @@ function resetFilter() {
   document.getElementById("idx-filter-search").value = "";
 }
 
-// Per-process phase/status dynamic buttons (called when switching processes)
-const _origShowProcess = showProcess;
-function showProcess(name) {
-  _origShowProcess(name);
-  resetFilter();
-  const proc = ALL_DATA[name];
-  if (!proc) return;
-
-  // Phase filter
-  const phases = [...new Set(Object.values(proc.units).map(u => u.phase).filter(Boolean))].sort();
-  const pf = document.getElementById("idx-phase-filter");
-  pf.querySelectorAll(".filter-btn:not([data-val='all'])").forEach(b => b.remove());
-  if (phases.length > 1) {
-    pf.style.display = "";
-    phases.forEach(p => {
-      const btn = document.createElement("button");
-      btn.className = "filter-btn"; btn.dataset.filter = "phase"; btn.dataset.val = p; btn.textContent = p;
-      pf.appendChild(btn);
-    });
-  } else {
-    pf.style.display = "none";
-  }
-
-  // Status filter
-  const sts = [...new Set(Object.values(proc.units).map(u => u.lifecycle_status).filter(Boolean))].sort();
-  const sf = document.getElementById("idx-status-filter");
-  sf.querySelectorAll(".filter-btn:not([data-val='all'])").forEach(b => b.remove());
-  if (sts.length) {
-    sf.style.display = "";
-    sts.forEach(s => {
-      const btn = document.createElement("button");
-      btn.className = "filter-btn"; btn.dataset.filter = "status"; btn.dataset.val = s; btn.textContent = s;
-      sf.appendChild(btn);
-    });
-  } else {
-    sf.style.display = "none";
-  }
-}
 </script>
 </body>
 </html>
