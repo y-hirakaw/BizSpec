@@ -470,6 +470,32 @@ svg.arrows-layer {
 .meta-diff-low    { color: #059669; }
 .meta-diff-medium { color: #D97706; }
 .meta-diff-high   { color: #DC2626; }
+
+.filter-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 5px 20px;
+  background: #FAFAFA;
+  border-bottom: 1px solid #E5E7EB;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+.filter-group { display: flex; align-items: center; gap: 5px; }
+.filter-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; }
+.filter-btn {
+  font-size: 10px; padding: 2px 7px; border-radius: 999px; cursor: pointer;
+  border: 1px solid #E5E7EB; background: #F9FAFB; color: #6B7280;
+  transition: background 0.1s; line-height: 1.6;
+}
+.filter-btn:hover { background: #F3F4F6; }
+.filter-btn.active { background: #2563EB; color: #fff; border-color: #2563EB; }
+.filter-search {
+  border: 1px solid #E5E7EB; border-radius: 6px; padding: 2px 8px;
+  font-size: 11px; color: #111827; outline: none; width: 130px;
+}
+.filter-search:focus { border-color: #93C5FD; }
 </style>
 </head>
 <body>
@@ -509,6 +535,34 @@ svg.arrows-layer {
     <div class="lswatch" style="background:#FFF7ED;border:2px solid #FB923C;" title="review"></div>
     <div class="lswatch" style="background:#F0FDF4;border:2px solid #86EFAC;" title="stable"></div>
     <div class="lswatch" style="background:#F3F4F6;border:2px solid #9CA3AF;" title="deprecated"></div>
+  </div>
+</div>
+
+<div class="filter-bar" id="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">Core</span>
+    <button class="filter-btn active" data-filter="core" data-val="all">全て</button>
+    <button class="filter-btn" data-filter="core" data-val="true">true</button>
+    <button class="filter-btn" data-filter="core" data-val="false">false</button>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">Executor</span>
+    <button class="filter-btn active" data-filter="executor" data-val="all">全て</button>
+    <button class="filter-btn" data-filter="executor" data-val="script">script</button>
+    <button class="filter-btn" data-filter="executor" data-val="ai_agent">ai_agent</button>
+    <button class="filter-btn" data-filter="executor" data-val="manual">manual</button>
+  </div>
+  <div class="filter-group" id="phase-filter-group" style="display:none;">
+    <span class="filter-label">Phase</span>
+    <button class="filter-btn active" data-filter="phase" data-val="all">全て</button>
+  </div>
+  <div class="filter-group" id="status-filter-group" style="display:none;">
+    <span class="filter-label">Status</span>
+    <button class="filter-btn active" data-filter="status" data-val="all">全て</button>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">Search</span>
+    <input type="search" class="filter-search" id="filter-search" placeholder="unit / aim…">
   </div>
 </div>
 
@@ -768,6 +822,63 @@ function jumpTo(name) {
   el.classList.add("selected");
   renderDetail(name);
   el.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+// ── Filter ───────────────────────────────────────────────
+const filterState = { core: "all", executor: "all", phase: "all", status: "all", search: "" };
+
+function applyFilter() {
+  const q = filterState.search.toLowerCase();
+  document.querySelectorAll(".node[data-name]").forEach(el => {
+    const name = el.dataset.name;
+    const u = units[name];
+    if (!u) return;
+    const match =
+      (filterState.core     === "all" || String(u.core) === filterState.core) &&
+      (filterState.executor === "all" || u.executor.type === filterState.executor) &&
+      (filterState.phase    === "all" || u.phase === filterState.phase) &&
+      (filterState.status   === "all" || (u.lifecycle_status || "") === filterState.status) &&
+      (!q || name.toLowerCase().includes(q) || u.aim.toLowerCase().includes(q));
+    el.style.opacity       = match ? "1" : "0.1";
+    el.style.pointerEvents = match ? "" : "none";
+  });
+}
+
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const f = btn.dataset.filter, v = btn.dataset.val;
+    filterState[f] = v;
+    document.querySelectorAll(`.filter-btn[data-filter="${f}"]`).forEach(b => b.classList.toggle("active", b === btn));
+    applyFilter();
+  });
+});
+document.getElementById("filter-search").addEventListener("input", e => {
+  filterState.search = e.target.value;
+  applyFilter();
+});
+
+// Populate phase filter
+const phases = [...new Set(Object.values(units).map(u => u.phase).filter(Boolean))].sort();
+if (phases.length > 1) {
+  const pg = document.getElementById("phase-filter-group");
+  pg.style.display = "";
+  phases.forEach(p => {
+    const btn = document.createElement("button");
+    btn.className = "filter-btn"; btn.dataset.filter = "phase"; btn.dataset.val = p; btn.textContent = p;
+    pg.appendChild(btn);
+  });
+}
+
+// Populate status filter
+const statuses = [...new Set(Object.values(units).map(u => u.lifecycle_status).filter(Boolean))].sort();
+if (statuses.length) {
+  const sg = document.getElementById("status-filter-group");
+  sg.style.display = "";
+  statuses.forEach(s => {
+    const btn = document.createElement("button");
+    btn.className = "filter-btn"; btn.dataset.filter = "status"; btn.dataset.val = s; btn.textContent = s;
+    sg.appendChild(btn);
+  });
 }
 </script>
 </body>
@@ -1072,6 +1183,31 @@ svg.arrows-layer {
 .meta-diff-low    { color: #059669; }
 .meta-diff-medium { color: #D97706; }
 .meta-diff-high   { color: #DC2626; }
+
+#flow-filter-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 5px 20px;
+  background: #FAFAFA;
+  border-bottom: 1px solid #E5E7EB;
+  flex-wrap: wrap;
+}
+.filter-group { display: flex; align-items: center; gap: 5px; }
+.filter-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; }
+.filter-btn {
+  font-size: 10px; padding: 2px 7px; border-radius: 999px; cursor: pointer;
+  border: 1px solid #E5E7EB; background: #F9FAFB; color: #6B7280;
+  transition: background 0.1s; line-height: 1.6;
+}
+.filter-btn:hover { background: #F3F4F6; }
+.filter-btn.active { background: #2563EB; color: #fff; border-color: #2563EB; }
+.filter-search {
+  border: 1px solid #E5E7EB; border-radius: 6px; padding: 2px 8px;
+  font-size: 11px; color: #111827; outline: none; width: 130px;
+}
+.filter-search:focus { border-color: #93C5FD; }
 </style>
 </head>
 <body>
@@ -1105,6 +1241,33 @@ svg.arrows-layer {
           <div class="lswatch" style="background:#FFF7ED;border:2px solid #FB923C;" title="review"></div>
           <div class="lswatch" style="background:#F0FDF4;border:2px solid #86EFAC;" title="stable"></div>
           <div class="lswatch" style="background:#F3F4F6;border:2px solid #9CA3AF;" title="deprecated"></div>
+        </div>
+      </div>
+      <div id="flow-filter-bar">
+        <div class="filter-group">
+          <span class="filter-label">Core</span>
+          <button class="filter-btn active" data-filter="core" data-val="all">全て</button>
+          <button class="filter-btn" data-filter="core" data-val="true">true</button>
+          <button class="filter-btn" data-filter="core" data-val="false">false</button>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Executor</span>
+          <button class="filter-btn active" data-filter="executor" data-val="all">全て</button>
+          <button class="filter-btn" data-filter="executor" data-val="script">script</button>
+          <button class="filter-btn" data-filter="executor" data-val="ai_agent">ai_agent</button>
+          <button class="filter-btn" data-filter="executor" data-val="manual">manual</button>
+        </div>
+        <div class="filter-group" id="idx-phase-filter" style="display:none;">
+          <span class="filter-label">Phase</span>
+          <button class="filter-btn active" data-filter="phase" data-val="all">全て</button>
+        </div>
+        <div class="filter-group" id="idx-status-filter" style="display:none;">
+          <span class="filter-label">Status</span>
+          <button class="filter-btn active" data-filter="status" data-val="all">全て</button>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Search</span>
+          <input type="search" class="filter-search" id="idx-filter-search" placeholder="unit / aim…">
         </div>
       </div>
       <div id="flow-body">
@@ -1412,6 +1575,84 @@ function jumpTo(name) {
   el.classList.add("selected");
   renderDetail(name);
   el.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+// ── Filter ───────────────────────────────────────────────
+const filterState = { core: "all", executor: "all", phase: "all", status: "all", search: "" };
+
+function applyFilter() {
+  const q = filterState.search.toLowerCase();
+  document.querySelectorAll("#flow-canvas .node[data-name]").forEach(el => {
+    const name = el.dataset.name;
+    const u = currentUnits[name];
+    if (!u) return;
+    const match =
+      (filterState.core     === "all" || String(u.core) === filterState.core) &&
+      (filterState.executor === "all" || u.executor.type === filterState.executor) &&
+      (filterState.phase    === "all" || u.phase === filterState.phase) &&
+      (filterState.status   === "all" || (u.lifecycle_status || "") === filterState.status) &&
+      (!q || name.toLowerCase().includes(q) || u.aim.toLowerCase().includes(q));
+    el.style.opacity       = match ? "1" : "0.1";
+    el.style.pointerEvents = match ? "" : "none";
+  });
+}
+
+document.getElementById("flow-filter-bar").addEventListener("click", e => {
+  const btn = e.target.closest(".filter-btn");
+  if (!btn) return;
+  const f = btn.dataset.filter, v = btn.dataset.val;
+  filterState[f] = v;
+  document.querySelectorAll(`#flow-filter-bar .filter-btn[data-filter="${f}"]`).forEach(b => b.classList.toggle("active", b === btn));
+  applyFilter();
+});
+document.getElementById("idx-filter-search").addEventListener("input", e => {
+  filterState.search = e.target.value;
+  applyFilter();
+});
+
+function resetFilter() {
+  Object.keys(filterState).forEach(k => { filterState[k] = k === "search" ? "" : "all"; });
+  document.querySelectorAll("#flow-filter-bar .filter-btn").forEach(b => b.classList.toggle("active", b.dataset.val === "all"));
+  document.getElementById("idx-filter-search").value = "";
+}
+
+// Per-process phase/status dynamic buttons (called when switching processes)
+const _origShowProcess = showProcess;
+function showProcess(name) {
+  _origShowProcess(name);
+  resetFilter();
+  const proc = ALL_DATA[name];
+  if (!proc) return;
+
+  // Phase filter
+  const phases = [...new Set(Object.values(proc.units).map(u => u.phase).filter(Boolean))].sort();
+  const pf = document.getElementById("idx-phase-filter");
+  pf.querySelectorAll(".filter-btn:not([data-val='all'])").forEach(b => b.remove());
+  if (phases.length > 1) {
+    pf.style.display = "";
+    phases.forEach(p => {
+      const btn = document.createElement("button");
+      btn.className = "filter-btn"; btn.dataset.filter = "phase"; btn.dataset.val = p; btn.textContent = p;
+      pf.appendChild(btn);
+    });
+  } else {
+    pf.style.display = "none";
+  }
+
+  // Status filter
+  const sts = [...new Set(Object.values(proc.units).map(u => u.lifecycle_status).filter(Boolean))].sort();
+  const sf = document.getElementById("idx-status-filter");
+  sf.querySelectorAll(".filter-btn:not([data-val='all'])").forEach(b => b.remove());
+  if (sts.length) {
+    sf.style.display = "";
+    sts.forEach(s => {
+      const btn = document.createElement("button");
+      btn.className = "filter-btn"; btn.dataset.filter = "status"; btn.dataset.val = s; btn.textContent = s;
+      sf.appendChild(btn);
+    });
+  } else {
+    sf.style.display = "none";
+  }
 }
 </script>
 </body>
