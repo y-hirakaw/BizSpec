@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
 import yaml
+
+_PREFIX_RE = re.compile(r"^\d+_")
 
 REQUIRED_FIELDS = ["unit", "aim", "phase", "job", "rule", "link", "core", "io", "executor"]
 VALID_EXECUTOR_TYPES = {"script", "ai_agent", "manual"}
@@ -80,12 +83,14 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
         if f not in data:
             errors.append(VError(path, f, f"必須フィールド '{f}' がありません"))
 
-    # unit 名とファイル名の一致
+    # unit 名とファイル名の一致（採番プレフィックス NN_ を許容）
     if "unit" in data:
-        expected = f"{data['unit']}.yaml"
-        if path.name != expected:
+        unit_name = str(data["unit"])
+        bare_stem = _PREFIX_RE.sub("", path.stem)
+        if bare_stem != unit_name:
             errors.append(VError(path, "unit",
-                f"unit 名 '{data['unit']}' とファイル名 '{path.name}' が一致しません（期待: {expected}）"))
+                f"unit 名 '{unit_name}' とファイル名 '{path.name}' が一致しません"
+                f"（期待: {unit_name}.yaml または NN_{unit_name}.yaml）"))
 
     # core は真偽値のみ
     if "core" in data and not isinstance(data["core"], bool):
@@ -190,18 +195,20 @@ def _check_process(process_dir: Path, bizspec_dir: Optional[Path] = None) -> lis
 
     errors: list[VError] = []
     units: dict[str, dict] = {}
+    unit_paths: dict[str, Path] = {}
 
     for path in yaml_files:
         file_errors, data = _check_file(path)
         errors.extend(file_errors)
         if data is not None and isinstance(data.get("unit"), str):
             units[data["unit"]] = data
+            unit_paths[data["unit"]] = path
 
     unit_names = set(units)
 
     # クロスファイルチェック
     for unit_name, data in units.items():
-        path = process_dir / f"{unit_name}.yaml"
+        path = unit_paths[unit_name]
         lnk = data.get("link", {})
         if not isinstance(lnk, dict):
             continue
@@ -229,10 +236,16 @@ def _check_process(process_dir: Path, bizspec_dir: Optional[Path] = None) -> lis
                 if not isinstance(entry, str) or ":" not in entry:
                     continue
                 ref_proc, ref_unit = entry.split(":", 1)
-                ref_file = bizspec_dir / ref_proc / f"{ref_unit}.yaml"
+                ref_dir = bizspec_dir / ref_proc
+                ref_file = ref_dir / f"{ref_unit}.yaml"
                 if not ref_file.exists():
-                    errors.append(VError(path, "depends_on",
-                        f"'{entry}' が存在しません（{ref_file} が見つかりません）"))
+                    prefixed = [
+                        p for p in ref_dir.glob("*.yaml")
+                        if _PREFIX_RE.sub("", p.stem) == ref_unit
+                    ]
+                    if not prefixed:
+                        errors.append(VError(path, "depends_on",
+                            f"'{entry}' が存在しません（{ref_file} が見つかりません）"))
 
     return errors
 
@@ -269,7 +282,7 @@ def run_validate(args) -> int:
                 print(f"      {e.file.name:<40}  [{e.field}]  {e.message}")
             total_errors += len(errors)
         else:
-            unit_count = len(list(process_dir.glob("*.yaml")))
+            unit_count = len([p for p in process_dir.glob("*.yaml") if not p.name.startswith("_")])
             print(f"PASS  {label}  ({unit_count} units)")
 
     print()

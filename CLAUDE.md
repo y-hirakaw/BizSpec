@@ -36,6 +36,9 @@ Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx
 | `bizspec new <process> <unit>` | unit のスケルトン YAML を生成する（`--executor` / `--phase` / `--core` / `--up` / `--down`） |
 | `bizspec search <keyword>` | 全プロセス横断でキーワード検索する（`--field` で対象フィールドを絞れる） |
 | `bizspec list` | `bizspec/` 内の unit 一覧を表示（unit名・core・executor.type、effort/automationフィールドがあれば列追加） |
+| `bizspec rename <process> <old> <new>` | unit をリネームし同プロセス内の link 参照を一括更新する（`--dry-run` でプレビュー） |
+| `bizspec rm <process> <unit>` | unit を削除し link 参照を一括削除する。フロー分断検知あり（`--force` で強制） |
+| `bizspec renumber <process>` | unit ファイルをトポロジカル順に採番リネームする（`--dry-run` でプレビュー） |
 | `bizspec validate` | BizSpec YAML のスキーマ検証 |
 | `bizspec viz` | `link.up/down` を元にフロー図を生成する。引数なし時は全プロセス統合ビュー（`index.html`）も生成 |
 
@@ -80,6 +83,19 @@ automation:
 - **テスト実行:** `python3 -m pytest tests/ -v`（または `uv run --with pytest pytest tests/ -v`）
 - **動作確認:** `bizspec validate`（PATH が通っていること）
 - **CI:** GitHub Actions（`.github/workflows/test.yml`）— main への push と PR で自動テスト
+
+## フィールド責務ルーブリック
+
+`job` / `rule` / `io.run` への書き分け基準：
+
+| フィールド | 責務 | ここには書かない |
+|-----------|------|----------------|
+| `aim` | この unit が達成する目的を 1 文で | 手順・制約・データ |
+| `job` | 実行主体（人 / AI / スクリプト）への作業指示（アクション） | 制約・判断基準 |
+| `rule` | 守るべき制約・判断基準・ガイドライン | 作業手順・データ |
+| `io.in` | この unit が受け取る入力データ（モノ） | アクション・制約 |
+| `io.run` | データ視点での処理ステップ（`job` をデータの流れとして言い換えたもの） | 制約・判断基準 |
+| `io.out` | この unit が渡す出力データ（モノ） | アクション・制約 |
 
 ## Skills の設計方針
 

@@ -13,6 +13,9 @@ A tool for decomposing business processes into small, executable units (BizSpec 
 - **Search** — Find units by keyword across all processes (`bizspec search`)
 - **Validate** — Check BizSpec YAML files for schema errors and link consistency (`bizspec validate`)
 - **List** — Show a unit summary table for a process (`bizspec list`)
+- **Rename** — Rename a unit and update all `link.up/down` references in one shot (`bizspec rename`)
+- **Remove** — Delete a unit and remove all references, with flow-break detection (`bizspec rm`)
+- **Renumber** — Rename unit files with execution-order prefixes based on topological sort (`bizspec renumber`)
 - **Visualize** — Generate a clickable HTML flow diagram from the YAML link graph (`bizspec viz`)
 
 The `bizspec/` directory contains two worked examples:
@@ -64,6 +67,24 @@ automation:
 
 `depends_on` lists units in other processes that this unit depends on (optional). The `effort` and `automation` fields are also optional; when present they appear in `bizspec list` columns and the `bizspec viz` detail panel. `duration × frequency` gives monthly cost, which drives the heatmap coloring in `bizspec viz`.
 
+### Field responsibility rubric
+
+Each field has a distinct responsibility. Do not duplicate the same content across fields.
+
+| Field | Responsibility | Do NOT write here |
+|-------|---------------|-------------------|
+| `aim` | The purpose of this unit in **one sentence** | Steps, constraints, data |
+| `job` | **Work instructions** for the executor (person / AI / script) — list of actions | Constraints, judgment criteria |
+| `rule` | **Constraints, judgment criteria, guidelines** to follow | Work steps, data |
+| `io.in` | **Input data (things)** this unit receives | Actions, constraints |
+| `io.run` | **Processing steps from a data perspective** (re-expression of `job` as data flow) | Constraints, judgment criteria |
+| `io.out` | **Output data (things)** this unit produces | Actions, constraints |
+
+**Quick disambiguation:**
+- "must …" / "if … then …" → `rule`
+- "do …" / "perform …" (steps) → `job` (execution view) or `io.run` (data flow view)
+- Nouns (document, list, result, flag) → `io.in` / `io.out`
+
 ## Installation
 
 Requires Python 3.9+.
@@ -104,6 +125,13 @@ bizspec validate issue-refinement   # validate one process
 
 bizspec list                        # list all units
 bizspec list issue-refinement       # list units in one process
+
+bizspec rename issue-refinement Ready判定 Ready判定v2  # rename unit + update all links
+bizspec rm issue-refinement Ready判定               # delete unit + remove all references
+bizspec rm issue-refinement Ready判定 --force       # skip flow-break warning
+
+bizspec renumber issue-refinement           # rename unit files with execution-order prefixes
+bizspec renumber issue-refinement --dry-run # preview only
 
 bizspec viz                         # generate HTML diagrams for all processes
                                     # also generates bizspec/_viz/index.html (unified view)
@@ -147,6 +175,9 @@ Claude Code スキルと CLI を組み合わせて、業務プロセスをスク
 - **検索** — 全プロセス横断でキーワード検索する（`bizspec search`）
 - **検証** — BizSpec YAML のスキーマエラーや link の整合性チェック（`bizspec validate`）
 - **一覧表示** — プロセスの unit 一覧をテーブル表示（`bizspec list`）
+- **リネーム** — unit 名を変更し、同プロセス内の `link.up/down` 参照を一括更新する（`bizspec rename`）
+- **削除** — unit を削除し、参照エントリを一括削除する。フロー分断を事前検知（`bizspec rm`）
+- **採番リネーム** — unit ファイルをトポロジカル順で採番リネームし、ディレクトリ表示を実行順に揃える（`bizspec renumber`）
 - **可視化** — YAML の link グラフからクリッカブルな HTML フロー図を生成（`bizspec viz`）
 
 `bizspec/` には 2 つのサンプルが入っています：
@@ -198,6 +229,24 @@ automation:
 
 `depends_on` は他プロセスの unit への依存を記述します（省略可）。`effort` / `automation` も省略可能なオプションフィールドで、設定すると `bizspec list` の列と `bizspec viz` の詳細パネルに表示されます。`duration × frequency` で月間コストを算出し、`bizspec viz` のヒートマップ色分けに反映されます。
 
+### フィールド責務ルーブリック
+
+各フィールドには明確な責務があります。同じ内容を複数のフィールドに重複させないでください。
+
+| フィールド | 責務 | ここには書かない |
+|-----------|------|----------------|
+| `aim` | この unit が達成する目的を **1文で** | 手順・制約・データ |
+| `job` | 実行主体（人 / AI / スクリプト）への **作業指示**（アクションの羅列） | 制約・判断基準 |
+| `rule` | 守るべき **制約・判断基準・ガイドライン** | 作業手順・データ |
+| `io.in` | この unit が受け取る **入力データ（モノ）** | アクション・制約 |
+| `io.run` | データ視点での **処理ステップ**（`job` をデータの流れとして言い換えたもの） | 制約・判断基準 |
+| `io.out` | この unit が渡す **出力データ（モノ）** | アクション・制約 |
+
+**迷ったときの判別:**
+- 「〇〇しなければならない / 〇〇の場合は…」→ `rule`
+- 「〇〇する / 〇〇を行う」という作業手順 → `job`（実行視点）または `io.run`（データ視点）
+- 名詞（ドキュメント・リスト・結果・フラグ）→ `io.in` / `io.out`
+
 ## インストール
 
 Python 3.9 以上が必要です。
@@ -238,6 +287,13 @@ bizspec validate issue-refinement   # 特定プロセスのみ検証
 
 bizspec list                        # 全 unit を一覧表示
 bizspec list issue-refinement       # 特定プロセスの unit を一覧表示
+
+bizspec rename issue-refinement Ready判定 Ready判定v2  # unit リネーム + link 参照一括更新
+bizspec rm issue-refinement Ready判定               # unit 削除 + 参照一括削除
+bizspec rm issue-refinement Ready判定 --force       # フロー分断警告を無視して削除
+
+bizspec renumber issue-refinement           # unit ファイルを実行順に採番リネーム
+bizspec renumber issue-refinement --dry-run # 変更内容のプレビューのみ
 
 bizspec viz                         # 全プロセスの HTML 図を生成
                                     # bizspec/_viz/index.html（統合ビュー）も生成

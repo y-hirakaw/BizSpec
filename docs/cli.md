@@ -120,6 +120,54 @@ bizspec list issue-refinement   # 特定プロセスのみ表示
 
 unit名・core・executor.type をプロセスごとに一覧表示する。いずれかの unit に `effort.duration` / `effort.frequency` / `automation.difficulty` が設定されている場合は、対応する列が自動的に追加される。
 
+### `bizspec rename <process> <old-name> <new-name>`
+
+unit 名を変更し、同プロセス内のすべての `link.up/down` 参照を一括更新する。
+
+```sh
+bizspec rename issue-refinement Ready判定 Ready判定v2
+bizspec rename issue-refinement Ready判定 Ready判定v2 --dry-run
+```
+
+- ファイル名・YAML 内の `unit:` フィールド・参照先の `link.up/down` をすべて更新する
+- 採番プレフィックスがある場合はプレフィックスを保持してリネーム（`01_Ready判定.yaml` → `01_Ready判定v2.yaml`）
+- 他プロセスの `depends_on` に参照がある場合は警告のみ（手動更新が必要）
+- 完了後に `bizspec validate` を自動実行して結果を報告する
+
+**終了コード:** `0` = OK、`1` = エラーまたは validate 失敗
+
+### `bizspec rm <process> <unit-name>`
+
+unit ファイルを削除し、同プロセス内のすべての `link.up/down` からエントリを削除する。
+
+```sh
+bizspec rm issue-refinement Ready判定
+bizspec rm issue-refinement Ready判定 --dry-run
+bizspec rm issue-refinement Ready判定 --force
+```
+
+- 削除によって他 unit の `link.up/down` が空になる場合（フロー分断の可能性）はエラー終了する
+- `--force` を指定するとフロー分断警告を無視して削除を続行する
+- 採番プレフィックス付きファイルも対象になる
+- 完了後に `bizspec validate` を自動実行して結果を報告する
+
+**終了コード:** `0` = OK、`1` = エラー・フロー分断検知・validate 失敗
+
+### `bizspec renumber <process>`
+
+`bizspec/<process>/` 内の unit ファイルを `link.up/down` のトポロジカル順に採番リネームする。
+
+```sh
+bizspec renumber issue-refinement
+bizspec renumber issue-refinement --dry-run   # 変更内容の確認のみ（実際にはリネームしない）
+```
+
+- ファイル名に `01_` / `02_` ... のプレフィックスを付与する（unit ごとに 2 桁以上のゼロ埋め）
+- YAML 内の `unit:` フィールドと `link.up/down` の参照は変更しない（ファイル名のみ変更）
+- すでに採番済みのファイルも正しい順序に更新される（冪等）
+- `--dry-run` をつけると変更予定の一覧を表示するだけで実際のリネームは行わない
+- `bizspec validate` はプレフィックス付きファイル名を正常として扱う
+
 ### `bizspec viz [process]`
 
 `bizspec/` 以下の unit から HTML フロー図を生成する。
@@ -150,6 +198,28 @@ bizspec viz issue-refinement   # 特定プロセスのみ出力
 - バッジ: `executor.type`（script / ai_agent / manual）
 
 **終了コード:** `0` = OK、`1` = エラーあり
+
+---
+
+## BizSpec YAML フィールド責務ルーブリック
+
+同じ内容を `job` / `rule` / `io.run` に重複して書くと、後から読む人が迷う。
+各フィールドの責務を明確にし、**どこに何を書くか**を統一する。
+
+| フィールド | 責務 | ここには書かない |
+|-----------|------|----------------|
+| `aim` | この unit が達成する目的を **1文で**。なぜこの unit が存在するかを表す | 手順・制約・データ |
+| `job` | 実行主体（人 / AI / スクリプト）への **作業指示**（アクションの羅列） | 制約・判断基準 |
+| `rule` | 守るべき **制約・判断基準・ガイドライン** | 作業手順・データ |
+| `io.in` | この unit が受け取る **入力データ（モノ）** | アクション・制約 |
+| `io.run` | データ視点での **処理ステップ**（`job` をデータの流れとして言い換えたもの） | 制約・判断基準 |
+| `io.out` | この unit が渡す **出力データ（モノ）** | アクション・制約 |
+
+**迷ったときの判別:**
+
+- 「〇〇しなければならない / 〇〇の場合は…」→ **`rule`**
+- 「〇〇する / 〇〇を行う」という作業手順 → **`job`**（実行視点）または **`io.run`**（データ視点）
+- 名詞（ドキュメント・リスト・結果・フラグ）→ **`io.in`** / **`io.out`**
 
 ---
 

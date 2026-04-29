@@ -3,6 +3,8 @@ import sys
 from bizspec.init_cmd import run_init
 from bizspec.list_cmd import run_list
 from bizspec.new_cmd import run_new
+from bizspec.rename_cmd import run_rename, run_rm
+from bizspec.renumber_cmd import run_renumber
 from bizspec.search_cmd import run_search, FIELD_CHOICES
 from bizspec.validate import run_validate
 from bizspec.viz_cmd import run_viz
@@ -44,6 +46,25 @@ def main() -> None:
     nw.add_argument("--down", nargs="*", metavar="UNIT", help="link.down に追加する unit 名")
     nw.add_argument("--force", action="store_true", help="既存ファイルを上書きする")
 
+    # rename
+    rnm = sub.add_parser("rename", help="unit をリネームし link 参照を一括更新する")
+    rnm.add_argument("process",  help="プロセス名")
+    rnm.add_argument("old_name", help="変更前の unit 名")
+    rnm.add_argument("new_name", help="変更後の unit 名")
+    rnm.add_argument("--dry-run", action="store_true", help="変更内容を表示するだけで実行しない")
+
+    # rm
+    rmv = sub.add_parser("rm", help="unit を削除し link 参照を一括削除する")
+    rmv.add_argument("process",   help="プロセス名")
+    rmv.add_argument("unit_name", help="削除する unit 名")
+    rmv.add_argument("--dry-run", action="store_true", help="変更内容を表示するだけで実行しない")
+    rmv.add_argument("--force",   action="store_true", help="フロー分断の警告を無視して削除する")
+
+    # renumber
+    ren = sub.add_parser("renumber", help="unit ファイルをトポロジカル順に採番リネームする")
+    ren.add_argument("process", help="プロセス名")
+    ren.add_argument("--dry-run", action="store_true", help="実際にはリネームせず変更内容を表示する")
+
     # search
     srch = sub.add_parser("search", help="全プロセス横断でキーワード検索する")
     srch.add_argument("keyword", help="検索キーワード")
@@ -65,6 +86,12 @@ def main() -> None:
         sys.exit(run_viz(args))
     elif args.command == "new":
         sys.exit(run_new(args))
+    elif args.command == "rename":
+        sys.exit(run_rename(args))
+    elif args.command == "rm":
+        sys.exit(run_rm(args))
+    elif args.command == "renumber":
+        sys.exit(run_renumber(args))
     elif args.command == "search":
         sys.exit(run_search(args))
     else:
