@@ -106,6 +106,8 @@ bizspec validate issue-refinement   # 特定プロセスのみ検証
 - `effort.frequency`（設定時）が 1 以上の整数（月間実行回数）であること
 - `automation.difficulty`（設定時）が `low` / `medium` / `high` のいずれかであること
 - `automation.status`（設定時）が `manual` / `partially-automated` / `automated` のいずれかであること
+- `status`（設定時）が `draft` / `review` / `stable` / `deprecated` のいずれかであること
+- `deprecated_reason`（設定時）は `status: deprecated` のときのみ使用可能であること
 
 **終了コード:** `0` = OK、`1` = エラーあり
 
@@ -118,7 +120,7 @@ bizspec list                    # 全プロセスを表示
 bizspec list issue-refinement   # 特定プロセスのみ表示
 ```
 
-unit名・core・executor.type をプロセスごとに一覧表示する。いずれかの unit に `effort.duration` / `effort.frequency` / `automation.difficulty` が設定されている場合は、対応する列が自動的に追加される。
+unit名・core・executor.type をプロセスごとに一覧表示する。いずれかの unit に `status` / `effort.duration` / `effort.frequency` / `automation.difficulty` が設定されている場合は、対応する列が自動的に追加される。
 
 ### `bizspec rename <process> <old-name> <new-name>`
 
@@ -194,8 +196,9 @@ bizspec viz issue-refinement   # 特定プロセスのみ出力
 - 左ペイン: `link.up/down` をもとにした DAG フロー図
 - 右ペイン: unit の詳細（aim / job / rule / io / executor / effort・automation（設定時）/ link）
 - ノードをクリックすると詳細表示 + 接続する矢印がハイライト（青）、無関係な矢印はフェード
-- ノード色: `core: true` = 青、`core: false` = グレー
+- ノード色: `core: true` = 青、`core: false` = グレー（`status` が設定されている場合は status の色が優先）
 - バッジ: `executor.type`（script / ai_agent / manual）
+- `status` が設定された unit があるときは凡例バーに status 色凡例を表示（draft=黄、review=橙、stable=緑、deprecated=グレー・半透明）
 
 **終了コード:** `0` = OK、`1` = エラーあり
 

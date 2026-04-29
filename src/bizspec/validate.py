@@ -11,11 +11,12 @@ import yaml
 _PREFIX_RE = re.compile(r"^\d+_")
 
 REQUIRED_FIELDS = ["unit", "aim", "phase", "job", "rule", "link", "core", "io", "executor"]
-VALID_EXECUTOR_TYPES = {"script", "ai_agent", "manual"}
-VALID_DIFFICULTY     = {"low", "medium", "high"}
-VALID_AUTO_STATUS    = {"manual", "partially-automated", "automated"}
-FIBONACCI_HOURS      = {0.5, 1, 2, 3, 5, 8, 13, 21}
-NON_EMPTY_LIST_FIELDS = ["job", "rule"]
+VALID_EXECUTOR_TYPES    = {"script", "ai_agent", "manual"}
+VALID_DIFFICULTY        = {"low", "medium", "high"}
+VALID_AUTO_STATUS       = {"manual", "partially-automated", "automated"}
+VALID_LIFECYCLE_STATUS  = {"draft", "review", "stable", "deprecated"}
+FIBONACCI_HOURS         = {0.5, 1, 2, 3, 5, 8, 13, 21}
+NON_EMPTY_LIST_FIELDS   = ["job", "rule"]
 
 
 @dataclass
@@ -168,6 +169,19 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
             if "status" in aut and aut["status"] not in VALID_AUTO_STATUS:
                 errors.append(VError(path, "automation.status",
                     f"{sorted(VALID_AUTO_STATUS)} のいずれかでなければなりません（現在: {aut['status']!r}）"))
+
+    # lifecycle (optional)
+    if "status" in data:
+        st = data["status"]
+        if st not in VALID_LIFECYCLE_STATUS:
+            errors.append(VError(path, "status",
+                f"{sorted(VALID_LIFECYCLE_STATUS)} のいずれかでなければなりません（現在: {st!r}）"))
+    if "deprecated_reason" in data:
+        if data.get("status") != "deprecated":
+            errors.append(VError(path, "deprecated_reason",
+                "status: deprecated のときのみ使用できます"))
+        if not isinstance(data["deprecated_reason"], str):
+            errors.append(VError(path, "deprecated_reason", "文字列でなければなりません"))
 
     # job / rule の空リスト
     for key in NON_EMPTY_LIST_FIELDS:

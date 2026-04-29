@@ -336,3 +336,42 @@ class TestDependsOn:
         write_unit(proc_a, "UnitA", content)
         errors = _check_process(proc_a, bizspec)
         assert any(e.field == "depends_on" for e in errors)
+
+
+class TestLifecycleStatus:
+    def test_valid_status_stable(self, tmp_path):
+        content = make_unit("UnitA") + "status: stable\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert errors == []
+
+    def test_valid_status_deprecated_with_reason(self, tmp_path):
+        content = make_unit("UnitA") + "status: deprecated\ndeprecated_reason: 新プロセスに統合\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert errors == []
+
+    def test_invalid_status_value(self, tmp_path):
+        content = make_unit("UnitA") + "status: active\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert any(e.field == "status" for e in errors)
+
+    def test_deprecated_reason_without_deprecated_status_fails(self, tmp_path):
+        content = make_unit("UnitA") + "status: stable\ndeprecated_reason: 理由\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert any(e.field == "deprecated_reason" for e in errors)
+
+    def test_deprecated_reason_without_status_fails(self, tmp_path):
+        content = make_unit("UnitA") + "deprecated_reason: 理由\n"
+        write_unit(tmp_path, "UnitA", content)
+        errors, _ = _check_file(tmp_path / "UnitA.yaml")
+        assert any(e.field == "deprecated_reason" for e in errors)
+
+    def test_all_valid_statuses(self, tmp_path):
+        for st in ("draft", "review", "stable", "deprecated"):
+            content = make_unit(f"Unit{st}") + f"status: {st}\n"
+            write_unit(tmp_path, f"Unit{st}", content)
+            errors, _ = _check_file(tmp_path / f"Unit{st}.yaml")
+            assert errors == [], f"status: {st} should be valid"

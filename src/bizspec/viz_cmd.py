@@ -139,6 +139,8 @@ def _unit_to_js(u: dict) -> dict:
             "difficulty": opt_str(aut.get("difficulty")),
             "status":     opt_str(aut.get("status")),
         },
+        "lifecycle_status":     opt_str(u.get("status")),
+        "deprecated_reason":    opt_str(u.get("deprecated_reason")),
     }
 
 
@@ -377,6 +379,10 @@ svg.arrows-layer {
 .node.heat-low    { background: #FEF9C3 !important; border-color: #FDE047 !important; }
 .node.heat-medium { background: #FFEDD5 !important; border-color: #FB923C !important; }
 .node.heat-high   { background: #FEE2E2 !important; border-color: #F87171 !important; }
+.node.status-draft      { background: #FEFCE8 !important; border-color: #FDE047 !important; }
+.node.status-review     { background: #FFF7ED !important; border-color: #FB923C !important; }
+.node.status-stable     { background: #F0FDF4 !important; border-color: #86EFAC !important; }
+.node.status-deprecated { background: #F3F4F6 !important; border-color: #9CA3AF !important; opacity: 0.6; }
 
 .node-name { font-size: 11px; font-weight: 600; color: #111827; line-height: 1.35; white-space: normal; }
 .node-badges { display: flex; gap: 4px; align-items: center; }
@@ -416,6 +422,10 @@ svg.arrows-layer {
 .tag-script     { background: #D1FAE5; color: #065F46; }
 .tag-ai_agent   { background: #EDE9FE; color: #5B21B6; }
 .tag-manual     { background: #FEF3C7; color: #92400E; }
+.tag-status-draft      { background: #FEF9C3; color: #713F12; }
+.tag-status-review     { background: #FFEDD5; color: #9A3412; }
+.tag-status-stable     { background: #DCFCE7; color: #166534; }
+.tag-status-deprecated { background: #F3F4F6; color: #6B7280; }
 
 .section { margin-bottom: 18px; }
 .section-label {
@@ -492,6 +502,13 @@ svg.arrows-layer {
     <div class="lswatch" style="background:#FEF9C3;border:2px solid #FDE047;" title="低コスト"></div>
     <div class="lswatch" style="background:#FFEDD5;border:2px solid #FB923C;" title="中コスト"></div>
     <div class="lswatch" style="background:#FEE2E2;border:2px solid #F87171;" title="高コスト"></div>
+  </div>
+  <div class="legend-item" id="status-legend" style="display:none;gap:4px;">
+    <span style="font-size:10px;color:#9CA3AF;">status:</span>
+    <div class="lswatch" style="background:#FEFCE8;border:2px solid #FDE047;" title="draft"></div>
+    <div class="lswatch" style="background:#FFF7ED;border:2px solid #FB923C;" title="review"></div>
+    <div class="lswatch" style="background:#F0FDF4;border:2px solid #86EFAC;" title="stable"></div>
+    <div class="lswatch" style="background:#F3F4F6;border:2px solid #9CA3AF;" title="deprecated"></div>
   </div>
 </div>
 
@@ -621,14 +638,16 @@ function computeHeat(unitMap) {
 }
 const heatMap = computeHeat(units);
 if (Object.keys(heatMap).length) document.getElementById("heat-legend").style.display = "flex";
+if (Object.values(units).some(u => u.lifecycle_status)) document.getElementById("status-legend").style.display = "flex";
 
 // ── Nodes ────────────────────────────────────────────────
 Object.entries(positions).forEach(([name, pos]) => {
   const u   = units[name];
   if (!u) return;
   const div = document.createElement("div");
-  const heatClass = heatMap[name] ? ` heat-${heatMap[name]}` : "";
-  div.className    = `node core-${u.core}${heatClass}`;
+  const heatClass   = heatMap[name] ? ` heat-${heatMap[name]}` : "";
+  const statusClass = u.lifecycle_status ? ` status-${u.lifecycle_status}` : "";
+  div.className    = `node core-${u.core}${heatClass}${statusClass}`;
   div.style.left   = pos.left + "px";
   div.style.top    = pos.top  + "px";
   div.dataset.name = name;
@@ -669,8 +688,15 @@ function renderDetail(name) {
         <span class="tag tag-phase">phase: ${u.phase}</span>
         <span class="tag tag-core-${u.core}">core: ${u.core}</span>
         <span class="tag tag-${u.executor.type}">${u.executor.type}</span>
+        ${u.lifecycle_status ? `<span class="tag tag-status-${u.lifecycle_status}">${u.lifecycle_status}</span>` : ''}
       </div>
     </div>
+
+    ${u.lifecycle_status === 'deprecated' && u.deprecated_reason ? `
+    <div class="section">
+      <div class="section-label">Deprecated</div>
+      <div style="font-size:13px;color:#6B7280;background:#F3F4F6;padding:8px 12px;border-radius:6px;">${u.deprecated_reason}</div>
+    </div>` : ''}
 
     <div class="section">
       <div class="section-label">Job</div>
@@ -961,6 +987,10 @@ svg.arrows-layer {
 .node.heat-low    { background: #FEF9C3 !important; border-color: #FDE047 !important; }
 .node.heat-medium { background: #FFEDD5 !important; border-color: #FB923C !important; }
 .node.heat-high   { background: #FEE2E2 !important; border-color: #F87171 !important; }
+.node.status-draft      { background: #FEFCE8 !important; border-color: #FDE047 !important; }
+.node.status-review     { background: #FFF7ED !important; border-color: #FB923C !important; }
+.node.status-stable     { background: #F0FDF4 !important; border-color: #86EFAC !important; }
+.node.status-deprecated { background: #F3F4F6 !important; border-color: #9CA3AF !important; opacity: 0.6; }
 .node-name   { font-size: 11px; font-weight: 600; color: #111827; line-height: 1.35; }
 .node-badges { display: flex; gap: 4px; align-items: center; }
 .badge { font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 999px; white-space: nowrap; line-height: 1.5; }
@@ -998,6 +1028,10 @@ svg.arrows-layer {
 .tag-script     { background: #D1FAE5; color: #065F46; }
 .tag-ai_agent   { background: #EDE9FE; color: #5B21B6; }
 .tag-manual     { background: #FEF3C7; color: #92400E; }
+.tag-status-draft      { background: #FEF9C3; color: #713F12; }
+.tag-status-review     { background: #FFEDD5; color: #9A3412; }
+.tag-status-stable     { background: #DCFCE7; color: #166534; }
+.tag-status-deprecated { background: #F3F4F6; color: #6B7280; }
 .section { margin-bottom: 18px; }
 .section-label {
   font-size: 10px; font-weight: 700;
@@ -1065,6 +1099,13 @@ svg.arrows-layer {
         <div class="legend-item"><div class="lpill" style="background:#D1FAE5;color:#065F46;">script</div></div>
         <div class="legend-item"><div class="lpill" style="background:#EDE9FE;color:#5B21B6;">ai_agent</div></div>
         <div class="legend-item"><div class="lpill" style="background:#FEF3C7;color:#92400E;">manual</div></div>
+        <div class="legend-item" id="idx-status-legend" style="display:none;gap:4px;">
+          <span style="font-size:10px;color:#9CA3AF;">status:</span>
+          <div class="lswatch" style="background:#FEFCE8;border:2px solid #FDE047;" title="draft"></div>
+          <div class="lswatch" style="background:#FFF7ED;border:2px solid #FB923C;" title="review"></div>
+          <div class="lswatch" style="background:#F0FDF4;border:2px solid #86EFAC;" title="stable"></div>
+          <div class="lswatch" style="background:#F3F4F6;border:2px solid #9CA3AF;" title="deprecated"></div>
+        </div>
       </div>
       <div id="flow-body">
         <div id="flow-area"><div id="flow-canvas"></div></div>
@@ -1235,13 +1276,18 @@ function renderFlow(proc) {
   // Heat map
   const heatMap = computeHeat(units);
 
+  // Status legend
+  const hasStatus = Object.values(units).some(u => u.lifecycle_status);
+  document.getElementById("idx-status-legend").style.display = hasStatus ? "flex" : "none";
+
   // Nodes
   Object.entries(positions).forEach(([name, pos]) => {
     const u = units[name];
     if (!u) return;
     const div = document.createElement("div");
-    const heatClass = heatMap[name] ? ` heat-${heatMap[name]}` : "";
-    div.className  = `node core-${u.core}${heatClass}`;
+    const heatClass   = heatMap[name] ? ` heat-${heatMap[name]}` : "";
+    const statusClass = u.lifecycle_status ? ` status-${u.lifecycle_status}` : "";
+    div.className  = `node core-${u.core}${heatClass}${statusClass}`;
     div.style.left = pos.left + "px";
     div.style.top  = pos.top  + "px";
     div.dataset.name = name;
@@ -1302,8 +1348,14 @@ function renderDetail(name) {
         <span class="tag tag-phase">phase: ${u.phase}</span>
         <span class="tag tag-core-${u.core}">core: ${u.core}</span>
         <span class="tag tag-${u.executor.type}">${u.executor.type}</span>
+        ${u.lifecycle_status ? `<span class="tag tag-status-${u.lifecycle_status}">${u.lifecycle_status}</span>` : ''}
       </div>
     </div>
+    ${u.lifecycle_status === 'deprecated' && u.deprecated_reason ? `
+    <div class="section">
+      <div class="section-label">Deprecated</div>
+      <div style="font-size:13px;color:#6B7280;background:#F3F4F6;padding:8px 12px;border-radius:6px;">${u.deprecated_reason}</div>
+    </div>` : ''}
     <div class="section">
       <div class="section-label">Job</div>
       <ul class="item-list">${u.job.map(j => `<li>${j}</li>`).join("")}</ul>

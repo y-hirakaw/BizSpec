@@ -53,9 +53,12 @@ def run_list(args) -> int:
         has_frequency  = any(isinstance(u.get("effort"), dict) and u["effort"].get("frequency") for u in units)
         has_difficulty = any(isinstance(u.get("automation"), dict) and u["automation"].get("difficulty") for u in units)
         has_deps       = any(isinstance(u.get("depends_on"), list) and u["depends_on"] for u in units)
+        has_status     = any(u.get("status") for u in units)
 
         header = f"  {'unit':<{name_w}}  {'core':<6}  {'executor':<12}"
         sep    = f"  {'─' * name_w}  {'─' * 6}  {'─' * 12}"
+        if has_status:
+            header += f"  {'status':<12}"; sep += f"  {'─' * 12}"
         if has_duration:
             header += f"  {'duration':<10}"; sep += f"  {'─' * 10}"
         if has_frequency:
@@ -73,6 +76,9 @@ def run_list(args) -> int:
             core_str = str(core).lower() if isinstance(core, bool) else str(core)
             ex_type  = u.get("executor", {}).get("type", "") if isinstance(u.get("executor"), dict) else ""
             row = f"  {name:<{name_w}}  {core_str:<6}  {ex_type:<12}"
+            if has_status:
+                st = str(u.get("status", "")) if u.get("status") else ""
+                row += f"  {st:<12}"
             eff = u.get("effort") or {}
             eff = eff if isinstance(eff, dict) else {}
             if has_duration:

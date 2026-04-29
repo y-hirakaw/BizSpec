@@ -72,9 +72,11 @@ effort:
 automation:
   difficulty: low | medium | high
   status: manual | partially-automated | automated
+status: draft | review | stable | deprecated  # ライフサイクル状態（省略可）
+deprecated_reason: 廃止理由  # status: deprecated のときのみ（省略可）
 ```
 
-`core: undetermined` はユーザー確認が必要な場合に使用。`phase` は自由記述でフォルダ分けではなくフィールドで管理する。`depends_on` は他プロセスの unit への依存を `プロセス名:unit名` 形式で記述する（省略可）。`effort` / `automation` は省略可能なオプションフィールド。存在する場合は `bizspec list` の列と `bizspec viz` の詳細パネルに表示される。`effort.duration × effort.frequency` で月間コストを算出し、`bizspec viz` のヒートマップ（低/中/高）に反映される。
+`core: undetermined` はユーザー確認が必要な場合に使用。`phase` は自由記述でフォルダ分けではなくフィールドで管理する。`depends_on` は他プロセスの unit への依存を `プロセス名:unit名` 形式で記述する（省略可）。`effort` / `automation` / `status` は省略可能なオプションフィールド。存在する場合は `bizspec list` の列と `bizspec viz` の詳細パネルに表示される。`effort.duration × effort.frequency` で月間コストを算出し、`bizspec viz` のヒートマップ（低/中/高）に反映される。`status` は viz でノード色分けに使われる（draft=黄、review=橙、stable=緑、deprecated=グレー）。
 
 ## 開発環境
 
