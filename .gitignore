@@ -4,3 +4,5 @@ __pycache__/
 bizspec/_run/
 .venv/
 uv.lock
+.DS_Store
+bizspec/_viz

@@ -435,7 +435,9 @@ const ALL_DATA = {
           "status": "automated"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       },
       "Ready判定": {
         "aim": "PBI が開発着手可能な状態かを判定する",
@@ -482,7 +484,9 @@ const ALL_DATA = {
           "status": "manual"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       },
       "スコープ別PBI分割": {
         "aim": "独立して実装・テスト可能なスコープ単位にPBIを分割する",
@@ -532,7 +536,9 @@ const ALL_DATA = {
           "status": "manual"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       },
       "ストーリーポイント算出": {
         "aim": "PBI の複雑度・不確実性・規模をもとに SP を算出する",
@@ -581,7 +587,9 @@ const ALL_DATA = {
           "status": "manual"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       },
       "スパイクPBI作成": {
         "aim": "不確実性を排除してSP見積もりを正確化するためのスパイク（調査）PBIを生成する",
@@ -632,7 +640,9 @@ const ALL_DATA = {
           "status": "manual"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       },
       "プラットフォーム別PBI分割": {
         "aim": "複数プラットフォームにまたがるPBIをプラットフォーム単位の子PBIに分割する",
@@ -682,7 +692,9 @@ const ALL_DATA = {
           "status": "manual"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       },
       "分解パターン選択": {
         "aim": "分解が必要なPBIに対して、適用すべき分解パターンを1つ以上選択する",
@@ -737,7 +749,9 @@ const ALL_DATA = {
           "status": "manual"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       },
       "技術PBI分解要否判断": {
         "aim": "SP をもとに技術 PBI への細分化が必要かを判断し、必要な場合は分解案を提示する",
@@ -790,7 +804,9 @@ const ALL_DATA = {
           "status": "manual"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       },
       "記載内容妥当性評価": {
         "aim": "概要・スコープ・受入基準が適切に記載されているかを評価する",
@@ -839,7 +855,9 @@ const ALL_DATA = {
           "status": "manual"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       }
     },
     "positions": {
@@ -883,39 +901,48 @@ const ALL_DATA = {
     "edges": [
       [
         "PBI情報取得",
-        "記載内容妥当性評価"
+        "記載内容妥当性評価",
+        "seq"
       ],
       [
         "Ready判定",
-        "ストーリーポイント算出"
+        "ストーリーポイント算出",
+        "seq"
       ],
       [
         "ストーリーポイント算出",
-        "技術PBI分解要否判断"
+        "技術PBI分解要否判断",
+        "seq"
       ],
       [
         "分解パターン選択",
-        "プラットフォーム別PBI分割"
+        "プラットフォーム別PBI分割",
+        "seq"
       ],
       [
         "分解パターン選択",
-        "スパイクPBI作成"
+        "スパイクPBI作成",
+        "seq"
       ],
       [
         "分解パターン選択",
-        "スコープ別PBI分割"
+        "スコープ別PBI分割",
+        "seq"
       ],
       [
         "技術PBI分解要否判断",
-        "分解パターン選択"
+        "分解パターン選択",
+        "seq"
       ],
       [
         "記載内容妥当性評価",
-        "Ready判定"
+        "Ready判定",
+        "seq"
       ],
       [
         "記載内容妥当性評価",
-        "技術PBI分解要否判断"
+        "技術PBI分解要否判断",
+        "seq"
       ]
     ],
     "canvasW": 640,
@@ -984,7 +1011,9 @@ const ALL_DATA = {
           "status": "partially-automated"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       },
       "ロジックレビュー": {
         "aim": "実装ロジックの正しさと設計の妥当性を評価する",
@@ -1034,7 +1063,9 @@ const ALL_DATA = {
           "status": "partially-automated"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       },
       "差分取得": {
         "aim": "レビュー対象の変更内容を取得する",
@@ -1083,7 +1114,9 @@ const ALL_DATA = {
           "status": "automated"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       },
       "承認判定": {
         "aim": "レビュー結果を総合してマージ可否を判定する",
@@ -1134,7 +1167,9 @@ const ALL_DATA = {
           "status": "manual"
         },
         "lifecycle_status": null,
-        "deprecated_reason": null
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
       }
     },
     "positions": {
@@ -1158,19 +1193,23 @@ const ALL_DATA = {
     "edges": [
       [
         "テストレビュー",
-        "承認判定"
+        "承認判定",
+        "seq"
       ],
       [
         "ロジックレビュー",
-        "承認判定"
+        "承認判定",
+        "seq"
       ],
       [
         "差分取得",
-        "ロジックレビュー"
+        "ロジックレビュー",
+        "seq"
       ],
       [
         "差分取得",
-        "テストレビュー"
+        "テストレビュー",
+        "seq"
       ]
     ],
     "canvasW": 420,
@@ -1263,6 +1302,35 @@ function showProcess(name) {
   document.querySelectorAll(".sb-item").forEach(el =>
     el.classList.toggle("active", el.dataset.proc === name));
   renderFlow(proc);
+
+  // Reset filter and rebuild dynamic phase/status buttons
+  resetFilter();
+  const phases = [...new Set(Object.values(proc.units).map(u => u.phase).filter(Boolean))].sort();
+  const pf = document.getElementById("idx-phase-filter");
+  pf.querySelectorAll(".filter-btn:not([data-val='all'])").forEach(b => b.remove());
+  if (phases.length > 1) {
+    pf.style.display = "";
+    phases.forEach(p => {
+      const btn = document.createElement("button");
+      btn.className = "filter-btn"; btn.dataset.filter = "phase"; btn.dataset.val = p; btn.textContent = p;
+      pf.appendChild(btn);
+    });
+  } else {
+    pf.style.display = "none";
+  }
+  const sts = [...new Set(Object.values(proc.units).map(u => u.lifecycle_status).filter(Boolean))].sort();
+  const sf = document.getElementById("idx-status-filter");
+  sf.querySelectorAll(".filter-btn:not([data-val='all'])").forEach(b => b.remove());
+  if (sts.length) {
+    sf.style.display = "";
+    sts.forEach(s => {
+      const btn = document.createElement("button");
+      btn.className = "filter-btn"; btn.dataset.filter = "status"; btn.dataset.val = s; btn.textContent = s;
+      sf.appendChild(btn);
+    });
+  } else {
+    sf.style.display = "none";
+  }
 }
 
 // ── Heat map ─────────────────────────────────────────────
@@ -1313,33 +1381,46 @@ function renderFlow(proc) {
   });
   svg.appendChild(defs);
 
-  edges.forEach(([from, to]) => {
+  edges.forEach(([from, to, etype]) => {
     const fp = positions[from], tp = positions[to];
     if (!fp || !tp) return;
-    const fx = fp.left + W/2, fy = fp.top + H;
-    const tx = tp.left + W/2, ty = tp.top;
-    const sameCol = Math.abs(fx - tx) < 2;
-    const isSkip  = sameCol && (ty - fy) > 100;
+    const isParallel = etype === "parallel";
     let d;
-    if (sameCol && !isSkip) {
-      d = `M ${fx} ${fy} L ${tx} ${ty-1}`;
-    } else if (isSkip) {
-      const ox = fp.left - 40;
-      d = `M ${fx} ${fy} C ${ox} ${fy+20} ${ox} ${ty-20} ${tx} ${ty-1}`;
-    } else {
+    if (isParallel) {
+      const fx = fp.left + W/2, fy = fp.top + H/2;
+      const tx = tp.left + W/2, ty = tp.top + H/2;
       const my = (fy + ty) / 2;
-      d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty-1}`;
+      d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty}`;
+    } else {
+      const fx = fp.left + W/2, fy = fp.top + H;
+      const tx = tp.left + W/2, ty = tp.top;
+      const sameCol = Math.abs(fx - tx) < 2;
+      const isSkip  = sameCol && (ty - fy) > 100;
+      if (sameCol && !isSkip) {
+        d = `M ${fx} ${fy} L ${tx} ${ty-1}`;
+      } else if (isSkip) {
+        const ox = fp.left - 40;
+        d = `M ${fx} ${fy} C ${ox} ${fy+20} ${ox} ${ty-20} ${tx} ${ty-1}`;
+      } else {
+        const my = (fy + ty) / 2;
+        d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty-1}`;
+      }
     }
+    const fxSeq = fp.left + W/2, fySeq = fp.top + H;
+    const txSeq = tp.left + W/2, tySeq = tp.top;
+    const sameColSeq = !isParallel && Math.abs(fxSeq - txSeq) < 2;
+    const isSkipSeq  = sameColSeq && (tySeq - fySeq) > 100;
     const path = document.createElementNS(NS, "path");
     path.setAttribute("d", d);
-    path.setAttribute("stroke", isSkip ? "#F59E0B" : "#94A3B8");
+    path.setAttribute("stroke", isParallel ? "#10B981" : isSkipSeq ? "#F59E0B" : "#94A3B8");
     path.setAttribute("stroke-width", "1.5");
-    if (isSkip) path.setAttribute("stroke-dasharray", "5 3");
+    path.setAttribute("stroke-dasharray", isParallel ? "4 3" : isSkipSeq ? "5 3" : "none");
     path.setAttribute("fill", "none");
-    path.setAttribute("marker-end", isSkip ? "url(#arr-skip)" : "url(#arr)");
-    path.dataset.from = from;
-    path.dataset.to   = to;
-    path.dataset.skip = isSkip ? "true" : "false";
+    if (!isParallel) path.setAttribute("marker-end", isSkipSeq ? "url(#arr-skip)" : "url(#arr)");
+    path.dataset.from     = from;
+    path.dataset.to       = to;
+    path.dataset.skip     = isSkipSeq ? "true" : "false";
+    path.dataset.parallel = isParallel ? "true" : "false";
     svg.appendChild(path);
   });
   currentSvg = svg;
@@ -1385,20 +1466,21 @@ function renderFlow(proc) {
 function highlightEdges(name) {
   if (!currentSvg) return;
   currentSvg.querySelectorAll("path[data-from]").forEach(p => {
-    const skip = p.dataset.skip === "true";
+    const skip     = p.dataset.skip === "true";
+    const parallel = p.dataset.parallel === "true";
     const hit  = p.dataset.from === name || p.dataset.to === name;
     if (hit) {
       p.setAttribute("stroke", "#2563EB");
       p.setAttribute("stroke-width", "2.5");
       p.setAttribute("stroke-dasharray", "none");
       p.setAttribute("opacity", "1");
-      p.setAttribute("marker-end", "url(#arr-hl)");
+      if (!parallel) p.setAttribute("marker-end", "url(#arr-hl)");
     } else {
-      p.setAttribute("stroke", skip ? "#F59E0B" : "#94A3B8");
+      p.setAttribute("stroke", parallel ? "#10B981" : skip ? "#F59E0B" : "#94A3B8");
       p.setAttribute("stroke-width", "1.5");
-      p.setAttribute("stroke-dasharray", skip ? "5 3" : "none");
+      p.setAttribute("stroke-dasharray", parallel ? "4 3" : skip ? "5 3" : "none");
       p.setAttribute("opacity", "0.15");
-      p.setAttribute("marker-end", skip ? "url(#arr-skip)" : "url(#arr)");
+      if (!parallel) p.setAttribute("marker-end", skip ? "url(#arr-skip)" : "url(#arr)");
     }
   });
 }
@@ -1474,6 +1556,16 @@ function renderDetail(name) {
     <div class="section">
       <div class="section-label">Depends On（外部プロセス）</div>
       <div class="link-chips">${u.depends_on.map(d => '<span class="link-chip link-chip-ext" title="' + d + '">' + d + '</span>').join("")}</div>
+    </div>` : ''}
+    ${u.precondition && u.precondition.length ? `
+    <div class="section">
+      <div class="section-label">Precondition</div>
+      <ul class="item-list">${u.precondition.map(p => `<li>${p}</li>`).join("")}</ul>
+    </div>` : ''}
+    ${u.parallel_with && u.parallel_with.length ? `
+    <div class="section">
+      <div class="section-label">Parallel With</div>
+      <div class="link-chips">${u.parallel_with.map(n => `<span class="link-chip" onclick="jumpTo('${n.replace(/'/g, "\'")}')">${n}</span>`).join("")}</div>
     </div>` : ''}`;
 }
 
@@ -1525,44 +1617,6 @@ function resetFilter() {
   document.getElementById("idx-filter-search").value = "";
 }
 
-// Per-process phase/status dynamic buttons (called when switching processes)
-const _origShowProcess = showProcess;
-function showProcess(name) {
-  _origShowProcess(name);
-  resetFilter();
-  const proc = ALL_DATA[name];
-  if (!proc) return;
-
-  // Phase filter
-  const phases = [...new Set(Object.values(proc.units).map(u => u.phase).filter(Boolean))].sort();
-  const pf = document.getElementById("idx-phase-filter");
-  pf.querySelectorAll(".filter-btn:not([data-val='all'])").forEach(b => b.remove());
-  if (phases.length > 1) {
-    pf.style.display = "";
-    phases.forEach(p => {
-      const btn = document.createElement("button");
-      btn.className = "filter-btn"; btn.dataset.filter = "phase"; btn.dataset.val = p; btn.textContent = p;
-      pf.appendChild(btn);
-    });
-  } else {
-    pf.style.display = "none";
-  }
-
-  // Status filter
-  const sts = [...new Set(Object.values(proc.units).map(u => u.lifecycle_status).filter(Boolean))].sort();
-  const sf = document.getElementById("idx-status-filter");
-  sf.querySelectorAll(".filter-btn:not([data-val='all'])").forEach(b => b.remove());
-  if (sts.length) {
-    sf.style.display = "";
-    sts.forEach(s => {
-      const btn = document.createElement("button");
-      btn.className = "filter-btn"; btn.dataset.filter = "status"; btn.dataset.val = s; btn.textContent = s;
-      sf.appendChild(btn);
-    });
-  } else {
-    sf.style.display = "none";
-  }
-}
 </script>
 </body>
 </html>

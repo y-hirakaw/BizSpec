@@ -343,7 +343,9 @@ const units     = {
       "status": "partially-automated"
     },
     "lifecycle_status": null,
-    "deprecated_reason": null
+    "deprecated_reason": null,
+    "precondition": [],
+    "parallel_with": []
   },
   "ロジックレビュー": {
     "aim": "実装ロジックの正しさと設計の妥当性を評価する",
@@ -393,7 +395,9 @@ const units     = {
       "status": "partially-automated"
     },
     "lifecycle_status": null,
-    "deprecated_reason": null
+    "deprecated_reason": null,
+    "precondition": [],
+    "parallel_with": []
   },
   "差分取得": {
     "aim": "レビュー対象の変更内容を取得する",
@@ -442,7 +446,9 @@ const units     = {
       "status": "automated"
     },
     "lifecycle_status": null,
-    "deprecated_reason": null
+    "deprecated_reason": null,
+    "precondition": [],
+    "parallel_with": []
   },
   "承認判定": {
     "aim": "レビュー結果を総合してマージ可否を判定する",
@@ -493,11 +499,13 @@ const units     = {
       "status": "manual"
     },
     "lifecycle_status": null,
-    "deprecated_reason": null
+    "deprecated_reason": null,
+    "precondition": [],
+    "parallel_with": []
   }
 };
 const positions = {"差分取得": {"left": 110, "top": 24}, "テストレビュー": {"left": 0, "top": 134}, "ロジックレビュー": {"left": 220, "top": 134}, "承認判定": {"left": 110, "top": 244}};
-const edges     = [["テストレビュー", "承認判定"], ["ロジックレビュー", "承認判定"], ["差分取得", "ロジックレビュー"], ["差分取得", "テストレビュー"]];
+const edges     = [["テストレビュー", "承認判定", "seq"], ["ロジックレビュー", "承認判定", "seq"], ["差分取得", "ロジックレビュー", "seq"], ["差分取得", "テストレビュー", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
@@ -542,32 +550,44 @@ markerHL.appendChild(polyHL);
 defs.appendChild(markerHL);
 svg.appendChild(defs);
 
-edges.forEach(([from, to]) => {
+edges.forEach(([from, to, etype]) => {
   const fp = positions[from], tp = positions[to];
-  const fx = fp.left + W / 2, fy = fp.top + H;
-  const tx = tp.left + W / 2, ty = tp.top;
+  if (!fp || !tp) return;
+  const isParallel = etype === "parallel";
+  const fx = fp.left + W / 2, fy = fp.top + H / 2;
+  const tx = tp.left + W / 2, ty = tp.top + H / 2;
+  const fxb = fp.left + W / 2, fyb = fp.top + H;
+  const txb = tp.left + W / 2, tyb = tp.top;
   const path = document.createElementNS(NS, "path");
   let d;
-  const sameCol = Math.abs(fx - tx) < 2;
-  const isSkip  = sameCol && (ty - fy) > 100;
-  if (sameCol && !isSkip) {
-    d = `M ${fx} ${fy} L ${tx} ${ty - 1}`;
-  } else if (isSkip) {
-    const ox = fp.left - 40;
-    d = `M ${fx} ${fy} C ${ox} ${fy + 20} ${ox} ${ty - 20} ${tx} ${ty - 1}`;
-  } else {
+  if (isParallel) {
     const my = (fy + ty) / 2;
-    d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty - 1}`;
+    d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty}`;
+  } else {
+    const sameCol = Math.abs(fxb - txb) < 2;
+    const isSkip  = sameCol && (tyb - fyb) > 100;
+    if (sameCol && !isSkip) {
+      d = `M ${fxb} ${fyb} L ${txb} ${tyb - 1}`;
+    } else if (isSkip) {
+      const ox = fp.left - 40;
+      d = `M ${fxb} ${fyb} C ${ox} ${fyb + 20} ${ox} ${tyb - 20} ${txb} ${tyb - 1}`;
+    } else {
+      const my = (fyb + tyb) / 2;
+      d = `M ${fxb} ${fyb} C ${fxb} ${my} ${txb} ${my} ${txb} ${tyb - 1}`;
+    }
   }
+  const sameColSeq = !isParallel && Math.abs(fxb - txb) < 2;
+  const isSkipSeq  = sameColSeq && (tp.top - fp.top - H) > 100;
   path.setAttribute("d", d);
-  path.setAttribute("stroke", isSkip ? "#F59E0B" : "#94A3B8");
-  path.setAttribute("stroke-width", isSkip ? "1.5" : "1.5");
-  path.setAttribute("stroke-dasharray", isSkip ? "5 3" : "none");
+  path.setAttribute("stroke", isParallel ? "#10B981" : isSkipSeq ? "#F59E0B" : "#94A3B8");
+  path.setAttribute("stroke-width", "1.5");
+  path.setAttribute("stroke-dasharray", isParallel ? "4 3" : isSkipSeq ? "5 3" : "none");
   path.setAttribute("fill", "none");
-  path.setAttribute("marker-end", isSkip ? "url(#arrowhead-skip)" : "url(#arrowhead)");
+  if (!isParallel) path.setAttribute("marker-end", isSkipSeq ? "url(#arrowhead-skip)" : "url(#arrowhead)");
   path.dataset.from = from;
   path.dataset.to   = to;
-  path.dataset.skip = isSkip ? "true" : "false";
+  path.dataset.skip     = isSkipSeq ? "true" : "false";
+  path.dataset.parallel = isParallel ? "true" : "false";
   svg.appendChild(path);
 });
 
@@ -575,7 +595,8 @@ canvas.appendChild(svg);
 
 function highlightEdges(name) {
   svg.querySelectorAll("path[data-from]").forEach(p => {
-    const skip = p.dataset.skip === "true";
+    const skip     = p.dataset.skip === "true";
+    const parallel = p.dataset.parallel === "true";
     const hit  = p.dataset.from === name || p.dataset.to === name;
     if (hit) {
       p.setAttribute("stroke", "#2563EB");
@@ -584,11 +605,11 @@ function highlightEdges(name) {
       p.setAttribute("opacity", "1");
       p.setAttribute("marker-end", "url(#arrowhead-hl)");
     } else {
-      p.setAttribute("stroke", skip ? "#F59E0B" : "#94A3B8");
+      p.setAttribute("stroke", parallel ? "#10B981" : skip ? "#F59E0B" : "#94A3B8");
       p.setAttribute("stroke-width", "1.5");
-      p.setAttribute("stroke-dasharray", skip ? "5 3" : "none");
+      p.setAttribute("stroke-dasharray", parallel ? "4 3" : skip ? "5 3" : "none");
       p.setAttribute("opacity", "0.15");
-      p.setAttribute("marker-end", skip ? "url(#arrowhead-skip)" : "url(#arrowhead)");
+      if (!parallel) p.setAttribute("marker-end", skip ? "url(#arrowhead-skip)" : "url(#arrowhead)");
     }
   });
 }
