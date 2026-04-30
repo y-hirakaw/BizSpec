@@ -6,3 +6,4 @@ bizspec/_run/
 uv.lock
 .DS_Store
 bizspec/_viz
+.coverage

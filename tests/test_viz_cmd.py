@@ -548,3 +548,73 @@ class TestGeneratedJsSyntax:
         for i, script in enumerate(_extract_scripts(html)):
             r = _check_js(script, tmp_path, f"index_effort_{i}.js")
             assert r.returncode == 0, r.stderr.decode()
+
+
+# ── index.html 構造契約 ───────────────────────────────────────────────────────
+# viz_cmd.py 分割／テンプレート外部化前に、生成 HTML の DOM/JS 契約を固定する。
+
+class TestIndexHtmlStructure:
+    def _procs(self, with_cross_dep: bool = False):
+        proc_a = [make_unit("X", down=["Y"]), make_unit("Y", up=["X"])]
+        if with_cross_dep:
+            proc_b = [{**make_unit("P"), "depends_on": ["proc-a:X"]}]
+        else:
+            proc_b = [make_unit("P")]
+        return {"proc-a": proc_a, "proc-b": proc_b}
+
+    def test_critical_dom_elements_present(self):
+        html = _generate_index_html(self._procs())
+        for el in (
+            'id="overview-view"', 'id="overview-grid"', 'id="overview-edges"',
+            'id="sidebar"', 'id="topbar"', 'id="back-btn"',
+            'id="flow-view"', 'id="flow-canvas"', 'id="detail-panel"',
+        ):
+            assert el in html, f"missing critical element: {el}"
+
+    def test_mode_toggle_buttons_present(self):
+        html = _generate_index_html(self._procs())
+        assert 'id="ov-mode-toggle"' in html
+        assert 'data-mode="info"' in html
+        assert 'data-mode="flow"' in html
+        assert "情報" in html
+        assert "フロー" in html
+
+    def test_all_data_is_valid_json(self):
+        import json
+        html = _generate_index_html(self._procs())
+        m = re.search(r"const ALL_DATA\s*=\s*({.*?});", html, re.DOTALL)
+        assert m, "ALL_DATA assignment missing"
+        data = json.loads(m.group(1))
+        for proc_name in ("proc-a", "proc-b"):
+            assert proc_name in data
+            entry = data[proc_name]
+            for key in ("units", "positions", "edges", "canvasW", "canvasH", "stats"):
+                assert key in entry, f"{proc_name} missing key: {key}"
+
+    def test_cross_edges_is_valid_json_with_dep(self):
+        import json
+        html = _generate_index_html(self._procs(with_cross_dep=True))
+        m = re.search(r"const CROSS_EDGES\s*=\s*(\[.*?\]);", html, re.DOTALL)
+        assert m, "CROSS_EDGES assignment missing"
+        edges = json.loads(m.group(1))
+        assert {"from": "proc-a", "to": "proc-b"} in edges
+
+    def test_cross_edges_empty_when_no_deps(self):
+        import json
+        html = _generate_index_html(self._procs(with_cross_dep=False))
+        m = re.search(r"const CROSS_EDGES\s*=\s*(\[.*?\]);", html, re.DOTALL)
+        edges = json.loads(m.group(1))
+        assert edges == []
+
+    def test_node_color_logic_present(self):
+        """nodeColors 関数と heat / status / core の色コードが残ること。"""
+        html = _generate_index_html(self._procs())
+        assert "function nodeColors" in html
+        # heat
+        assert "#FEE2E2" in html  # heat-high
+        assert "#FFEDD5" in html  # heat-medium
+        assert "#FEF9C3" in html  # heat-low
+        # status
+        assert "#F0FDF4" in html  # status-stable
+        # core
+        assert "#EFF6FF" in html  # core-true

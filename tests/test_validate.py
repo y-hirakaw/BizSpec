@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import pytest
-from bizspec.validate import _check_file, _check_process, _detect_yaml_hint
+from bizspec.validate import _check_file, _check_process, _detect_yaml_hint, run_validate
 
 
 # ── ヘルパー ──────────────────────────────────────────────────────────────────
@@ -375,3 +375,101 @@ class TestLifecycleStatus:
             write_unit(tmp_path, f"Unit{st}", content)
             errors, _ = _check_file(tmp_path / f"Unit{st}.yaml")
             assert errors == [], f"status: {st} should be valid"
+
+
+# ── run_validate (CLI entry point) ────────────────────────────────────────────
+
+class _ValidateArgs:
+    def __init__(self, root, process=None):
+        self.root = str(root)
+        self.process = process
+
+
+_INVALID_UNIT = (  # missing required field 'aim'
+    "unit: BadUnit\n"
+    "phase: spec\n"
+    "job:\n  - x\n"
+    "rule:\n  - y\n"
+    "link:\n  up: []\n  down: []\n"
+    "core: true\n"
+    "io:\n  in:\n    - i\n  run:\n    - r\n  out:\n    - o\n"
+    "executor:\n  type: script\n  reason: r\n"
+)
+
+
+class TestRunValidate:
+    def test_no_bizspec_dir(self, tmp_path, capsys):
+        result = run_validate(_ValidateArgs(tmp_path))
+        assert result == 1
+        assert "が見つかりません" in capsys.readouterr().err
+
+    def test_specified_process_not_found(self, tmp_path, capsys):
+        (tmp_path / "bizspec").mkdir()
+        result = run_validate(_ValidateArgs(tmp_path, process="missing"))
+        assert result == 1
+        assert "が見つかりません" in capsys.readouterr().err
+
+    def test_all_pass_returns_zero(self, tmp_path, capsys):
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        write_unit(proc, "UnitA", make_unit("UnitA"))
+        result = run_validate(_ValidateArgs(tmp_path))
+        out = capsys.readouterr().out
+        assert result == 0
+        assert "PASS" in out
+        assert "✓" in out
+
+    def test_some_errors_returns_one(self, tmp_path, capsys):
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        write_unit(proc, "BadUnit", _INVALID_UNIT)
+        result = run_validate(_ValidateArgs(tmp_path))
+        out = capsys.readouterr().out
+        assert result == 1
+        assert "FAIL" in out
+        assert "✗" in out
+
+    def test_specific_process_filter(self, tmp_path, capsys):
+        for name in ("proc-a", "proc-b"):
+            proc = tmp_path / "bizspec" / name
+            proc.mkdir(parents=True)
+            write_unit(proc, "U", make_unit("U"))
+        result = run_validate(_ValidateArgs(tmp_path, process="proc-a"))
+        out = capsys.readouterr().out
+        assert result == 0
+        assert "proc-a" in out
+        assert "proc-b" not in out
+
+    def test_underscore_dirs_skipped(self, tmp_path, capsys):
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        write_unit(proc, "U", make_unit("U"))
+        viz = tmp_path / "bizspec" / "_viz"
+        viz.mkdir()
+        (viz / "junk.yaml").write_text("not: valid: yaml: at: all", encoding="utf-8")
+        result = run_validate(_ValidateArgs(tmp_path))
+        out = capsys.readouterr().out
+        assert result == 0
+        assert "_viz" not in out
+
+    def test_underscore_files_not_counted(self, tmp_path, capsys):
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        write_unit(proc, "Real", make_unit("Real"))
+        write_unit(proc, "_template", make_unit("Tpl"))
+        result = run_validate(_ValidateArgs(tmp_path))
+        out = capsys.readouterr().out
+        assert result == 0
+        assert "(1 units)" in out
+
+    def test_aggregate_error_count(self, tmp_path, capsys):
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        write_unit(proc, "Bad1", _INVALID_UNIT)
+        write_unit(proc, "Bad2", _INVALID_UNIT)
+        result = run_validate(_ValidateArgs(tmp_path))
+        out = capsys.readouterr().out
+        assert result == 1
+        import re
+        m = re.search(r"(\d+) 件のエラー", out)
+        assert m and int(m.group(1)) >= 2

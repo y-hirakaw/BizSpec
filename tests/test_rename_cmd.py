@@ -208,3 +208,127 @@ class TestRm:
         c_data = yaml.safe_load((pd / "C.yaml").read_text())
         assert "B" not in a_data["link"]["down"]
         assert "B" not in c_data["link"]["up"]
+
+
+# ── 失敗パス（rename / rm の error / warn 系） ─────────────────────────────────
+
+class TestRenameFailures:
+    def test_no_bizspec_dir(self, tmp_path, capsys):
+        args = FakeArgs(root=str(tmp_path), process="x", old_name="A", new_name="B")
+        rc = run_rename(args)
+        assert rc == 1
+        assert "が見つかりません" in capsys.readouterr().err
+
+    def test_process_dir_not_found(self, tmp_path, capsys):
+        (tmp_path / "bizspec").mkdir()
+        args = FakeArgs(root=str(tmp_path), process="missing", old_name="A", new_name="B")
+        rc = run_rename(args)
+        assert rc == 1
+        assert "プロセス" in capsys.readouterr().err
+
+    def test_same_name_rejected(self, tmp_path, capsys):
+        pd = make_process(tmp_path)
+        write_unit(pd, "A", [], [])
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="A", new_name="A")
+        rc = run_rename(args)
+        assert rc == 1
+        assert "同じ" in capsys.readouterr().err
+
+    def test_old_unit_not_found(self, tmp_path, capsys):
+        pd = make_process(tmp_path)
+        write_unit(pd, "A", [], [])
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="Missing", new_name="X")
+        rc = run_rename(args)
+        assert rc == 1
+        assert "見つかりません" in capsys.readouterr().err
+
+    def test_new_name_already_exists(self, tmp_path, capsys):
+        pd = make_process(tmp_path)
+        write_unit(pd, "A", [], [])
+        write_unit(pd, "B", [], [])
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="A", new_name="B")
+        rc = run_rename(args)
+        assert rc == 1
+        assert "すでに存在" in capsys.readouterr().err
+
+    def test_dry_run_warns_about_external_depends_on(self, tmp_path, capsys):
+        pd = make_process(tmp_path, name="proc-a")
+        write_unit(pd, "X", [], [])
+        # proc-b 側に depends_on で proc-a:X を参照
+        pd_b = tmp_path / "bizspec" / "proc-b"
+        pd_b.mkdir()
+        (pd_b / "P.yaml").write_text(
+            "unit: P\naim: t\nphase: spec\n"
+            "job:\n  - x\nrule:\n  - r\n"
+            "link:\n  up: []\n  down: []\n"
+            "core: true\n"
+            "io:\n  in:\n    - i\n  run:\n    - r\n  out:\n    - o\n"
+            "executor:\n  type: script\n  reason: r\n"
+            "depends_on:\n  - proc-a:X\n",
+            encoding="utf-8",
+        )
+        args = FakeArgs(root=str(tmp_path), process="proc-a",
+                        old_name="X", new_name="X_new", dry_run=True)
+        rc = run_rename(args)
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "depends_on" in out
+        assert "P.yaml" in out
+
+
+class TestRmFailures:
+    def test_no_bizspec_dir(self, tmp_path, capsys):
+        args = FakeArgs(root=str(tmp_path), process="x", unit_name="A")
+        rc = run_rm(args)
+        assert rc == 1
+        assert "が見つかりません" in capsys.readouterr().err
+
+    def test_process_dir_not_found(self, tmp_path, capsys):
+        (tmp_path / "bizspec").mkdir()
+        args = FakeArgs(root=str(tmp_path), process="missing", unit_name="A")
+        rc = run_rm(args)
+        assert rc == 1
+        assert "プロセス" in capsys.readouterr().err
+
+    def test_unit_not_found(self, tmp_path, capsys):
+        pd = make_process(tmp_path)
+        write_unit(pd, "A", [], [])
+        args = FakeArgs(root=str(tmp_path), process="test-proc", unit_name="Missing")
+        rc = run_rm(args)
+        assert rc == 1
+        assert "見つかりません" in capsys.readouterr().err
+
+    def test_disconnect_blocks_without_force(self, tmp_path, capsys):
+        pd = make_process(tmp_path)
+        write_unit(pd, "A", [], ["B"])
+        write_unit(pd, "B", ["A"], [])
+        args = FakeArgs(root=str(tmp_path), process="test-proc", unit_name="B")
+        rc = run_rm(args)
+        out = capsys.readouterr().out
+        assert rc == 1
+        assert "分断" in out
+        assert "--force" in out
+        # B should still exist (not deleted)
+        assert (pd / "B.yaml").exists()
+
+    def test_external_deps_warning_after_rm(self, tmp_path, capsys):
+        pd = make_process(tmp_path, name="proc-a")
+        write_unit(pd, "X", [], [])
+        pd_b = tmp_path / "bizspec" / "proc-b"
+        pd_b.mkdir()
+        (pd_b / "P.yaml").write_text(
+            "unit: P\naim: t\nphase: spec\n"
+            "job:\n  - x\nrule:\n  - r\n"
+            "link:\n  up: []\n  down: []\n"
+            "core: true\n"
+            "io:\n  in:\n    - i\n  run:\n    - r\n  out:\n    - o\n"
+            "executor:\n  type: script\n  reason: r\n"
+            "depends_on:\n  - proc-a:X\n",
+            encoding="utf-8",
+        )
+        args = FakeArgs(root=str(tmp_path), process="proc-a", unit_name="X")
+        rc = run_rm(args)
+        out = capsys.readouterr().out
+        # rm proceeds (no link disconnect since X is isolated in proc-a)
+        assert "depends_on" in out
+        assert "手動で更新" in out
