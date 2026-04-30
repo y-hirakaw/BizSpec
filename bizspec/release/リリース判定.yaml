@@ -1,0 +1,37 @@
+unit: リリース判定
+aim: リリース基準を満たしているか確認し、GO/NOGO を判断する
+phase: release
+job:
+  - テスト結果・未解決バグ・承認状況を確認する
+  - リリース基準チェックリストを消化する
+  - GO/NOGO を決定し、関係者に通知する
+rule:
+  - Critical バグが未解決の場合は NOGO
+  - 承認者が未承認の場合は NOGO
+  - NOGO の場合は次回リリース日程を再調整する
+link:
+  up:
+    - リリースノート作成
+  down:
+    - リリースブランチ作成
+core: true
+io:
+  in:
+    - テスト結果レポート
+    - 承認状況
+    - リリース基準チェックリスト
+  run:
+    - チェックリストを確認
+    - GO/NOGO を判断・通知
+  out:
+    - リリース判定結果（GO/NOGO）
+executor:
+  type: manual
+  reason: 最終的なリリース可否はリリースマネージャーの責任判断が必要なため
+effort:
+  duration: 0.5
+  frequency: 2
+automation:
+  difficulty: medium
+  status: partially-automated
+status: stable

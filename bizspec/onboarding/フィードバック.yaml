@@ -1,0 +1,35 @@
+unit: フィードバック
+aim: 初タスク完了後に新メンバーへフィードバックを行い、次のステップを示す
+phase: spec
+job:
+  - 成果物（コード・PR）に対する具体的なフィードバックを行う
+  - よかった点と改善点をバランスよく伝える
+  - 次のタスク・成長目標を一緒に設定する
+rule:
+  - フィードバックは具体的な事実に基づいて行う（「なんとなく」はNG）
+  - 批判でなく成長を促す言い方にする
+link:
+  up:
+    - 進捗確認
+  down: []
+core: false
+io:
+  in:
+    - 進捗状況・課題メモ
+    - 完了した初タスクの成果物
+  run:
+    - 成果物をレビューしてフィードバックを整理
+    - 対話でフィードバック・次ステップを設定
+  out:
+    - フィードバック記録
+    - 次タスク・成長目標
+executor:
+  type: manual
+  reason: 成長を促すフィードバックには対話と状況判断が必要なため
+effort:
+  duration: 1
+  frequency: 1
+automation:
+  difficulty: high
+  status: manual
+status: stable

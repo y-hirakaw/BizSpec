@@ -1,0 +1,33 @@
+unit: ブランチ作成
+aim: 対応する issue に紐づいた作業ブランチを作成する
+phase: dev
+job:
+  - issue 番号を含む命名規則に従ってブランチを作成する
+  - リモートにプッシュして追跡ブランチを設定する
+rule:
+  - ブランチ名は `feature/<issue番号>-<概要>` の形式にする
+  - main/develop から最新を取得してから分岐する
+link:
+  up: []
+  down:
+    - 実装
+core: true
+io:
+  in:
+    - issue 番号・タイトル
+    - ベースブランチ（最新）
+  run:
+    - ベースブランチをフェッチ
+    - 命名規則に従ってブランチを作成・プッシュ
+  out:
+    - 作業ブランチ（リモート追跡済み）
+executor:
+  type: script
+  reason: ブランチ作成は Git コマンドで完全自動化できるため
+effort:
+  duration: 0.5
+  frequency: 20
+automation:
+  difficulty: low
+  status: automated
+status: stable

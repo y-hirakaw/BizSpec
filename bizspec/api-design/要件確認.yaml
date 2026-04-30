@@ -1,0 +1,34 @@
+unit: 要件確認
+aim: API に求められる機能・非機能要件・利用者ユースケースを確認する
+phase: spec
+job:
+  - クライアント（フロントエンド・外部サービス）のユースケースをヒアリングする
+  - 認証・認可・レート制限・SLA などの非機能要件を確認する
+  - 既存 API との整合性・バージョニング方針を確認する
+rule:
+  - 要件は利用者の視点で整理する（実装都合を先行させない）
+  - 曖昧な要件は設計前に合意しておく
+link:
+  up: []
+  down:
+    - インターフェース設計
+core: true
+io:
+  in:
+    - ユースケース記述
+    - 非機能要件
+  run:
+    - 利用者からヒアリング
+    - 要件を整理・合意
+  out:
+    - 確認済み要件書
+executor:
+  type: manual
+  reason: 利用者との対話による要件確認と合意が必要なため
+effort:
+  duration: 1
+  frequency: 2
+automation:
+  difficulty: high
+  status: manual
+status: stable

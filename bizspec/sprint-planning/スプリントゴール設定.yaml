@@ -1,0 +1,33 @@
+unit: スプリントゴール設定
+aim: スプリントで達成すべきゴールを 1 文で表現し、チームで合意する
+phase: spec
+job:
+  - スプリントのスコープからゴールの文案を作成する
+  - チームでゴール文を確認・合意する
+  - ゴールをスプリントボードに記録する
+rule:
+  - ゴールはスコープの列挙ではなく、達成される価値を表現する
+  - 「〇〇できるようになる」「〇〇が解消される」の形を推奨
+link:
+  up:
+    - タスク分解
+  down: []
+core: true
+io:
+  in:
+    - タスクリスト（担当者・工数付き）
+  run:
+    - スコープから達成価値を抽出
+    - ゴール文を 1 文に集約
+  out:
+    - スプリントゴール文
+executor:
+  type: manual
+  reason: ゴールへの合意はチーム全員の納得が必要なため
+effort:
+  duration: 0.5
+  frequency: 2
+automation:
+  difficulty: high
+  status: manual
+status: stable

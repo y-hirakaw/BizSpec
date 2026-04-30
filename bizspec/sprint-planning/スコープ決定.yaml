@@ -1,0 +1,36 @@
+unit: スコープ決定
+aim: ベロシティと優先順位をもとに今スプリントに取り込む PBI セットを確定する
+phase: spec
+job:
+  - 目安 SP の範囲内で優先度上位の PBI を選定する
+  - チームで選定内容を確認し、合意する
+rule:
+  - 合計 SP が目安 SP を 20% 以上超えない
+  - 依存関係のある PBI は両方取り込むか両方外す
+  - スプリント途中のスコープ変更は原則禁止
+link:
+  up:
+    - バックログ優先順位確認
+    - ベロシティ確認
+  down:
+    - タスク分解
+core: true
+io:
+  in:
+    - 優先順位付きバックログ（最新）
+    - 今スプリントの目安 SP
+  run:
+    - 優先度上位から SP 合計が目安以内になるよう PBI を選択
+    - 依存関係・リスクを確認して調整
+  out:
+    - 今スプリントのスコープ（PBI リスト・合計 SP）
+executor:
+  type: manual
+  reason: スコープの最終判断はチームとプロダクトオーナーの合意が必要なため
+effort:
+  duration: 1
+  frequency: 2
+automation:
+  difficulty: high
+  status: manual
+status: stable

@@ -1,0 +1,33 @@
+unit: バグ再現確認
+aim: 報告されたバグが再現することを確認し、再現手順を明確化する
+phase: dev
+job:
+  - 報告された手順でバグを再現する
+  - 再現しない場合は環境・バージョン・データ条件を変えて試す
+  - 再現手順・環境情報・発生条件を issue に追記する
+rule:
+  - 再現できない場合は「再現不可」としてクローズするか、追加情報を報告者に依頼する
+  - 再現手順は第三者が実行できるレベルで記述する
+link:
+  up: []
+  down:
+    - 原因特定
+core: true
+io:
+  in:
+    - バグ issue（再現手順・環境情報）
+  run:
+    - 指定の手順・環境でバグを再現
+    - 再現条件を明確化して記録
+  out:
+    - 再現確認済みバグ issue（再現手順確定）
+executor:
+  type: manual
+  reason: 実際の操作・目視確認で再現を確かめる必要があるため
+effort:
+  duration: 0.5
+  frequency: 8
+automation:
+  difficulty: high
+  status: manual
+status: stable

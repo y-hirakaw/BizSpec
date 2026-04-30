@@ -1,0 +1,34 @@
+unit: インシデント検知
+aim: 異常をアラートまたはユーザー報告から検知し、インシデントとして認定する
+phase: ops
+job:
+  - 監視アラートまたはユーザー報告を受信する
+  - インシデントの重要度（Severity）を判定する
+  - インシデントチャンネルを開設し、対応チームを召集する
+rule:
+  - Sev1（サービス全停止）は検知から 5 分以内に対応開始
+  - Sev2（主要機能障害）は 15 分以内
+  - 迷ったら Severity を高めに設定し、後で引き下げる
+link:
+  up: []
+  down:
+    - 影響範囲調査
+core: true
+io:
+  in:
+    - 監視アラート or ユーザー報告
+  run:
+    - 異常を確認・Severity を判定
+    - インシデントチャンネル開設・召集
+  out:
+    - インシデント認定（Severity・担当者・開始時刻）
+executor:
+  type: script
+  reason: 監視システムからのアラート受信・チャンネル開設は自動化できるため
+effort:
+  duration: 0.5
+  frequency: 1
+automation:
+  difficulty: low
+  status: partially-automated
+status: stable

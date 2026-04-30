@@ -1,0 +1,33 @@
+unit: テスト結果報告
+aim: テスト完了後に結果サマリーをステークホルダーに報告する
+phase: test
+job:
+  - PASS/FAIL 数・カバレッジ・未解決バグをまとめたサマリーを作成する
+  - リリース判定に必要な情報を明示して報告する
+rule:
+  - Critical・High の未解決バグがある場合はリリース保留を推奨する
+  - 数値は客観的に記録し、意見は別セクションに分ける
+link:
+  up:
+    - テスト実施
+  down: []
+core: true
+io:
+  in:
+    - テスト結果（PASS/FAIL リスト）
+    - バグ issue（優先度付き）
+  run:
+    - 結果を集計・サマリー作成
+    - リリース推奨可否を判断
+  out:
+    - テスト結果レポート
+executor:
+  type: ai_agent
+  reason: 結果の集計と文書化は定型的だが、リリース判断の推奨には評価が必要なため
+effort:
+  duration: 1
+  frequency: 2
+automation:
+  difficulty: low
+  status: partially-automated
+status: stable

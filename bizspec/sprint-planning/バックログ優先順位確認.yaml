@@ -1,0 +1,33 @@
+unit: バックログ優先順位確認
+aim: スプリントに取り込む PBI の優先順位を最新状態で確認する
+phase: spec
+job:
+  - プロダクトオーナーがバックログを最新の事業優先度に合わせて並び替える
+  - 上位 PBI の受け入れ条件・依存関係・サイズを確認する
+rule:
+  - 優先順位はビジネス価値・リスク・依存関係を考慮して決める
+  - 未 Ready の PBI は上位に置かない
+link:
+  up: []
+  down:
+    - スコープ決定
+core: true
+io:
+  in:
+    - プロダクトバックログ
+    - ステークホルダーからの優先度インプット
+  run:
+    - バックログを最新の優先度でソート
+    - 上位 PBI の Ready 状態を確認
+  out:
+    - 優先順位付きバックログ（最新）
+executor:
+  type: manual
+  reason: 事業価値の判断はプロダクトオーナーの意思決定が必要なため
+effort:
+  duration: 0.5
+  frequency: 2
+automation:
+  difficulty: high
+  status: manual
+status: stable

@@ -1,0 +1,32 @@
+unit: メトリクス収集
+aim: スプリントの実績データを収集し、議論の客観的な基盤を作る
+phase: spec
+job:
+  - 完了 SP・ベロシティ・バグ数・サイクルタイムを集計する
+  - 前スプリントとの比較値を算出する
+rule:
+  - データは主観を排除して客観的な数値のみを収集する
+  - 集計範囲はスプリント開始から終了まで（前後のデータを混入しない）
+link:
+  up: []
+  down:
+    - KPT整理
+core: true
+io:
+  in:
+    - スプリントボード・issue トラッカー・CI ログ
+  run:
+    - ツールから実績データを抽出・集計
+    - 前スプリントとの比較を算出
+  out:
+    - スプリント実績サマリー（定量データ）
+executor:
+  type: script
+  reason: issue トラッカー・CI ツールからのデータ集計は自動化できるため
+effort:
+  duration: 0.5
+  frequency: 2
+automation:
+  difficulty: low
+  status: partially-automated
+status: stable

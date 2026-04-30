@@ -1,0 +1,33 @@
+unit: タスク分解
+aim: 確定した PBI をエンジニアが着手できるタスク単位に分解する
+phase: spec
+job:
+  - 各 PBI を実装・テスト・レビューなどのタスクに分解する
+  - 各タスクに担当者と工数見積もりを付与する
+rule:
+  - 1 タスクは 1 日以内で完了できる粒度にする
+  - タスク間の依存関係を明示する
+link:
+  up:
+    - スコープ決定
+  down:
+    - スプリントゴール設定
+core: true
+io:
+  in:
+    - 今スプリントのスコープ（PBI リスト）
+  run:
+    - PBI ごとにタスクを洗い出し
+    - 担当者・工数をアサイン
+  out:
+    - タスクリスト（担当者・工数付き）
+executor:
+  type: ai_agent
+  reason: PBI の内容を読んでタスクに分解する判断に自然言語理解が必要なため
+effort:
+  duration: 1
+  frequency: 2
+automation:
+  difficulty: medium
+  status: partially-automated
+status: stable

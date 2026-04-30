@@ -1,0 +1,34 @@
+unit: バグ起票
+aim: テスト中に発見した不具合を issue として起票する
+phase: test
+job:
+  - バグの再現手順・実際の結果・期待結果・環境情報を issue に記述する
+  - 優先度・重要度を付与してトリアージする
+rule:
+  - 再現手順は第三者が追えるレベルで記述する
+  - スクリーンショット・ログを添付する
+  - 重複バグは新規起票せず既存 issue にコメントする
+link:
+  up:
+    - テスト実施
+  down: []
+core: false
+io:
+  in:
+    - テスト結果（FAIL）
+    - バグ候補リスト
+  run:
+    - バグを整理・重複排除
+    - issue を起票・優先度付与
+  out:
+    - バグ issue（優先度付き）
+executor:
+  type: ai_agent
+  reason: バグ情報の整理・重複判定・優先度評価に推論が必要なため
+effort:
+  duration: 1
+  frequency: 2
+automation:
+  difficulty: medium
+  status: partially-automated
+status: stable

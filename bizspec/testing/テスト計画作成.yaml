@@ -1,0 +1,34 @@
+unit: テスト計画作成
+aim: リリース対象の機能に対するテスト方針・スコープ・スケジュールを決定する
+phase: test
+job:
+  - テスト対象機能・リスクエリアを特定する
+  - テストレベル（ユニット・統合・E2E）とスコープを決める
+  - テストスケジュールと担当を割り当てる
+rule:
+  - リスクの高い機能（新規・変更箇所・外部連携）を優先的にカバーする
+  - スケジュールにバッファを 20% 設ける
+link:
+  up: []
+  down:
+    - テストケース作成
+core: true
+io:
+  in:
+    - リリース対象機能一覧
+    - 変更差分
+  run:
+    - テスト対象・リスクエリアを特定
+    - テストレベル・スコープ・スケジュールを定義
+  out:
+    - テスト計画書
+executor:
+  type: manual
+  reason: テストスコープの優先判断はリスク評価と経験が必要なため
+effort:
+  duration: 1
+  frequency: 2
+automation:
+  difficulty: high
+  status: manual
+status: stable

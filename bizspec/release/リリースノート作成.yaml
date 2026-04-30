@@ -1,0 +1,34 @@
+unit: リリースノート作成
+aim: リリース内容をユーザー・ステークホルダー向けに整理した変更履歴を作成する
+phase: release
+job:
+  - マージ済み PR・解決 issue からリリース内容を抽出する
+  - 新機能・バグ修正・破壊的変更をカテゴリ別に整理する
+  - ユーザー向けの平易な言葉で記述する
+rule:
+  - 破壊的変更は必ず明示し、移行手順を記載する
+  - 内部リファクタや技術的変更は省略してよい
+link:
+  up: []
+  down:
+    - リリース判定
+core: false
+io:
+  in:
+    - マージ済み PR リスト
+    - 解決済み issue リスト
+  run:
+    - PR・issue からリリース内容を抽出・分類
+    - ユーザー向けに言葉を整える
+  out:
+    - リリースノート
+executor:
+  type: ai_agent
+  reason: 技術的変更をユーザー向けに要約・分類する文章生成が必要なため
+effort:
+  duration: 1
+  frequency: 2
+automation:
+  difficulty: medium
+  status: partially-automated
+status: stable

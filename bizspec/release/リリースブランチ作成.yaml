@@ -1,0 +1,36 @@
+unit: リリースブランチ作成
+aim: main ブランチからリリース用ブランチを作成し、バージョンタグを付与する
+phase: release
+job:
+  - main から `release/vX.Y.Z` ブランチを作成する
+  - バージョン番号をセマンティックバージョニングに従って決定しタグを付与する
+  - CHANGELOG を更新してコミットする
+rule:
+  - バージョン番号はセマンティックバージョニング（major.minor.patch）に従う
+  - リリースブランチへの直接コミットはホットフィックスのみ許可
+link:
+  up:
+    - リリース判定
+  down:
+    - ステージング確認
+core: true
+io:
+  in:
+    - リリース判定結果（GO）
+    - バージョン番号
+  run:
+    - リリースブランチを作成
+    - タグ付与・CHANGELOG 更新
+  out:
+    - リリースブランチ（タグ付き）
+    - 更新済み CHANGELOG
+executor:
+  type: script
+  reason: ブランチ作成・タグ付与・CHANGELOG 更新は定型化・自動化できるため
+effort:
+  duration: 0.5
+  frequency: 2
+automation:
+  difficulty: low
+  status: automated
+status: stable

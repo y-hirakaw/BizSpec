@@ -1,0 +1,33 @@
+unit: 進捗確認
+aim: 初タスクの進捗をメンターが確認し、詰まりポイントを早期発見する
+phase: spec
+job:
+  - 半日〜1 日に 1 回の頻度でメンターが進捗をチェックする
+  - 詰まっている場合はヒントを出すか、一緒に調査する
+rule:
+  - 解法を即答せず、まず新メンバーが自分で考える時間を与える
+  - 詰まりが 2 時間以上続く場合はメンターに声をかけるよう伝えておく
+link:
+  up:
+    - 初タスクアサイン
+  down:
+    - フィードバック
+core: false
+io:
+  in:
+    - アサイン済み初タスク
+  run:
+    - 定期的に進捗をヒアリング
+    - 詰まりポイントに対してヒント・サポート
+  out:
+    - 進捗状況・課題メモ
+executor:
+  type: manual
+  reason: 新メンバーの理解度を対話で確認しサポートする必要があるため
+effort:
+  duration: 0.5
+  frequency: 1
+automation:
+  difficulty: high
+  status: manual
+status: stable

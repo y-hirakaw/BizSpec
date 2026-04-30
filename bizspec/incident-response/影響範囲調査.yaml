@@ -1,0 +1,35 @@
+unit: 影響範囲調査
+aim: インシデントの影響ユーザー数・機能範囲・データ被害を特定する
+phase: ops
+job:
+  - ログ・メトリクス・エラートレースを調査して影響範囲を特定する
+  - 影響を受けているユーザー数・機能・時間帯を把握する
+  - 外部公開が必要か（ステータスページ更新等）を判断する
+rule:
+  - 推測で範囲を狭めない（不明な部分は「未確認」と明示）
+  - 調査結果を 15 分ごとにインシデントチャンネルに報告する
+link:
+  up:
+    - インシデント検知
+  down:
+    - 一次対応
+core: true
+io:
+  in:
+    - インシデント認定（Severity・開始時刻）
+    - ログ・メトリクス・エラートレース
+  run:
+    - ログ・トレースを解析して影響箇所を特定
+    - 影響ユーザー数・機能範囲を集計
+  out:
+    - 影響範囲レポート
+executor:
+  type: ai_agent
+  reason: 大量のログ・トレースから影響範囲を推論・集約する能力が必要なため
+effort:
+  duration: 1
+  frequency: 1
+automation:
+  difficulty: high
+  status: partially-automated
+status: stable

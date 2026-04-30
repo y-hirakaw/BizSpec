@@ -1,0 +1,33 @@
+unit: 動作確認
+aim: 本番デプロイ後にサービスが正常稼働していることを確認する
+phase: release
+job:
+  - 主要機能のスモークテストを本番環境で実施する
+  - エラーレート・レイテンシ・アラートに異常がないか監視する
+  - 問題があれば即座にロールバックを判断する
+rule:
+  - デプロイ後 30 分は監視を継続する
+  - エラーレートが通常の 2 倍を超えたらロールバックを検討する
+link:
+  up:
+    - 本番デプロイ
+  down: []
+core: true
+io:
+  in:
+    - デプロイ完了通知
+  run:
+    - 主要フローをスモークテスト
+    - メトリクス・ログを監視
+  out:
+    - 動作確認結果（正常 or ロールバック判断）
+executor:
+  type: manual
+  reason: 本番動作の最終判断は人間が行う必要があるため
+effort:
+  duration: 0.5
+  frequency: 2
+automation:
+  difficulty: medium
+  status: partially-automated
+status: stable

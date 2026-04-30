@@ -1,0 +1,33 @@
+unit: デプロイ
+aim: バグ修正を本番環境に適用する
+phase: dev
+job:
+  - PR をマージして CI/CD パイプラインを実行する
+  - デプロイ完了後に修正が本番に反映されたことを確認する
+  - バグ issue をクローズして報告者に通知する
+rule:
+  - Hot-fix の場合は緊急デプロイ手順に従う
+  - デプロイ後 15 分はエラーレートを監視する
+link:
+  up:
+    - 回帰テスト
+  down: []
+core: true
+io:
+  in:
+    - 回帰テスト結果（全 PASS）
+  run:
+    - PR をマージ・パイプラインを実行
+    - 本番反映を確認・issue クローズ
+  out:
+    - デプロイ完了・issue クローズ
+executor:
+  type: script
+  reason: CI/CD パイプラインで自動デプロイできるため
+effort:
+  duration: 0.5
+  frequency: 8
+automation:
+  difficulty: low
+  status: automated
+status: stable

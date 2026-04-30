@@ -1,0 +1,33 @@
+unit: 回帰テスト
+aim: 修正により既存機能が壊れていないことを確認する
+phase: dev
+job:
+  - 自動テストスイート（ユニット・統合）を実行する
+  - 修正箇所に関連する機能を手動でも確認する
+rule:
+  - 全テストが PASS してからデプロイを進める
+  - 修正で既存テストが FAIL した場合は修正を見直す（テストを弱めない）
+link:
+  up:
+    - 修正実装
+  down:
+    - デプロイ
+core: true
+io:
+  in:
+    - 修正済みコード（テスト付き）
+  run:
+    - 自動テストスイートを実行
+    - 関連機能を手動確認
+  out:
+    - 回帰テスト結果（全 PASS）
+executor:
+  type: script
+  reason: テストスイートの実行は CI で自動化できるため
+effort:
+  duration: 0.5
+  frequency: 8
+automation:
+  difficulty: low
+  status: automated
+status: stable

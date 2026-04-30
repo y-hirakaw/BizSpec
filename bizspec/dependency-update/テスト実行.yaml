@@ -1,0 +1,32 @@
+unit: テスト実行
+aim: アップデート後に全テストが通過することを確認する
+phase: ops
+job:
+  - 自動テストスイートを実行して全件 PASS を確認する
+  - FAIL した場合は破壊的変更の影響を特定して対処する
+rule:
+  - テストが FAIL したまま PR をマージしない
+  - 既存テストを弱めてパスさせることは禁止
+link:
+  up:
+    - アップデート実施
+  down: []
+core: true
+io:
+  in:
+    - 更新済みロックファイル・依存定義
+  run:
+    - テストスイートを実行
+    - FAIL があれば原因を特定して修正
+  out:
+    - テスト結果（全 PASS）
+executor:
+  type: script
+  reason: テストスイートの実行は CI で完全自動化できるため
+effort:
+  duration: 0.5
+  frequency: 2
+automation:
+  difficulty: low
+  status: automated
+status: stable
