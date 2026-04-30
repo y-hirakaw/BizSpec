@@ -110,30 +110,70 @@ body {
 #overview-view {
   flex: 1 1 0;
   overflow-y: auto;
-  padding: 24px;
+  padding: 28px;
   background: #F9FAFB;
 }
+#overview-wrap { position: relative; }
 #overview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 28px 24px;
+  position: relative;
+  z-index: 2;
+}
+#overview-edges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
 }
 .proc-card {
   background: #fff;
   border: 1px solid #E5E7EB;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 18px 18px 14px;
   cursor: pointer;
-  transition: box-shadow 0.15s, transform 0.1s;
+  transition: box-shadow 0.15s, transform 0.1s, border-color 0.15s;
+  display: flex;
+  flex-direction: column;
+  height: 160px;
 }
 .proc-card:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
   transform: translateY(-2px);
+  border-color: #C7D2FE;
 }
-.proc-card-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
-.proc-card-slug { font-size: 11px; color: #9CA3AF; margin-bottom: 4px; }
-.proc-card-count { font-size: 12px; color: #6B7280; margin-bottom: 14px; }
-.proc-card-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+.proc-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.proc-card-name { font-size: 16px; font-weight: 700; flex: 1; min-width: 0; word-break: break-all; }
+.proc-card-count-inline {
+  font-size: 11px; color: #6B7280; flex-shrink: 0;
+  background: #F3F4F6; padding: 2px 8px; border-radius: 999px;
+}
+.proc-card-slug { font-size: 11px; color: #9CA3AF; margin-bottom: 10px; }
+.proc-card-mini {
+  flex: 1 1 0;
+  min-height: 0;
+  background: #FAFAFA;
+  border: 1px solid #F3F4F6;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.proc-card-mini svg { display: block; max-width: 100%; max-height: 100%; }
+.proc-card-mini-empty {
+  font-size: 10px; color: #D1D5DB;
+}
+.proc-card-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
 .pill { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
 .pill-script   { background: #D1FAE5; color: #065F46; }
 .pill-ai_agent { background: #EDE9FE; color: #5B21B6; }
@@ -143,8 +183,53 @@ body {
   font-size: 11px;
   color: #9CA3AF;
   border-top: 1px solid #F3F4F6;
-  padding-top: 10px;
+  padding-top: 8px;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+.proc-card-deps {
+  font-size: 10px;
+  color: #7C3AED;
+  font-weight: 600;
+}
+
+/* ── Overview display mode (info / flow toggle) ── */
+#ov-mode-toggle {
+  margin-left: auto;
+  display: flex;
+  background: #F3F4F6;
+  border-radius: 999px;
+  padding: 2px;
+}
+.ov-mode-btn {
+  padding: 4px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: #6B7280;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background 0.15s, color 0.15s;
+}
+.ov-mode-btn.active {
+  background: #fff;
+  color: #111827;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.ov-mode-btn:hover:not(.active) { color: #374151; }
+
+/* Info mode (default): hide mini flow */
+#overview-grid.mode-info .proc-card-mini { display: none; }
+
+/* Flow mode: hide everything except name + mini flow */
+#overview-grid.mode-flow .proc-card-slug,
+#overview-grid.mode-flow .proc-card-pills,
+#overview-grid.mode-flow .proc-card-footer,
+#overview-grid.mode-flow .proc-card-count-inline { display: none; }
+#overview-grid.mode-flow .proc-card-mini { margin-bottom: 0; }
 
 /* ── Flow view ── */
 #flow-view {
@@ -333,10 +418,17 @@ svg.arrows-layer {
     <button id="back-btn" onclick="showOverview()">← 一覧</button>
     <span id="topbar-title">全プロセス一覧</span>
     <span id="topbar-sub"></span>
+    <div id="ov-mode-toggle">
+      <button class="ov-mode-btn active" data-mode="info">情報</button>
+      <button class="ov-mode-btn" data-mode="flow">フロー</button>
+    </div>
   </div>
   <div id="content">
     <div id="overview-view">
-      <div id="overview-grid"></div>
+      <div id="overview-wrap">
+        <svg id="overview-edges"></svg>
+        <div id="overview-grid"></div>
+      </div>
     </div>
     <div id="flow-view">
       <div id="flow-legend">
@@ -389,7 +481,1587 @@ svg.arrows-layer {
 </div>
 
 <script>
-const ALL_DATA = {
+const ALL_DATA   = {
+  "api-design": {
+    "displayName": null,
+    "units": {
+      "OpenAPI定義作成": {
+        "aim": "承認済み設計をもとに OpenAPI Specification を作成する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "OpenAPI 3.x 形式で全エンドポイントのスキーマを記述する",
+          "サンプルリクエスト・レスポンスを含める",
+          "Lint ツールで定義の構文・整合性を検証する"
+        ],
+        "rule": [
+          "バージョンは openapi: \"3.1.0\" を使う",
+          "$ref を活用してスキーマの重複を排除する",
+          "必須フィールド・nullable を正確に定義する"
+        ],
+        "io": {
+          "in": [
+            "承認済み API インターフェース設計書"
+          ],
+          "run": [
+            "OpenAPI YAML/JSON を作成",
+            "Lint で検証"
+          ],
+          "out": [
+            "OpenAPI Specification ファイル（Lint 通過済み）"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "設計書から OpenAPI の YAML を生成する変換タスクに適しているため"
+        },
+        "link": {
+          "up": [
+            "設計レビュー"
+          ],
+          "down": [
+            "モックサーバー構築"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 2,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "インターフェース設計": {
+        "aim": "エンドポイント・リクエスト/レスポンス構造・エラーコードを設計する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "RESTful 原則に従ってエンドポイント・HTTP メソッドを設計する",
+          "リクエスト・レスポンスのスキーマを定義する",
+          "エラーコード・エラーレスポンスの体系を設計する"
+        ],
+        "rule": [
+          "リソース名は名詞・複数形を使う（/users, /orders）",
+          "エラーレスポンスは一貫したフォーマットにする",
+          "破壊的変更は /v2 などのバージョニングで対応する"
+        ],
+        "io": {
+          "in": [
+            "確認済み要件書"
+          ],
+          "run": [
+            "エンドポイント・スキーマを設計",
+            "エラーコード体系を定義"
+          ],
+          "out": [
+            "API インターフェース設計書（ドラフト）"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "要件からエンドポイント・スキーマを体系的に設計する推論が必要なため"
+        },
+        "link": {
+          "up": [
+            "要件確認"
+          ],
+          "down": [
+            "設計レビュー"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 2,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "モックサーバー構築": {
+        "aim": "OpenAPI 定義からモックサーバーを生成し、フロントエンド開発の並行作業を可能にする",
+        "phase": "spec",
+        "core": false,
+        "job": [
+          "OpenAPI 定義をもとにモックサーバーを生成・起動する",
+          "サンプルレスポンスが正しく返ることを確認する",
+          "フロントエンドチームにモックサーバーの接続先・使い方を共有する"
+        ],
+        "rule": [
+          "モックサーバーは本番 API と同じエンドポイント・スキーマで動作させる",
+          "モックデータは実際の値に近い（リアルな）ものを使う"
+        ],
+        "io": {
+          "in": [
+            "OpenAPI Specification ファイル"
+          ],
+          "run": [
+            "モックサーバーを生成・起動",
+            "動作確認・共有"
+          ],
+          "out": [
+            "稼働中のモックサーバー",
+            "接続情報ドキュメント"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "OpenAPI 定義からのモックサーバー生成はツールで自動化できるため"
+        },
+        "link": {
+          "up": [
+            "OpenAPI定義作成"
+          ],
+          "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "要件確認": {
+        "aim": "API に求められる機能・非機能要件・利用者ユースケースを確認する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "クライアント（フロントエンド・外部サービス）のユースケースをヒアリングする",
+          "認証・認可・レート制限・SLA などの非機能要件を確認する",
+          "既存 API との整合性・バージョニング方針を確認する"
+        ],
+        "rule": [
+          "要件は利用者の視点で整理する（実装都合を先行させない）",
+          "曖昧な要件は設計前に合意しておく"
+        ],
+        "io": {
+          "in": [
+            "ユースケース記述",
+            "非機能要件"
+          ],
+          "run": [
+            "利用者からヒアリング",
+            "要件を整理・合意"
+          ],
+          "out": [
+            "確認済み要件書"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "利用者との対話による要件確認と合意が必要なため"
+        },
+        "link": {
+          "up": [],
+          "down": [
+            "インターフェース設計"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "設計レビュー": {
+        "aim": "設計の一貫性・RESTful 原則・セキュリティ要件を確認し、承認する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "エンドポイント設計が RESTful 原則・命名規則に準拠しているか確認する",
+          "認証・認可・入力バリデーションの漏れがないか確認する",
+          "利用者（フロントエンドチーム等）に設計を確認してフィードバックをもらう"
+        ],
+        "rule": [
+          "セキュリティ上の問題（認証なしエンドポイント・過剰なデータ露出）はブロッカー",
+          "フィードバックは設計者と合意してから OpenAPI 定義に進む"
+        ],
+        "io": {
+          "in": [
+            "API インターフェース設計書（ドラフト）"
+          ],
+          "run": [
+            "RESTful 原則・セキュリティをチェック",
+            "利用者からフィードバックを取得",
+            "設計を修正・承認"
+          ],
+          "out": [
+            "承認済み API インターフェース設計書"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "セキュリティ判断と利用者との合意は人間の判断が必要なため"
+        },
+        "link": {
+          "up": [
+            "インターフェース設計"
+          ],
+          "down": [
+            "OpenAPI定義作成"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      }
+    },
+    "positions": {
+      "要件確認": {
+        "left": 40,
+        "top": 24
+      },
+      "インターフェース設計": {
+        "left": 40,
+        "top": 134
+      },
+      "設計レビュー": {
+        "left": 40,
+        "top": 244
+      },
+      "OpenAPI定義作成": {
+        "left": 40,
+        "top": 354
+      },
+      "モックサーバー構築": {
+        "left": 40,
+        "top": 464
+      }
+    },
+    "edges": [
+      [
+        "OpenAPI定義作成",
+        "モックサーバー構築",
+        "seq"
+      ],
+      [
+        "インターフェース設計",
+        "設計レビュー",
+        "seq"
+      ],
+      [
+        "要件確認",
+        "インターフェース設計",
+        "seq"
+      ],
+      [
+        "設計レビュー",
+        "OpenAPI定義作成",
+        "seq"
+      ]
+    ],
+    "canvasW": 280,
+    "canvasH": 542,
+    "stats": {
+      "unit_count": 5,
+      "phases": [
+        "spec"
+      ],
+      "executor": {
+        "script": 1,
+        "ai_agent": 2,
+        "manual": 2
+      },
+      "core_count": 4
+    }
+  },
+  "bug-fix": {
+    "displayName": null,
+    "units": {
+      "デプロイ": {
+        "aim": "バグ修正を本番環境に適用する",
+        "phase": "dev",
+        "core": true,
+        "job": [
+          "PR をマージして CI/CD パイプラインを実行する",
+          "デプロイ完了後に修正が本番に反映されたことを確認する",
+          "バグ issue をクローズして報告者に通知する"
+        ],
+        "rule": [
+          "Hot-fix の場合は緊急デプロイ手順に従う",
+          "デプロイ後 15 分はエラーレートを監視する"
+        ],
+        "io": {
+          "in": [
+            "回帰テスト結果（全 PASS）"
+          ],
+          "run": [
+            "PR をマージ・パイプラインを実行",
+            "本番反映を確認・issue クローズ"
+          ],
+          "out": [
+            "デプロイ完了・issue クローズ"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "CI/CD パイプラインで自動デプロイできるため"
+        },
+        "link": {
+          "up": [
+            "回帰テスト"
+          ],
+          "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 8
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "バグ再現確認": {
+        "aim": "報告されたバグが再現することを確認し、再現手順を明確化する",
+        "phase": "dev",
+        "core": true,
+        "job": [
+          "報告された手順でバグを再現する",
+          "再現しない場合は環境・バージョン・データ条件を変えて試す",
+          "再現手順・環境情報・発生条件を issue に追記する"
+        ],
+        "rule": [
+          "再現できない場合は「再現不可」としてクローズするか、追加情報を報告者に依頼する",
+          "再現手順は第三者が実行できるレベルで記述する"
+        ],
+        "io": {
+          "in": [
+            "バグ issue（再現手順・環境情報）"
+          ],
+          "run": [
+            "指定の手順・環境でバグを再現",
+            "再現条件を明確化して記録"
+          ],
+          "out": [
+            "再現確認済みバグ issue（再現手順確定）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "実際の操作・目視確認で再現を確かめる必要があるため"
+        },
+        "link": {
+          "up": [],
+          "down": [
+            "原因特定"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 8
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "修正実装": {
+        "aim": "特定した原因を解消するコードを実装する",
+        "phase": "dev",
+        "core": true,
+        "job": [
+          "原因に対する修正を最小限の変更で実装する",
+          "バグを引き起こしたケースを検証するテストを追加する"
+        ],
+        "rule": [
+          "修正範囲は最小限にとどめる（バグ修正に無関係なリファクタを混入しない）",
+          "修正を確認するテストを必ず追加する（再発防止）"
+        ],
+        "io": {
+          "in": [
+            "原因特定結果"
+          ],
+          "run": [
+            "最小限の修正を実装",
+            "バグ再現テストを追加"
+          ],
+          "out": [
+            "修正済みコード（テスト付き）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "修正範囲の判断と実装はエンジニアの専門的判断が必要なため"
+        },
+        "link": {
+          "up": [
+            "原因特定"
+          ],
+          "down": [
+            "回帰テスト"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 8
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "原因特定": {
+        "aim": "バグの原因となるコードや設定を特定する",
+        "phase": "dev",
+        "core": true,
+        "job": [
+          "ログ・スタックトレース・コードを調査して原因箇所を絞り込む",
+          "原因コード・設定・データを特定し、issue に記録する"
+        ],
+        "rule": [
+          "症状だけでなく「なぜ起きているか」の根本を特定する",
+          "修正しながら原因調査しない（調査と修正は分ける）"
+        ],
+        "io": {
+          "in": [
+            "再現確認済みバグ issue",
+            "ログ・スタックトレース・コード"
+          ],
+          "run": [
+            "ログ・トレースを解析して原因箇所を絞り込む",
+            "原因コード・設定を特定して記録"
+          ],
+          "out": [
+            "原因特定結果（原因箇所・再現条件）"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "ログ・コードから原因を推論・絞り込む分析に推論能力が必要なため"
+        },
+        "link": {
+          "up": [
+            "バグ再現確認"
+          ],
+          "down": [
+            "修正実装"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 8
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "回帰テスト": {
+        "aim": "修正により既存機能が壊れていないことを確認する",
+        "phase": "dev",
+        "core": true,
+        "job": [
+          "自動テストスイート（ユニット・統合）を実行する",
+          "修正箇所に関連する機能を手動でも確認する"
+        ],
+        "rule": [
+          "全テストが PASS してからデプロイを進める",
+          "修正で既存テストが FAIL した場合は修正を見直す（テストを弱めない）"
+        ],
+        "io": {
+          "in": [
+            "修正済みコード（テスト付き）"
+          ],
+          "run": [
+            "自動テストスイートを実行",
+            "関連機能を手動確認"
+          ],
+          "out": [
+            "回帰テスト結果（全 PASS）"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "テストスイートの実行は CI で自動化できるため"
+        },
+        "link": {
+          "up": [
+            "修正実装"
+          ],
+          "down": [
+            "デプロイ"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 8
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      }
+    },
+    "positions": {
+      "バグ再現確認": {
+        "left": 40,
+        "top": 24
+      },
+      "原因特定": {
+        "left": 40,
+        "top": 134
+      },
+      "修正実装": {
+        "left": 40,
+        "top": 244
+      },
+      "回帰テスト": {
+        "left": 40,
+        "top": 354
+      },
+      "デプロイ": {
+        "left": 40,
+        "top": 464
+      }
+    },
+    "edges": [
+      [
+        "バグ再現確認",
+        "原因特定",
+        "seq"
+      ],
+      [
+        "修正実装",
+        "回帰テスト",
+        "seq"
+      ],
+      [
+        "原因特定",
+        "修正実装",
+        "seq"
+      ],
+      [
+        "回帰テスト",
+        "デプロイ",
+        "seq"
+      ]
+    ],
+    "canvasW": 280,
+    "canvasH": 542,
+    "stats": {
+      "unit_count": 5,
+      "phases": [
+        "dev"
+      ],
+      "executor": {
+        "script": 2,
+        "ai_agent": 1,
+        "manual": 2
+      },
+      "core_count": 5
+    }
+  },
+  "dependency-update": {
+    "displayName": null,
+    "units": {
+      "アップデート実施": {
+        "aim": "対象ライブラリを指定バージョンに更新し、ロックファイルを更新する",
+        "phase": "ops",
+        "core": true,
+        "job": [
+          "パッケージマネージャーで対象ライブラリを更新する",
+          "ロックファイルを更新してコミットする"
+        ],
+        "rule": [
+          "一度に更新するパッケージは関連するものをまとめ、無関係なものは別 PR にする",
+          "自動化ツール（Dependabot 等）の PR を活用する"
+        ],
+        "io": {
+          "in": [
+            "対応方針決定済みリスト"
+          ],
+          "run": [
+            "パッケージマネージャーでバージョンを更新",
+            "ロックファイルを更新・コミット"
+          ],
+          "out": [
+            "更新済みロックファイル・依存定義"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "パッケージの更新・ロックファイルの生成は自動化できるため"
+        },
+        "link": {
+          "up": [
+            "セキュリティ影響確認"
+          ],
+          "down": [
+            "テスト実行"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "セキュリティ影響確認": {
+        "aim": "更新対象の CVE・破壊的変更・互換性を確認し、対応方針を決定する",
+        "phase": "ops",
+        "core": true,
+        "job": [
+          "CVE の内容・CVSS スコア・自プロジェクトへの影響範囲を確認する",
+          "破壊的変更（Breaking Change）の有無を CHANGELOG で確認する",
+          "対応方針（即時適用 / 計画適用 / 見送り）を決定する"
+        ],
+        "rule": [
+          "CVSS 7.0 以上は即時適用を原則とする",
+          "影響なしと判断した場合はその根拠を記録する"
+        ],
+        "io": {
+          "in": [
+            "更新対象リスト（CVE・優先度付き）",
+            "ライブラリの CHANGELOG・リリースノート"
+          ],
+          "run": [
+            "CVE の影響・破壊的変更を確認",
+            "対応方針を決定・記録"
+          ],
+          "out": [
+            "対応方針決定済みリスト"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "CVE の内容とコードへの影響を評価する推論が必要なため"
+        },
+        "link": {
+          "up": [
+            "更新対象抽出"
+          ],
+          "down": [
+            "アップデート実施"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "テスト実行": {
+        "aim": "アップデート後に全テストが通過することを確認する",
+        "phase": "ops",
+        "core": true,
+        "job": [
+          "自動テストスイートを実行して全件 PASS を確認する",
+          "FAIL した場合は破壊的変更の影響を特定して対処する"
+        ],
+        "rule": [
+          "テストが FAIL したまま PR をマージしない",
+          "既存テストを弱めてパスさせることは禁止"
+        ],
+        "io": {
+          "in": [
+            "更新済みロックファイル・依存定義"
+          ],
+          "run": [
+            "テストスイートを実行",
+            "FAIL があれば原因を特定して修正"
+          ],
+          "out": [
+            "テスト結果（全 PASS）"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "テストスイートの実行は CI で完全自動化できるため"
+        },
+        "link": {
+          "up": [
+            "アップデート実施"
+          ],
+          "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "更新対象抽出": {
+        "aim": "依存ライブラリのうち更新が必要なものを洗い出す",
+        "phase": "ops",
+        "core": true,
+        "job": [
+          "依存関係チェックツールを実行して古いパッケージ・CVE を一覧化する",
+          "セキュリティパッチ・メジャーアップデートを優先順位付きでリスト化する"
+        ],
+        "rule": [
+          "Critical・High の CVE は発見から 7 日以内に対応する",
+          "メジャーアップデートは破壊的変更のリリースノートを確認してから進める"
+        ],
+        "io": {
+          "in": [
+            "依存関係ロックファイル（package.json / pyproject.toml 等）"
+          ],
+          "run": [
+            "依存チェックツールを実行",
+            "CVE・バージョン遅延を一覧化・優先度付与"
+          ],
+          "out": [
+            "更新対象リスト（CVE・優先度付き）"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "依存バージョンと CVE の照合はツールで自動化できるため"
+        },
+        "link": {
+          "up": [],
+          "down": [
+            "セキュリティ影響確認"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      }
+    },
+    "positions": {
+      "更新対象抽出": {
+        "left": 40,
+        "top": 24
+      },
+      "セキュリティ影響確認": {
+        "left": 40,
+        "top": 134
+      },
+      "アップデート実施": {
+        "left": 40,
+        "top": 244
+      },
+      "テスト実行": {
+        "left": 40,
+        "top": 354
+      }
+    },
+    "edges": [
+      [
+        "アップデート実施",
+        "テスト実行",
+        "seq"
+      ],
+      [
+        "セキュリティ影響確認",
+        "アップデート実施",
+        "seq"
+      ],
+      [
+        "更新対象抽出",
+        "セキュリティ影響確認",
+        "seq"
+      ]
+    ],
+    "canvasW": 280,
+    "canvasH": 432,
+    "stats": {
+      "unit_count": 4,
+      "phases": [
+        "ops"
+      ],
+      "executor": {
+        "script": 3,
+        "ai_agent": 1,
+        "manual": 0
+      },
+      "core_count": 4
+    }
+  },
+  "implementation": {
+    "displayName": null,
+    "units": {
+      "PR作成": {
+        "aim": "レビュー依頼のためのプルリクエストを作成する",
+        "phase": "dev",
+        "core": true,
+        "job": [
+          "PR テンプレートに従って概要・変更内容・テスト方法を記述する",
+          "レビュアーをアサインし、レビュー依頼を送る"
+        ],
+        "rule": [
+          "タイトルは issue 番号と変更概要を含む（例: #123 ユーザー認証を追加）",
+          "スクリーンショット・動作確認手順を含める",
+          "Draft PR は未完成の段階で早期フィードバックが目的のときのみ使う"
+        ],
+        "io": {
+          "in": [
+            "セルフレビュー済みコード",
+            "PR テンプレート"
+          ],
+          "run": [
+            "変更概要・テスト方法を記述",
+            "レビュアーをアサインして PR を提出"
+          ],
+          "out": [
+            "プルリクエスト（レビュー待ち）"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "PR 作成と説明文の雛形生成は自動化できるため"
+        },
+        "link": {
+          "up": [
+            "セルフレビュー"
+          ],
+          "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 20
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "セルフレビュー": {
+        "aim": "PR 提出前にコードを自己チェックし、明らかな問題を取り除く",
+        "phase": "dev",
+        "core": false,
+        "job": [
+          "差分全体を通読し、意図しない変更・デバッグコードが混入していないか確認する",
+          "コーディング規約・命名・コメントの適切さを確認する",
+          "セキュリティ・パフォーマンス上の問題がないかを確認する"
+        ],
+        "rule": [
+          "コミットに不要なファイル（.env・ログ・バイナリ）が含まれていないか確認する",
+          "TODO/FIXME を残す場合は issue 番号を付記する"
+        ],
+        "io": {
+          "in": [
+            "実装済みコード・ユニットテスト"
+          ],
+          "run": [
+            "差分を通読してチェックリストを消化",
+            "問題があれば修正しコミット"
+          ],
+          "out": [
+            "セルフレビュー済みコード"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "コードの品質・セキュリティ・規約適合を網羅的にチェックする推論が必要なため"
+        },
+        "link": {
+          "up": [
+            "ユニットテスト作成"
+          ],
+          "down": [
+            "PR作成"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 20
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "ブランチ作成": {
+        "aim": "対応する issue に紐づいた作業ブランチを作成する",
+        "phase": "dev",
+        "core": true,
+        "job": [
+          "issue 番号を含む命名規則に従ってブランチを作成する",
+          "リモートにプッシュして追跡ブランチを設定する"
+        ],
+        "rule": [
+          "ブランチ名は `feature/<issue番号>-<概要>` の形式にする",
+          "main/develop から最新を取得してから分岐する"
+        ],
+        "io": {
+          "in": [
+            "issue 番号・タイトル",
+            "ベースブランチ（最新）"
+          ],
+          "run": [
+            "ベースブランチをフェッチ",
+            "命名規則に従ってブランチを作成・プッシュ"
+          ],
+          "out": [
+            "作業ブランチ（リモート追跡済み）"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "ブランチ作成は Git コマンドで完全自動化できるため"
+        },
+        "link": {
+          "up": [],
+          "down": [
+            "実装"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 20
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "ユニットテスト作成": {
+        "aim": "実装したロジックを検証するユニットテストを作成する",
+        "phase": "dev",
+        "core": true,
+        "job": [
+          "実装した関数・クラスのテストケースを洗い出す",
+          "正常系・異常系・境界値のテストを実装する",
+          "テストが全件パスすることを確認する"
+        ],
+        "rule": [
+          "カバレッジ 80% 以上を目標とする",
+          "外部依存はモックを使う",
+          "テスト名は「何をテストしているか」が分かる命名にする"
+        ],
+        "io": {
+          "in": [
+            "実装済みコード"
+          ],
+          "run": [
+            "テストケース洗い出し",
+            "テスト実装・実行"
+          ],
+          "out": [
+            "ユニットテストコード（全件パス）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "テストケースの設計には実装意図の理解と判断が必要なため"
+        },
+        "link": {
+          "up": [
+            "実装"
+          ],
+          "down": [
+            "セルフレビュー"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 20
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "実装": {
+        "aim": "タスクの要件を満たすコードを実装する",
+        "phase": "dev",
+        "core": true,
+        "job": [
+          "issue・タスク定義を読み、実装方針を決める",
+          "コーディング規約・既存パターンに従って実装する",
+          "動作をローカルで確認する"
+        ],
+        "rule": [
+          "既存のコードスタイル・命名規則を遵守する",
+          "1 コミットは 1 つの論理的変更単位にする",
+          "秘密情報をコードにハードコードしない"
+        ],
+        "io": {
+          "in": [
+            "タスク定義・要件",
+            "作業ブランチ"
+          ],
+          "run": [
+            "設計・実装方針を決定",
+            "コード実装・ローカル確認"
+          ],
+          "out": [
+            "実装済みコード（コミット済み）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "要件解釈と設計判断はエンジニアの専門的判断が必要なため"
+        },
+        "link": {
+          "up": [
+            "ブランチ作成"
+          ],
+          "down": [
+            "ユニットテスト作成"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 3,
+          "frequency": 20
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      }
+    },
+    "positions": {
+      "ブランチ作成": {
+        "left": 40,
+        "top": 24
+      },
+      "実装": {
+        "left": 40,
+        "top": 134
+      },
+      "ユニットテスト作成": {
+        "left": 40,
+        "top": 244
+      },
+      "セルフレビュー": {
+        "left": 40,
+        "top": 354
+      },
+      "PR作成": {
+        "left": 40,
+        "top": 464
+      }
+    },
+    "edges": [
+      [
+        "セルフレビュー",
+        "PR作成",
+        "seq"
+      ],
+      [
+        "ブランチ作成",
+        "実装",
+        "seq"
+      ],
+      [
+        "ユニットテスト作成",
+        "セルフレビュー",
+        "seq"
+      ],
+      [
+        "実装",
+        "ユニットテスト作成",
+        "seq"
+      ]
+    ],
+    "canvasW": 280,
+    "canvasH": 542,
+    "stats": {
+      "unit_count": 5,
+      "phases": [
+        "dev"
+      ],
+      "executor": {
+        "script": 2,
+        "ai_agent": 1,
+        "manual": 2
+      },
+      "core_count": 4
+    }
+  },
+  "incident-response": {
+    "displayName": null,
+    "units": {
+      "インシデント検知": {
+        "aim": "異常をアラートまたはユーザー報告から検知し、インシデントとして認定する",
+        "phase": "ops",
+        "core": true,
+        "job": [
+          "監視アラートまたはユーザー報告を受信する",
+          "インシデントの重要度（Severity）を判定する",
+          "インシデントチャンネルを開設し、対応チームを召集する"
+        ],
+        "rule": [
+          "Sev1（サービス全停止）は検知から 5 分以内に対応開始",
+          "Sev2（主要機能障害）は 15 分以内",
+          "迷ったら Severity を高めに設定し、後で引き下げる"
+        ],
+        "io": {
+          "in": [
+            "監視アラート or ユーザー報告"
+          ],
+          "run": [
+            "異常を確認・Severity を判定",
+            "インシデントチャンネル開設・召集"
+          ],
+          "out": [
+            "インシデント認定（Severity・担当者・開始時刻）"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "監視システムからのアラート受信・チャンネル開設は自動化できるため"
+        },
+        "link": {
+          "up": [],
+          "down": [
+            "影響範囲調査"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 1
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "ポストモーテム作成": {
+        "aim": "インシデントの経緯・原因・対応・再発防止策を文書化し、チームで共有する",
+        "phase": "ops",
+        "core": false,
+        "job": [
+          "インシデントのタイムライン・影響・根本原因・対応内容をまとめる",
+          "実施済み・予定の再発防止策をアクションアイテムとして記録する",
+          "ポストモーテムをチームで読み合わせ、知見を共有する"
+        ],
+        "rule": [
+          "Sev1・Sev2 はインシデント収束から 3 営業日以内に作成する",
+          "非難なしの文化（blameless）を徹底する"
+        ],
+        "io": {
+          "in": [
+            "インシデントログ",
+            "根本原因分析結果",
+            "対策実装完了報告"
+          ],
+          "run": [
+            "タイムライン・原因・対応を文書化",
+            "アクションアイテムを整理・共有"
+          ],
+          "out": [
+            "ポストモーテム文書"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "インシデントログから時系列・原因・対応を整理した文書を生成する能力が必要なため"
+        },
+        "link": {
+          "up": [
+            "恒久対策実装"
+          ],
+          "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 2,
+          "frequency": 1
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "一次対応": {
+        "aim": "サービス影響を最小化するための緊急措置を実施する",
+        "phase": "ops",
+        "core": true,
+        "job": [
+          "切り戻し・機能フラグ無効化・トラフィック遮断など影響を止める手段を選択する",
+          "緊急措置を実施してサービスへの影響が収まったことを確認する",
+          "措置内容と時刻をインシデントログに記録する"
+        ],
+        "rule": [
+          "原因特定より先に影響を止めることを優先する",
+          "切り戻しが最速・最安全な場合はためらわず実施する",
+          "すべての操作を時刻付きでログに残す"
+        ],
+        "io": {
+          "in": [
+            "影響範囲レポート"
+          ],
+          "run": [
+            "緊急措置の選択・実施",
+            "影響収束を確認・記録"
+          ],
+          "out": [
+            "一次対応完了報告（措置内容・収束時刻）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "緊急措置の選択と実行はオンコール担当者の状況判断が必要なため"
+        },
+        "link": {
+          "up": [
+            "影響範囲調査"
+          ],
+          "down": [
+            "根本原因分析"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 1
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "影響範囲調査": {
+        "aim": "インシデントの影響ユーザー数・機能範囲・データ被害を特定する",
+        "phase": "ops",
+        "core": true,
+        "job": [
+          "ログ・メトリクス・エラートレースを調査して影響範囲を特定する",
+          "影響を受けているユーザー数・機能・時間帯を把握する",
+          "外部公開が必要か（ステータスページ更新等）を判断する"
+        ],
+        "rule": [
+          "推測で範囲を狭めない（不明な部分は「未確認」と明示）",
+          "調査結果を 15 分ごとにインシデントチャンネルに報告する"
+        ],
+        "io": {
+          "in": [
+            "インシデント認定（Severity・開始時刻）",
+            "ログ・メトリクス・エラートレース"
+          ],
+          "run": [
+            "ログ・トレースを解析して影響箇所を特定",
+            "影響ユーザー数・機能範囲を集計"
+          ],
+          "out": [
+            "影響範囲レポート"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "大量のログ・トレースから影響範囲を推論・集約する能力が必要なため"
+        },
+        "link": {
+          "up": [
+            "インシデント検知"
+          ],
+          "down": [
+            "一次対応"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 1
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "恒久対策実装": {
+        "aim": "根本原因に対する修正を実装・テスト・デプロイする",
+        "phase": "ops",
+        "core": true,
+        "job": [
+          "根本原因分析で決定した再発防止策をタスクに落とし込む",
+          "修正を実装してテスト・レビューを経て本番に適用する"
+        ],
+        "rule": [
+          "緊急パッチは通常の PR プロセスを経る（レビューを省略しない）",
+          "対策は技術的修正だけでなく、監視強化・手順変更も含めて検討する"
+        ],
+        "io": {
+          "in": [
+            "根本原因分析結果"
+          ],
+          "run": [
+            "再発防止策をタスク化",
+            "実装・テスト・デプロイ"
+          ],
+          "out": [
+            "対策実装完了報告"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "対策の設計・実装判断はエンジニアリングの専門的判断が必要なため"
+        },
+        "link": {
+          "up": [
+            "根本原因分析"
+          ],
+          "down": [
+            "ポストモーテム作成"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 3,
+          "frequency": 1
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "根本原因分析": {
+        "aim": "インシデントの根本原因を特定し、再発防止策の方向性を決定する",
+        "phase": "ops",
+        "core": true,
+        "job": [
+          "5 Why 法などでインシデントの根本原因を掘り下げる",
+          "根本原因と直接原因を区別して記録する",
+          "再発防止策の方向性（技術・プロセス・組織）を整理する"
+        ],
+        "rule": [
+          "個人の責任を問わず、システム・プロセスの問題として捉える",
+          "「〇〇がミスをした」ではなく「〇〇が起きやすい状況があった」という視点で分析する"
+        ],
+        "io": {
+          "in": [
+            "一次対応完了報告",
+            "インシデントログ・ログ・トレース"
+          ],
+          "run": [
+            "5 Why で根本原因を特定",
+            "直接原因・根本原因・再発防止策を整理"
+          ],
+          "out": [
+            "根本原因分析結果"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "ログと事象から因果関係を推論し、根本原因を体系的に整理する分析が必要なため"
+        },
+        "link": {
+          "up": [
+            "一次対応"
+          ],
+          "down": [
+            "恒久対策実装"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 2,
+          "frequency": 1
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      }
+    },
+    "positions": {
+      "インシデント検知": {
+        "left": 40,
+        "top": 24
+      },
+      "影響範囲調査": {
+        "left": 40,
+        "top": 134
+      },
+      "一次対応": {
+        "left": 40,
+        "top": 244
+      },
+      "根本原因分析": {
+        "left": 40,
+        "top": 354
+      },
+      "恒久対策実装": {
+        "left": 40,
+        "top": 464
+      },
+      "ポストモーテム作成": {
+        "left": 40,
+        "top": 574
+      }
+    },
+    "edges": [
+      [
+        "インシデント検知",
+        "影響範囲調査",
+        "seq"
+      ],
+      [
+        "一次対応",
+        "根本原因分析",
+        "seq"
+      ],
+      [
+        "影響範囲調査",
+        "一次対応",
+        "seq"
+      ],
+      [
+        "恒久対策実装",
+        "ポストモーテム作成",
+        "seq"
+      ],
+      [
+        "根本原因分析",
+        "恒久対策実装",
+        "seq"
+      ]
+    ],
+    "canvasW": 280,
+    "canvasH": 652,
+    "stats": {
+      "unit_count": 6,
+      "phases": [
+        "ops"
+      ],
+      "executor": {
+        "script": 1,
+        "ai_agent": 3,
+        "manual": 2
+      },
+      "core_count": 5
+    }
+  },
   "issue-refinement": {
     "displayName": "PBIリファインメント",
     "units": {
@@ -960,6 +2632,326 @@ const ALL_DATA = {
       "core_count": 7
     }
   },
+  "onboarding": {
+    "displayName": null,
+    "units": {
+      "コードベース説明": {
+        "aim": "アーキテクチャ・主要コンポーネント・開発フローを新メンバーに説明する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "システム全体のアーキテクチャ図を使って構成を説明する",
+          "主要なディレクトリ・ファイル・コンポーネントの役割を説明する",
+          "ブランチ戦略・PR プロセス・コーディング規約を説明する"
+        ],
+        "rule": [
+          "一度に詰め込みすぎず、重要なものから優先的に説明する",
+          "説明後に質問時間を設ける"
+        ],
+        "io": {
+          "in": [
+            "セットアップ済み開発環境",
+            "アーキテクチャ図・コーディング規約"
+          ],
+          "run": [
+            "アーキテクチャ・コンポーネントを説明",
+            "開発フロー・規約を説明"
+          ],
+          "out": [
+            "新メンバーのコードベース理解（確認済み）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "質疑応答を通じた理解確認と補足説明に人手が必要なため"
+        },
+        "link": {
+          "up": [
+            "環境構築支援"
+          ],
+          "down": [
+            "初タスクアサイン"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 2,
+          "frequency": 1
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "フィードバック": {
+        "aim": "初タスク完了後に新メンバーへフィードバックを行い、次のステップを示す",
+        "phase": "spec",
+        "core": false,
+        "job": [
+          "成果物（コード・PR）に対する具体的なフィードバックを行う",
+          "よかった点と改善点をバランスよく伝える",
+          "次のタスク・成長目標を一緒に設定する"
+        ],
+        "rule": [
+          "フィードバックは具体的な事実に基づいて行う（「なんとなく」はNG）",
+          "批判でなく成長を促す言い方にする"
+        ],
+        "io": {
+          "in": [
+            "進捗状況・課題メモ",
+            "完了した初タスクの成果物"
+          ],
+          "run": [
+            "成果物をレビューしてフィードバックを整理",
+            "対話でフィードバック・次ステップを設定"
+          ],
+          "out": [
+            "フィードバック記録",
+            "次タスク・成長目標"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "成長を促すフィードバックには対話と状況判断が必要なため"
+        },
+        "link": {
+          "up": [
+            "進捗確認"
+          ],
+          "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 1
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "初タスクアサイン": {
+        "aim": "新メンバーが独力でほぼ完結できる規模の初タスクを選定してアサインする",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "新メンバーのスキルセット・経験を考慮して適切な難易度のタスクを選ぶ",
+          "タスクの背景・期待成果・参考情報を新メンバーに説明する"
+        ],
+        "rule": [
+          "初タスクは 1〜2 日で完結できる規模にする",
+          "コードベースの全体像が把握できる箇所（既存機能の小改善等）を選ぶ",
+          "いきなり重要な本番機能は割り当てない"
+        ],
+        "io": {
+          "in": [
+            "新メンバーのスキル情報",
+            "バックログ（初タスク候補）"
+          ],
+          "run": [
+            "難易度・学習効果を考慮してタスクを選定",
+            "タスクの背景・期待成果を説明してアサイン"
+          ],
+          "out": [
+            "アサイン済み初タスク"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "新メンバーのスキルと成長を考慮したタスク選定は人間の判断が必要なため"
+        },
+        "link": {
+          "up": [
+            "コードベース説明"
+          ],
+          "down": [
+            "進捗確認"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 1
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "環境構築支援": {
+        "aim": "新メンバーの開発環境・アクセス権・ツールをセットアップする",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "開発環境セットアップ手順書に従って環境を構築する",
+          "必要なシステム・リポジトリ・ツールへのアクセス権を付与する",
+          "セットアップが完了したことを確認する"
+        ],
+        "rule": [
+          "セットアップに詰まった箇所は手順書の改善点としてフィードバックする",
+          "アクセス権は最小権限の原則に従う"
+        ],
+        "io": {
+          "in": [
+            "セットアップ手順書",
+            "入社メンバー情報"
+          ],
+          "run": [
+            "手順書に従って環境構築",
+            "アクセス権を申請・付与",
+            "動作確認"
+          ],
+          "out": [
+            "セットアップ済み開発環境",
+            "アクセス権付与完了"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "環境への対話的な操作・権限申請プロセスに人手が必要なため"
+        },
+        "link": {
+          "up": [],
+          "down": [
+            "コードベース説明"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 3,
+          "frequency": 1
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "進捗確認": {
+        "aim": "初タスクの進捗をメンターが確認し、詰まりポイントを早期発見する",
+        "phase": "spec",
+        "core": false,
+        "job": [
+          "半日〜1 日に 1 回の頻度でメンターが進捗をチェックする",
+          "詰まっている場合はヒントを出すか、一緒に調査する"
+        ],
+        "rule": [
+          "解法を即答せず、まず新メンバーが自分で考える時間を与える",
+          "詰まりが 2 時間以上続く場合はメンターに声をかけるよう伝えておく"
+        ],
+        "io": {
+          "in": [
+            "アサイン済み初タスク"
+          ],
+          "run": [
+            "定期的に進捗をヒアリング",
+            "詰まりポイントに対してヒント・サポート"
+          ],
+          "out": [
+            "進捗状況・課題メモ"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "新メンバーの理解度を対話で確認しサポートする必要があるため"
+        },
+        "link": {
+          "up": [
+            "初タスクアサイン"
+          ],
+          "down": [
+            "フィードバック"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 1
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      }
+    },
+    "positions": {
+      "環境構築支援": {
+        "left": 40,
+        "top": 24
+      },
+      "コードベース説明": {
+        "left": 40,
+        "top": 134
+      },
+      "初タスクアサイン": {
+        "left": 40,
+        "top": 244
+      },
+      "進捗確認": {
+        "left": 40,
+        "top": 354
+      },
+      "フィードバック": {
+        "left": 40,
+        "top": 464
+      }
+    },
+    "edges": [
+      [
+        "コードベース説明",
+        "初タスクアサイン",
+        "seq"
+      ],
+      [
+        "初タスクアサイン",
+        "進捗確認",
+        "seq"
+      ],
+      [
+        "環境構築支援",
+        "コードベース説明",
+        "seq"
+      ],
+      [
+        "進捗確認",
+        "フィードバック",
+        "seq"
+      ]
+    ],
+    "canvasW": 280,
+    "canvasH": 542,
+    "stats": {
+      "unit_count": 5,
+      "phases": [
+        "spec"
+      ],
+      "executor": {
+        "script": 0,
+        "ai_agent": 0,
+        "manual": 5
+      },
+      "core_count": 3
+    }
+  },
   "pr-review": {
     "displayName": "PRレビュー",
     "units": {
@@ -1226,11 +3218,1416 @@ const ALL_DATA = {
       },
       "core_count": 4
     }
+  },
+  "release": {
+    "displayName": null,
+    "units": {
+      "ステージング確認": {
+        "aim": "ステージング環境にデプロイし、本番相当の動作確認を行う",
+        "phase": "release",
+        "core": true,
+        "job": [
+          "ステージング環境にリリースブランチをデプロイする",
+          "主要フローのスモークテストを実施する",
+          "パフォーマンス・エラーレートに異常がないか監視する"
+        ],
+        "rule": [
+          "本番データを使用しない（本番同等の匿名化データを使う）",
+          "スモークテストは本番前の最終確認であり、新規バグ探索は行わない"
+        ],
+        "io": {
+          "in": [
+            "リリースブランチ"
+          ],
+          "run": [
+            "ステージングにデプロイ",
+            "スモークテスト実施・監視"
+          ],
+          "out": [
+            "ステージング確認結果（OK/NG）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "実際の動作を目視・操作で確認する最終チェックが必要なため"
+        },
+        "link": {
+          "up": [
+            "リリースブランチ作成"
+          ],
+          "down": [
+            "本番デプロイ"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "リリースノート作成": {
+        "aim": "リリース内容をユーザー・ステークホルダー向けに整理した変更履歴を作成する",
+        "phase": "release",
+        "core": false,
+        "job": [
+          "マージ済み PR・解決 issue からリリース内容を抽出する",
+          "新機能・バグ修正・破壊的変更をカテゴリ別に整理する",
+          "ユーザー向けの平易な言葉で記述する"
+        ],
+        "rule": [
+          "破壊的変更は必ず明示し、移行手順を記載する",
+          "内部リファクタや技術的変更は省略してよい"
+        ],
+        "io": {
+          "in": [
+            "マージ済み PR リスト",
+            "解決済み issue リスト"
+          ],
+          "run": [
+            "PR・issue からリリース内容を抽出・分類",
+            "ユーザー向けに言葉を整える"
+          ],
+          "out": [
+            "リリースノート"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "技術的変更をユーザー向けに要約・分類する文章生成が必要なため"
+        },
+        "link": {
+          "up": [],
+          "down": [
+            "リリース判定"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "リリースブランチ作成": {
+        "aim": "main ブランチからリリース用ブランチを作成し、バージョンタグを付与する",
+        "phase": "release",
+        "core": true,
+        "job": [
+          "main から `release/vX.Y.Z` ブランチを作成する",
+          "バージョン番号をセマンティックバージョニングに従って決定しタグを付与する",
+          "CHANGELOG を更新してコミットする"
+        ],
+        "rule": [
+          "バージョン番号はセマンティックバージョニング（major.minor.patch）に従う",
+          "リリースブランチへの直接コミットはホットフィックスのみ許可"
+        ],
+        "io": {
+          "in": [
+            "リリース判定結果（GO）",
+            "バージョン番号"
+          ],
+          "run": [
+            "リリースブランチを作成",
+            "タグ付与・CHANGELOG 更新"
+          ],
+          "out": [
+            "リリースブランチ（タグ付き）",
+            "更新済み CHANGELOG"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "ブランチ作成・タグ付与・CHANGELOG 更新は定型化・自動化できるため"
+        },
+        "link": {
+          "up": [
+            "リリース判定"
+          ],
+          "down": [
+            "ステージング確認"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "リリース判定": {
+        "aim": "リリース基準を満たしているか確認し、GO/NOGO を判断する",
+        "phase": "release",
+        "core": true,
+        "job": [
+          "テスト結果・未解決バグ・承認状況を確認する",
+          "リリース基準チェックリストを消化する",
+          "GO/NOGO を決定し、関係者に通知する"
+        ],
+        "rule": [
+          "Critical バグが未解決の場合は NOGO",
+          "承認者が未承認の場合は NOGO",
+          "NOGO の場合は次回リリース日程を再調整する"
+        ],
+        "io": {
+          "in": [
+            "テスト結果レポート",
+            "承認状況",
+            "リリース基準チェックリスト"
+          ],
+          "run": [
+            "チェックリストを確認",
+            "GO/NOGO を判断・通知"
+          ],
+          "out": [
+            "リリース判定結果（GO/NOGO）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "最終的なリリース可否はリリースマネージャーの責任判断が必要なため"
+        },
+        "link": {
+          "up": [
+            "リリースノート作成"
+          ],
+          "down": [
+            "リリースブランチ作成"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "動作確認": {
+        "aim": "本番デプロイ後にサービスが正常稼働していることを確認する",
+        "phase": "release",
+        "core": true,
+        "job": [
+          "主要機能のスモークテストを本番環境で実施する",
+          "エラーレート・レイテンシ・アラートに異常がないか監視する",
+          "問題があれば即座にロールバックを判断する"
+        ],
+        "rule": [
+          "デプロイ後 30 分は監視を継続する",
+          "エラーレートが通常の 2 倍を超えたらロールバックを検討する"
+        ],
+        "io": {
+          "in": [
+            "デプロイ完了通知"
+          ],
+          "run": [
+            "主要フローをスモークテスト",
+            "メトリクス・ログを監視"
+          ],
+          "out": [
+            "動作確認結果（正常 or ロールバック判断）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "本番動作の最終判断は人間が行う必要があるため"
+        },
+        "link": {
+          "up": [
+            "本番デプロイ"
+          ],
+          "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "本番デプロイ": {
+        "aim": "本番環境にリリースをデプロイする",
+        "phase": "release",
+        "core": true,
+        "job": [
+          "本番デプロイパイプラインを実行する",
+          "デプロイの進行状況を監視する",
+          "デプロイ完了を確認してステークホルダーに通知する"
+        ],
+        "rule": [
+          "デプロイ実行前にロールバック手順を確認する",
+          "ピーク時間帯（9:00-18:00）を避けてデプロイする",
+          "デプロイ中はインシデント対応できる担当者が待機する"
+        ],
+        "io": {
+          "in": [
+            "ステージング確認結果（OK）",
+            "リリースブランチ"
+          ],
+          "run": [
+            "デプロイパイプラインを起動",
+            "完了まで監視・ログ確認"
+          ],
+          "out": [
+            "デプロイ完了通知"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "CI/CD パイプラインで自動実行できるため"
+        },
+        "link": {
+          "up": [
+            "ステージング確認"
+          ],
+          "down": [
+            "動作確認"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      }
+    },
+    "positions": {
+      "リリースノート作成": {
+        "left": 40,
+        "top": 24
+      },
+      "リリース判定": {
+        "left": 40,
+        "top": 134
+      },
+      "リリースブランチ作成": {
+        "left": 40,
+        "top": 244
+      },
+      "ステージング確認": {
+        "left": 40,
+        "top": 354
+      },
+      "本番デプロイ": {
+        "left": 40,
+        "top": 464
+      },
+      "動作確認": {
+        "left": 40,
+        "top": 574
+      }
+    },
+    "edges": [
+      [
+        "ステージング確認",
+        "本番デプロイ",
+        "seq"
+      ],
+      [
+        "リリースノート作成",
+        "リリース判定",
+        "seq"
+      ],
+      [
+        "リリースブランチ作成",
+        "ステージング確認",
+        "seq"
+      ],
+      [
+        "リリース判定",
+        "リリースブランチ作成",
+        "seq"
+      ],
+      [
+        "本番デプロイ",
+        "動作確認",
+        "seq"
+      ]
+    ],
+    "canvasW": 280,
+    "canvasH": 652,
+    "stats": {
+      "unit_count": 6,
+      "phases": [
+        "release"
+      ],
+      "executor": {
+        "script": 2,
+        "ai_agent": 1,
+        "manual": 3
+      },
+      "core_count": 5
+    }
+  },
+  "retrospective": {
+    "displayName": null,
+    "units": {
+      "KPT整理": {
+        "aim": "チームで Keep・Problem・Try を洗い出し、議論を構造化する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "各メンバーが付箋で Keep・Problem・Try を出す（5 分）",
+          "類似意見をグルーピングし、テーマを整理する",
+          "重要度・頻度が高いものを絞り込む"
+        ],
+        "rule": [
+          "発言は非難なし・特定個人への言及を避ける",
+          "Keep は次もやるべきことの確認として必ず行う（Problem だけに終わらない）",
+          "Try は Problem の原因解消につながるものを優先する"
+        ],
+        "io": {
+          "in": [
+            "スプリント実績サマリー"
+          ],
+          "run": [
+            "KPT を全員で発散・収束",
+            "重要なテーマを絞り込む"
+          ],
+          "out": [
+            "KPT まとめ（グルーピング・優先度付き）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "チームの対話と合意形成はファシリテーターと全員参加が必要なため"
+        },
+        "link": {
+          "up": [
+            "メトリクス収集"
+          ],
+          "down": [
+            "アクションアイテム決定"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "アクションアイテム決定": {
+        "aim": "Try の中から次スプリントで実行するアクションを絞り込み、担当者を決める",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "Try から実行可能な具体的アクションを 2〜3 件選ぶ",
+          "各アクションに担当者・完了基準・期限を設定する"
+        ],
+        "rule": [
+          "アクションは「〇〇する」という具体的な動詞で表現する（「〇〇を意識する」は NG）",
+          "1 スプリントに取り込むアクションは 3 件以下にする（多すぎると何もできない）",
+          "完了基準が曖昧なアクションは採用しない"
+        ],
+        "io": {
+          "in": [
+            "KPT まとめ（優先度付き）"
+          ],
+          "run": [
+            "Try から実行可能なアクションを選定",
+            "担当者・完了基準・期限を設定"
+          ],
+          "out": [
+            "アクションアイテム一覧（担当・期限・完了基準付き）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "チームの意思決定と担当者の合意が必要なため"
+        },
+        "link": {
+          "up": [
+            "KPT整理"
+          ],
+          "down": [
+            "次スプリント反映"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "メトリクス収集": {
+        "aim": "スプリントの実績データを収集し、議論の客観的な基盤を作る",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "完了 SP・ベロシティ・バグ数・サイクルタイムを集計する",
+          "前スプリントとの比較値を算出する"
+        ],
+        "rule": [
+          "データは主観を排除して客観的な数値のみを収集する",
+          "集計範囲はスプリント開始から終了まで（前後のデータを混入しない）"
+        ],
+        "io": {
+          "in": [
+            "スプリントボード・issue トラッカー・CI ログ"
+          ],
+          "run": [
+            "ツールから実績データを抽出・集計",
+            "前スプリントとの比較を算出"
+          ],
+          "out": [
+            "スプリント実績サマリー（定量データ）"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "issue トラッカー・CI ツールからのデータ集計は自動化できるため"
+        },
+        "link": {
+          "up": [],
+          "down": [
+            "KPT整理"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "次スプリント反映": {
+        "aim": "決定したアクションアイテムをバックログまたはタスクとして登録する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "アクションアイテムを issue またはタスクとして issue トラッカーに登録する",
+          "スプリントプランニングで優先的に取り込まれるよう担当者が働きかける"
+        ],
+        "rule": [
+          "登録しただけで満足しない。次のスプリントレトロで実施状況を振り返る",
+          "前スプリントのアクションアイテム達成状況を必ず確認してから新しいアクションを決める"
+        ],
+        "io": {
+          "in": [
+            "アクションアイテム一覧（担当・期限・完了基準付き）"
+          ],
+          "run": [
+            "issue トラッカーにタスクを登録",
+            "次スプリントプランニングで取り込みを確認"
+          ],
+          "out": [
+            "登録済みアクションアイテム issue"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "issue 登録はテンプレートと API で自動化できるため"
+        },
+        "link": {
+          "up": [
+            "アクションアイテム決定"
+          ],
+          "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      }
+    },
+    "positions": {
+      "メトリクス収集": {
+        "left": 40,
+        "top": 24
+      },
+      "KPT整理": {
+        "left": 40,
+        "top": 134
+      },
+      "アクションアイテム決定": {
+        "left": 40,
+        "top": 244
+      },
+      "次スプリント反映": {
+        "left": 40,
+        "top": 354
+      }
+    },
+    "edges": [
+      [
+        "KPT整理",
+        "アクションアイテム決定",
+        "seq"
+      ],
+      [
+        "アクションアイテム決定",
+        "次スプリント反映",
+        "seq"
+      ],
+      [
+        "メトリクス収集",
+        "KPT整理",
+        "seq"
+      ]
+    ],
+    "canvasW": 280,
+    "canvasH": 432,
+    "stats": {
+      "unit_count": 4,
+      "phases": [
+        "spec"
+      ],
+      "executor": {
+        "script": 2,
+        "ai_agent": 0,
+        "manual": 2
+      },
+      "core_count": 4
+    }
+  },
+  "sprint-planning": {
+    "displayName": null,
+    "units": {
+      "スコープ決定": {
+        "aim": "ベロシティと優先順位をもとに今スプリントに取り込む PBI セットを確定する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "目安 SP の範囲内で優先度上位の PBI を選定する",
+          "チームで選定内容を確認し、合意する"
+        ],
+        "rule": [
+          "合計 SP が目安 SP を 20% 以上超えない",
+          "依存関係のある PBI は両方取り込むか両方外す",
+          "スプリント途中のスコープ変更は原則禁止"
+        ],
+        "io": {
+          "in": [
+            "優先順位付きバックログ（最新）",
+            "今スプリントの目安 SP"
+          ],
+          "run": [
+            "優先度上位から SP 合計が目安以内になるよう PBI を選択",
+            "依存関係・リスクを確認して調整"
+          ],
+          "out": [
+            "今スプリントのスコープ（PBI リスト・合計 SP）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "スコープの最終判断はチームとプロダクトオーナーの合意が必要なため"
+        },
+        "link": {
+          "up": [
+            "バックログ優先順位確認",
+            "ベロシティ確認"
+          ],
+          "down": [
+            "タスク分解"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "スプリントゴール設定": {
+        "aim": "スプリントで達成すべきゴールを 1 文で表現し、チームで合意する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "スプリントのスコープからゴールの文案を作成する",
+          "チームでゴール文を確認・合意する",
+          "ゴールをスプリントボードに記録する"
+        ],
+        "rule": [
+          "ゴールはスコープの列挙ではなく、達成される価値を表現する",
+          "「〇〇できるようになる」「〇〇が解消される」の形を推奨"
+        ],
+        "io": {
+          "in": [
+            "タスクリスト（担当者・工数付き）"
+          ],
+          "run": [
+            "スコープから達成価値を抽出",
+            "ゴール文を 1 文に集約"
+          ],
+          "out": [
+            "スプリントゴール文"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "ゴールへの合意はチーム全員の納得が必要なため"
+        },
+        "link": {
+          "up": [
+            "タスク分解"
+          ],
+          "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "タスク分解": {
+        "aim": "確定した PBI をエンジニアが着手できるタスク単位に分解する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "各 PBI を実装・テスト・レビューなどのタスクに分解する",
+          "各タスクに担当者と工数見積もりを付与する"
+        ],
+        "rule": [
+          "1 タスクは 1 日以内で完了できる粒度にする",
+          "タスク間の依存関係を明示する"
+        ],
+        "io": {
+          "in": [
+            "今スプリントのスコープ（PBI リスト）"
+          ],
+          "run": [
+            "PBI ごとにタスクを洗い出し",
+            "担当者・工数をアサイン"
+          ],
+          "out": [
+            "タスクリスト（担当者・工数付き）"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "PBI の内容を読んでタスクに分解する判断に自然言語理解が必要なため"
+        },
+        "link": {
+          "up": [
+            "スコープ決定"
+          ],
+          "down": [
+            "スプリントゴール設定"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "バックログ優先順位確認": {
+        "aim": "スプリントに取り込む PBI の優先順位を最新状態で確認する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "プロダクトオーナーがバックログを最新の事業優先度に合わせて並び替える",
+          "上位 PBI の受け入れ条件・依存関係・サイズを確認する"
+        ],
+        "rule": [
+          "優先順位はビジネス価値・リスク・依存関係を考慮して決める",
+          "未 Ready の PBI は上位に置かない"
+        ],
+        "io": {
+          "in": [
+            "プロダクトバックログ",
+            "ステークホルダーからの優先度インプット"
+          ],
+          "run": [
+            "バックログを最新の優先度でソート",
+            "上位 PBI の Ready 状態を確認"
+          ],
+          "out": [
+            "優先順位付きバックログ（最新）"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "事業価値の判断はプロダクトオーナーの意思決定が必要なため"
+        },
+        "link": {
+          "up": [],
+          "down": [
+            "スコープ決定"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "ベロシティ確認": {
+        "aim": "直近スプリントの実績ベロシティを把握し、今スプリントの受け入れ可能量を算出する",
+        "phase": "spec",
+        "core": true,
+        "job": [
+          "直近 3 スプリントの完了 SP を取得する",
+          "平均ベロシティを算出し、今スプリントの目安 SP を決定する"
+        ],
+        "rule": [
+          "直近 3 スプリントの単純平均を使う（外れ値は除外してよい）",
+          "祝日・メンバー欠員がある場合はベロシティを補正する"
+        ],
+        "io": {
+          "in": [
+            "過去スプリントの完了 SP ログ",
+            "今スプリントのカレンダー・稼働人数"
+          ],
+          "run": [
+            "直近 3 スプリントの SP を取得",
+            "平均ベロシティを計算",
+            "稼働補正を適用"
+          ],
+          "out": [
+            "今スプリントの目安 SP"
+          ]
+        },
+        "executor": {
+          "type": "script",
+          "reason": "過去データの集計と計算は定型処理で自動化できるため"
+        },
+        "link": {
+          "up": [],
+          "down": [
+            "スコープ決定"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 0.5,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      }
+    },
+    "positions": {
+      "バックログ優先順位確認": {
+        "left": 0,
+        "top": 24
+      },
+      "ベロシティ確認": {
+        "left": 220,
+        "top": 24
+      },
+      "スコープ決定": {
+        "left": 110,
+        "top": 134
+      },
+      "タスク分解": {
+        "left": 110,
+        "top": 244
+      },
+      "スプリントゴール設定": {
+        "left": 110,
+        "top": 354
+      }
+    },
+    "edges": [
+      [
+        "スコープ決定",
+        "タスク分解",
+        "seq"
+      ],
+      [
+        "タスク分解",
+        "スプリントゴール設定",
+        "seq"
+      ],
+      [
+        "バックログ優先順位確認",
+        "スコープ決定",
+        "seq"
+      ],
+      [
+        "ベロシティ確認",
+        "スコープ決定",
+        "seq"
+      ]
+    ],
+    "canvasW": 420,
+    "canvasH": 432,
+    "stats": {
+      "unit_count": 5,
+      "phases": [
+        "spec"
+      ],
+      "executor": {
+        "script": 1,
+        "ai_agent": 1,
+        "manual": 3
+      },
+      "core_count": 5
+    }
+  },
+  "testing": {
+    "displayName": null,
+    "units": {
+      "テストケース作成": {
+        "aim": "テスト計画に基づいてテストケースを作成する",
+        "phase": "test",
+        "core": true,
+        "job": [
+          "各機能の正常系・異常系・境界値のテストケースを作成する",
+          "テストデータを準備する"
+        ],
+        "rule": [
+          "テストケースは再現可能で独立していること",
+          "期待結果を事前に明記する（テスト後に決めない）"
+        ],
+        "io": {
+          "in": [
+            "テスト計画書",
+            "仕様書・受け入れ条件"
+          ],
+          "run": [
+            "機能ごとにテスト観点を洗い出し",
+            "テストケース・テストデータを作成"
+          ],
+          "out": [
+            "テストケース一覧",
+            "テストデータ"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "仕様から網羅的なテスト観点を導出する推論が必要なため"
+        },
+        "link": {
+          "up": [
+            "テスト計画作成"
+          ],
+          "down": [
+            "テスト実施"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 2,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "テスト実施": {
+        "aim": "テストケースに従って動作確認を行い、結果を記録する",
+        "phase": "test",
+        "core": true,
+        "job": [
+          "テストケースを順番に実行し、PASS/FAIL を記録する",
+          "FAIL の場合は再現手順・実際の結果・期待結果を記録する"
+        ],
+        "rule": [
+          "テスト環境はテスト計画書で指定した環境を使う",
+          "FAIL は握りつぶさずすべて記録する"
+        ],
+        "io": {
+          "in": [
+            "テストケース一覧",
+            "テストデータ"
+          ],
+          "run": [
+            "テスト環境を準備",
+            "テストケースを実行・結果を記録"
+          ],
+          "out": [
+            "テスト結果（PASS/FAIL リスト）",
+            "バグ候補リスト"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "実際の操作・目視確認・判断が必要なテストケースが含まれるため"
+        },
+        "link": {
+          "up": [
+            "テストケース作成"
+          ],
+          "down": [
+            "バグ起票",
+            "テスト結果報告"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 3,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "テスト結果報告": {
+        "aim": "テスト完了後に結果サマリーをステークホルダーに報告する",
+        "phase": "test",
+        "core": true,
+        "job": [
+          "PASS/FAIL 数・カバレッジ・未解決バグをまとめたサマリーを作成する",
+          "リリース判定に必要な情報を明示して報告する"
+        ],
+        "rule": [
+          "Critical・High の未解決バグがある場合はリリース保留を推奨する",
+          "数値は客観的に記録し、意見は別セクションに分ける"
+        ],
+        "io": {
+          "in": [
+            "テスト結果（PASS/FAIL リスト）",
+            "バグ issue（優先度付き）"
+          ],
+          "run": [
+            "結果を集計・サマリー作成",
+            "リリース推奨可否を判断"
+          ],
+          "out": [
+            "テスト結果レポート"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "結果の集計と文書化は定型的だが、リリース判断の推奨には評価が必要なため"
+        },
+        "link": {
+          "up": [
+            "テスト実施"
+          ],
+          "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "low",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "テスト計画作成": {
+        "aim": "リリース対象の機能に対するテスト方針・スコープ・スケジュールを決定する",
+        "phase": "test",
+        "core": true,
+        "job": [
+          "テスト対象機能・リスクエリアを特定する",
+          "テストレベル（ユニット・統合・E2E）とスコープを決める",
+          "テストスケジュールと担当を割り当てる"
+        ],
+        "rule": [
+          "リスクの高い機能（新規・変更箇所・外部連携）を優先的にカバーする",
+          "スケジュールにバッファを 20% 設ける"
+        ],
+        "io": {
+          "in": [
+            "リリース対象機能一覧",
+            "変更差分"
+          ],
+          "run": [
+            "テスト対象・リスクエリアを特定",
+            "テストレベル・スコープ・スケジュールを定義"
+          ],
+          "out": [
+            "テスト計画書"
+          ]
+        },
+        "executor": {
+          "type": "manual",
+          "reason": "テストスコープの優先判断はリスク評価と経験が必要なため"
+        },
+        "link": {
+          "up": [],
+          "down": [
+            "テストケース作成"
+          ]
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "high",
+          "status": "manual"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      },
+      "バグ起票": {
+        "aim": "テスト中に発見した不具合を issue として起票する",
+        "phase": "test",
+        "core": false,
+        "job": [
+          "バグの再現手順・実際の結果・期待結果・環境情報を issue に記述する",
+          "優先度・重要度を付与してトリアージする"
+        ],
+        "rule": [
+          "再現手順は第三者が追えるレベルで記述する",
+          "スクリーンショット・ログを添付する",
+          "重複バグは新規起票せず既存 issue にコメントする"
+        ],
+        "io": {
+          "in": [
+            "テスト結果（FAIL）",
+            "バグ候補リスト"
+          ],
+          "run": [
+            "バグを整理・重複排除",
+            "issue を起票・優先度付与"
+          ],
+          "out": [
+            "バグ issue（優先度付き）"
+          ]
+        },
+        "executor": {
+          "type": "ai_agent",
+          "reason": "バグ情報の整理・重複判定・優先度評価に推論が必要なため"
+        },
+        "link": {
+          "up": [
+            "テスト実施"
+          ],
+          "down": []
+        },
+        "depends_on": [],
+        "effort": {
+          "duration": 1,
+          "frequency": 2
+        },
+        "automation": {
+          "difficulty": "medium",
+          "status": "partially-automated"
+        },
+        "lifecycle_status": "stable",
+        "deprecated_reason": null,
+        "precondition": [],
+        "parallel_with": []
+      }
+    },
+    "positions": {
+      "テスト計画作成": {
+        "left": 110,
+        "top": 24
+      },
+      "テストケース作成": {
+        "left": 110,
+        "top": 134
+      },
+      "テスト実施": {
+        "left": 110,
+        "top": 244
+      },
+      "テスト結果報告": {
+        "left": 0,
+        "top": 354
+      },
+      "バグ起票": {
+        "left": 220,
+        "top": 354
+      }
+    },
+    "edges": [
+      [
+        "テストケース作成",
+        "テスト実施",
+        "seq"
+      ],
+      [
+        "テスト実施",
+        "バグ起票",
+        "seq"
+      ],
+      [
+        "テスト実施",
+        "テスト結果報告",
+        "seq"
+      ],
+      [
+        "テスト計画作成",
+        "テストケース作成",
+        "seq"
+      ]
+    ],
+    "canvasW": 420,
+    "canvasH": 432,
+    "stats": {
+      "unit_count": 5,
+      "phases": [
+        "test"
+      ],
+      "executor": {
+        "script": 0,
+        "ai_agent": 3,
+        "manual": 2
+      },
+      "core_count": 4
+    }
   }
 };
+const CROSS_EDGES = [{"from": "issue-refinement", "to": "pr-review"}];
 
 const W = 200, H = 54;
 const NS = "http://www.w3.org/2000/svg";
+
+// ── Color mapping (shared with detail flow) ───────────────
+function nodeColors(u, heat) {
+  if (!u) return { fill: "#F9FAFB", stroke: "#D1D5DB" };
+  if (u.lifecycle_status === "deprecated") return { fill: "#F3F4F6", stroke: "#9CA3AF", opacity: 0.6 };
+  if (u.lifecycle_status === "draft")      return { fill: "#FEFCE8", stroke: "#FDE047" };
+  if (u.lifecycle_status === "review")     return { fill: "#FFF7ED", stroke: "#FB923C" };
+  if (u.lifecycle_status === "stable")     return { fill: "#F0FDF4", stroke: "#86EFAC" };
+  if (heat === "low")    return { fill: "#FEF9C3", stroke: "#FDE047" };
+  if (heat === "medium") return { fill: "#FFEDD5", stroke: "#FB923C" };
+  if (heat === "high")   return { fill: "#FEE2E2", stroke: "#F87171" };
+  return u.core ? { fill: "#EFF6FF", stroke: "#93C5FD" }
+                : { fill: "#F9FAFB", stroke: "#D1D5DB" };
+}
+
+// ── Mini flow inside each card ────────────────────────────
+function buildCardMini(proc) {
+  const { positions, edges, canvasW, canvasH, units } = proc;
+  if (!positions || !Object.keys(positions).length) return null;
+  const heat = computeHeat(units);
+
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", `0 0 ${canvasW} ${canvasH}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  svg.setAttribute("width", "100%");
+  svg.setAttribute("height", "100%");
+
+  edges.forEach(([from, to, etype]) => {
+    const fp = positions[from], tp = positions[to];
+    if (!fp || !tp) return;
+    const isParallel = etype === "parallel";
+    let d;
+    if (isParallel) {
+      const fx = fp.left + W/2, fy = fp.top + H/2;
+      const tx = tp.left + W/2, ty = tp.top + H/2;
+      const my = (fy + ty) / 2;
+      d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty}`;
+    } else {
+      const fx = fp.left + W/2, fy = fp.top + H;
+      const tx = tp.left + W/2, ty = tp.top;
+      const my = (fy + ty) / 2;
+      d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty}`;
+    }
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", d);
+    path.setAttribute("stroke", isParallel ? "#10B981" : "#94A3B8");
+    path.setAttribute("stroke-width", "1.5");
+    path.setAttribute("stroke-dasharray", isParallel ? "4 3" : "none");
+    path.setAttribute("fill", "none");
+    svg.appendChild(path);
+  });
+
+  Object.entries(positions).forEach(([uname, pos]) => {
+    const u = units[uname];
+    const c = nodeColors(u, heat[uname]);
+    const rect = document.createElementNS(NS, "rect");
+    Object.entries({
+      x: pos.left, y: pos.top, width: W, height: H,
+      rx: 6, ry: 6,
+      fill: c.fill, stroke: c.stroke, "stroke-width": "2",
+    }).forEach(([k, v]) => rect.setAttribute(k, v));
+    if (c.opacity != null) rect.setAttribute("opacity", c.opacity);
+    svg.appendChild(rect);
+  });
+
+  return svg;
+}
+
+// ── Cross-process edges between cards ─────────────────────
+function renderOverviewEdges() {
+  const svg  = document.getElementById("overview-edges");
+  const grid = document.getElementById("overview-grid");
+  if (!svg || !grid) return;
+  svg.innerHTML = "";
+
+  const gridRect = grid.getBoundingClientRect();
+  if (gridRect.width <= 0 || gridRect.height <= 0) return;
+
+  svg.setAttribute("width",  gridRect.width);
+  svg.setAttribute("height", gridRect.height);
+  svg.setAttribute("viewBox", `0 0 ${gridRect.width} ${gridRect.height}`);
+
+  if (!CROSS_EDGES.length) return;
+
+  const cards = {};
+  document.querySelectorAll("#overview-grid .proc-card[data-proc]").forEach(el => {
+    const r = el.getBoundingClientRect();
+    cards[el.dataset.proc] = {
+      x: r.left - gridRect.left,
+      y: r.top  - gridRect.top,
+      w: r.width, h: r.height,
+    };
+  });
+
+  const defs = document.createElementNS(NS, "defs");
+  const marker = document.createElementNS(NS, "marker");
+  Object.entries({ id:"ov-arr", markerWidth:"8", markerHeight:"6", refX:"7", refY:"3", orient:"auto" })
+    .forEach(([k, v]) => marker.setAttribute(k, v));
+  const poly = document.createElementNS(NS, "polygon");
+  poly.setAttribute("points", "0 0, 8 3, 0 6");
+  poly.setAttribute("fill", "#A78BFA");
+  marker.appendChild(poly);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+
+  CROSS_EDGES.forEach(e => {
+    const s = cards[e.from], t = cards[e.to];
+    if (!s || !t) return;
+    const sCx = s.x + s.w/2, sCy = s.y + s.h/2;
+    const tCx = t.x + t.w/2, tCy = t.y + t.h/2;
+    const dx = tCx - sCx, dy = tCy - sCy;
+
+    let sx, sy, tx, ty, c1x, c1y, c2x, c2y;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 0) { sx = s.x + s.w; sy = sCy; tx = t.x;        ty = tCy; }
+      else        { sx = s.x;        sy = sCy; tx = t.x + t.w; ty = tCy; }
+      const off = Math.min(Math.abs(dx) / 2, 90);
+      c1x = sx + Math.sign(dx) * off; c1y = sy;
+      c2x = tx - Math.sign(dx) * off; c2y = ty;
+    } else {
+      if (dy > 0) { sx = sCx; sy = s.y + s.h; tx = tCx; ty = t.y;        }
+      else        { sx = sCx; sy = s.y;        tx = tCx; ty = t.y + t.h; }
+      const off = Math.min(Math.abs(dy) / 2, 90);
+      c1x = sx; c1y = sy + Math.sign(dy) * off;
+      c2x = tx; c2y = ty - Math.sign(dy) * off;
+    }
+
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", `M ${sx} ${sy} C ${c1x} ${c1y} ${c2x} ${c2y} ${tx} ${ty}`);
+    path.setAttribute("stroke", "#A78BFA");
+    path.setAttribute("stroke-width", "1.8");
+    path.setAttribute("stroke-dasharray", "6 4");
+    path.setAttribute("fill", "none");
+    path.setAttribute("marker-end", "url(#ov-arr)");
+    svg.appendChild(path);
+  });
+}
+
 
 const procNav    = document.getElementById("proc-nav");
 const overviewV  = document.getElementById("overview-view");
@@ -1269,16 +4666,50 @@ Object.entries(ALL_DATA).forEach(([name, proc]) => {
   const phasePills = s.phases
     .map(p => `<span class="pill pill-phase">${p}</span>`)
     .join("");
+  const depsCount = CROSS_EDGES.filter(e => e.from === name || e.to === name).length;
   const card = document.createElement("div");
   card.className = "proc-card";
+  card.dataset.proc = name;
   card.innerHTML = `
-    <div class="proc-card-name">${label}</div>
+    <div class="proc-card-head">
+      <div class="proc-card-name">${label}</div>
+      <div class="proc-card-count-inline">${s.unit_count} units</div>
+    </div>
     ${slugHtml}
-    <div class="proc-card-count">${s.unit_count} units</div>
+    <div class="proc-card-mini"></div>
     <div class="proc-card-pills">${phasePills}${exePills}</div>
-    <div class="proc-card-footer">core: ${s.core_count} / ${s.unit_count}</div>`;
+    <div class="proc-card-footer">
+      <span>core: ${s.core_count} / ${s.unit_count}</span>
+      ${depsCount ? `<span class="proc-card-deps">⇄ ${depsCount}</span>` : ''}
+    </div>`;
+  const miniBox = card.querySelector(".proc-card-mini");
+  const mini = buildCardMini(proc);
+  if (mini) miniBox.appendChild(mini);
+  else miniBox.innerHTML = '<span class="proc-card-mini-empty">no flow</span>';
   card.addEventListener("click", () => showProcess(name));
   ovGrid.appendChild(card);
+});
+
+// ── Overview display mode toggle ───────────────────────────
+ovGrid.classList.add("mode-info");
+const ovToggle = document.getElementById("ov-mode-toggle");
+
+function setOvMode(mode) {
+  ovGrid.classList.toggle("mode-info", mode === "info");
+  ovGrid.classList.toggle("mode-flow", mode === "flow");
+  document.querySelectorAll(".ov-mode-btn")
+    .forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+  requestAnimationFrame(() => renderOverviewEdges());
+}
+
+document.querySelectorAll(".ov-mode-btn").forEach(b => {
+  b.addEventListener("click", () => setOvMode(b.dataset.mode));
+});
+
+// Cross-process edges: render once layout settles, refresh on resize
+requestAnimationFrame(() => renderOverviewEdges());
+window.addEventListener("resize", () => {
+  if (overviewV.style.display !== "none") renderOverviewEdges();
 });
 
 // ── Navigation ────────────────────────────────────────────
@@ -1288,7 +4719,9 @@ function showOverview() {
   backBtn.style.display = "none";
   topTitle.textContent = "全プロセス一覧";
   topSub.textContent = "";
+  ovToggle.style.display = "flex";
   document.querySelectorAll(".sb-item").forEach(el => el.classList.remove("active"));
+  requestAnimationFrame(() => renderOverviewEdges());
 }
 
 function showProcess(name) {
@@ -1299,6 +4732,7 @@ function showProcess(name) {
   backBtn.style.display = "flex";
   topTitle.textContent = proc.displayName || name;
   topSub.textContent = proc.displayName ? `${name} · ${proc.stats.unit_count} units` : `${proc.stats.unit_count} units`;
+  ovToggle.style.display = "none";
   document.querySelectorAll(".sb-item").forEach(el =>
     el.classList.toggle("active", el.dataset.proc === name));
   renderFlow(proc);

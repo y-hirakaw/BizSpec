@@ -370,7 +370,7 @@ class TestGenerateIndexHtml:
 
     def test_display_name_none_when_same_as_key(self):
         import json, re
-        m = re.search(r"const ALL_DATA = ({.*?});", _generate_index_html(
+        m = re.search(r"const ALL_DATA\s*=\s*({.*?});", _generate_index_html(
             self._two_procs(),
             display_names={"proc-a": "proc-a"},
         ), re.DOTALL)

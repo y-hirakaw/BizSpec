@@ -226,8 +226,27 @@ def _generate_index_html(
     if not all_data:
         return ""
 
+    cross_edges: list[dict] = []
+    seen_cross: set[tuple[str, str]] = set()
+    for to_proc, units in processes.items():
+        for u in units:
+            for dep in (u.get("depends_on") or []):
+                dep_str = str(dep)
+                if ":" not in dep_str:
+                    continue
+                from_proc = dep_str.split(":")[0]
+                if from_proc == to_proc or from_proc not in all_data:
+                    continue
+                key = (from_proc, to_proc)
+                if key not in seen_cross:
+                    seen_cross.add(key)
+                    cross_edges.append({"from": from_proc, "to": to_proc})
+
     all_data_json = json.dumps(all_data, ensure_ascii=False, indent=2)
-    return _INDEX_HTML_TEMPLATE.replace("__ALL_DATA_JSON__", all_data_json)
+    cross_edges_json = json.dumps(cross_edges, ensure_ascii=False)
+    return (_INDEX_HTML_TEMPLATE
+        .replace("__ALL_DATA_JSON__", all_data_json)
+        .replace("__CROSS_EDGES_JSON__", cross_edges_json))
 
 
 def run_viz(args) -> int:
@@ -1023,30 +1042,70 @@ body {
 #overview-view {
   flex: 1 1 0;
   overflow-y: auto;
-  padding: 24px;
+  padding: 28px;
   background: #F9FAFB;
 }
+#overview-wrap { position: relative; }
 #overview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 28px 24px;
+  position: relative;
+  z-index: 2;
+}
+#overview-edges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
 }
 .proc-card {
   background: #fff;
   border: 1px solid #E5E7EB;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 18px 18px 14px;
   cursor: pointer;
-  transition: box-shadow 0.15s, transform 0.1s;
+  transition: box-shadow 0.15s, transform 0.1s, border-color 0.15s;
+  display: flex;
+  flex-direction: column;
+  height: 160px;
 }
 .proc-card:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
   transform: translateY(-2px);
+  border-color: #C7D2FE;
 }
-.proc-card-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
-.proc-card-slug { font-size: 11px; color: #9CA3AF; margin-bottom: 4px; }
-.proc-card-count { font-size: 12px; color: #6B7280; margin-bottom: 14px; }
-.proc-card-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+.proc-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.proc-card-name { font-size: 16px; font-weight: 700; flex: 1; min-width: 0; word-break: break-all; }
+.proc-card-count-inline {
+  font-size: 11px; color: #6B7280; flex-shrink: 0;
+  background: #F3F4F6; padding: 2px 8px; border-radius: 999px;
+}
+.proc-card-slug { font-size: 11px; color: #9CA3AF; margin-bottom: 10px; }
+.proc-card-mini {
+  flex: 1 1 0;
+  min-height: 0;
+  background: #FAFAFA;
+  border: 1px solid #F3F4F6;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.proc-card-mini svg { display: block; max-width: 100%; max-height: 100%; }
+.proc-card-mini-empty {
+  font-size: 10px; color: #D1D5DB;
+}
+.proc-card-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
 .pill { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
 .pill-script   { background: #D1FAE5; color: #065F46; }
 .pill-ai_agent { background: #EDE9FE; color: #5B21B6; }
@@ -1056,8 +1115,53 @@ body {
   font-size: 11px;
   color: #9CA3AF;
   border-top: 1px solid #F3F4F6;
-  padding-top: 10px;
+  padding-top: 8px;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+.proc-card-deps {
+  font-size: 10px;
+  color: #7C3AED;
+  font-weight: 600;
+}
+
+/* ── Overview display mode (info / flow toggle) ── */
+#ov-mode-toggle {
+  margin-left: auto;
+  display: flex;
+  background: #F3F4F6;
+  border-radius: 999px;
+  padding: 2px;
+}
+.ov-mode-btn {
+  padding: 4px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: #6B7280;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background 0.15s, color 0.15s;
+}
+.ov-mode-btn.active {
+  background: #fff;
+  color: #111827;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.ov-mode-btn:hover:not(.active) { color: #374151; }
+
+/* Info mode (default): hide mini flow */
+#overview-grid.mode-info .proc-card-mini { display: none; }
+
+/* Flow mode: hide everything except name + mini flow */
+#overview-grid.mode-flow .proc-card-slug,
+#overview-grid.mode-flow .proc-card-pills,
+#overview-grid.mode-flow .proc-card-footer,
+#overview-grid.mode-flow .proc-card-count-inline { display: none; }
+#overview-grid.mode-flow .proc-card-mini { margin-bottom: 0; }
 
 /* ── Flow view ── */
 #flow-view {
@@ -1246,10 +1350,17 @@ svg.arrows-layer {
     <button id="back-btn" onclick="showOverview()">← 一覧</button>
     <span id="topbar-title">全プロセス一覧</span>
     <span id="topbar-sub"></span>
+    <div id="ov-mode-toggle">
+      <button class="ov-mode-btn active" data-mode="info">情報</button>
+      <button class="ov-mode-btn" data-mode="flow">フロー</button>
+    </div>
   </div>
   <div id="content">
     <div id="overview-view">
-      <div id="overview-grid"></div>
+      <div id="overview-wrap">
+        <svg id="overview-edges"></svg>
+        <div id="overview-grid"></div>
+      </div>
     </div>
     <div id="flow-view">
       <div id="flow-legend">
@@ -1302,10 +1413,149 @@ svg.arrows-layer {
 </div>
 
 <script>
-const ALL_DATA = __ALL_DATA_JSON__;
+const ALL_DATA   = __ALL_DATA_JSON__;
+const CROSS_EDGES = __CROSS_EDGES_JSON__;
 
 const W = 200, H = 54;
 const NS = "http://www.w3.org/2000/svg";
+
+// ── Color mapping (shared with detail flow) ───────────────
+function nodeColors(u, heat) {
+  if (!u) return { fill: "#F9FAFB", stroke: "#D1D5DB" };
+  if (u.lifecycle_status === "deprecated") return { fill: "#F3F4F6", stroke: "#9CA3AF", opacity: 0.6 };
+  if (u.lifecycle_status === "draft")      return { fill: "#FEFCE8", stroke: "#FDE047" };
+  if (u.lifecycle_status === "review")     return { fill: "#FFF7ED", stroke: "#FB923C" };
+  if (u.lifecycle_status === "stable")     return { fill: "#F0FDF4", stroke: "#86EFAC" };
+  if (heat === "low")    return { fill: "#FEF9C3", stroke: "#FDE047" };
+  if (heat === "medium") return { fill: "#FFEDD5", stroke: "#FB923C" };
+  if (heat === "high")   return { fill: "#FEE2E2", stroke: "#F87171" };
+  return u.core ? { fill: "#EFF6FF", stroke: "#93C5FD" }
+                : { fill: "#F9FAFB", stroke: "#D1D5DB" };
+}
+
+// ── Mini flow inside each card ────────────────────────────
+function buildCardMini(proc) {
+  const { positions, edges, canvasW, canvasH, units } = proc;
+  if (!positions || !Object.keys(positions).length) return null;
+  const heat = computeHeat(units);
+
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", `0 0 ${canvasW} ${canvasH}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  svg.setAttribute("width", "100%");
+  svg.setAttribute("height", "100%");
+
+  edges.forEach(([from, to, etype]) => {
+    const fp = positions[from], tp = positions[to];
+    if (!fp || !tp) return;
+    const isParallel = etype === "parallel";
+    let d;
+    if (isParallel) {
+      const fx = fp.left + W/2, fy = fp.top + H/2;
+      const tx = tp.left + W/2, ty = tp.top + H/2;
+      const my = (fy + ty) / 2;
+      d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty}`;
+    } else {
+      const fx = fp.left + W/2, fy = fp.top + H;
+      const tx = tp.left + W/2, ty = tp.top;
+      const my = (fy + ty) / 2;
+      d = `M ${fx} ${fy} C ${fx} ${my} ${tx} ${my} ${tx} ${ty}`;
+    }
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", d);
+    path.setAttribute("stroke", isParallel ? "#10B981" : "#94A3B8");
+    path.setAttribute("stroke-width", "1.5");
+    path.setAttribute("stroke-dasharray", isParallel ? "4 3" : "none");
+    path.setAttribute("fill", "none");
+    svg.appendChild(path);
+  });
+
+  Object.entries(positions).forEach(([uname, pos]) => {
+    const u = units[uname];
+    const c = nodeColors(u, heat[uname]);
+    const rect = document.createElementNS(NS, "rect");
+    Object.entries({
+      x: pos.left, y: pos.top, width: W, height: H,
+      rx: 6, ry: 6,
+      fill: c.fill, stroke: c.stroke, "stroke-width": "2",
+    }).forEach(([k, v]) => rect.setAttribute(k, v));
+    if (c.opacity != null) rect.setAttribute("opacity", c.opacity);
+    svg.appendChild(rect);
+  });
+
+  return svg;
+}
+
+// ── Cross-process edges between cards ─────────────────────
+function renderOverviewEdges() {
+  const svg  = document.getElementById("overview-edges");
+  const grid = document.getElementById("overview-grid");
+  if (!svg || !grid) return;
+  svg.innerHTML = "";
+
+  const gridRect = grid.getBoundingClientRect();
+  if (gridRect.width <= 0 || gridRect.height <= 0) return;
+
+  svg.setAttribute("width",  gridRect.width);
+  svg.setAttribute("height", gridRect.height);
+  svg.setAttribute("viewBox", `0 0 ${gridRect.width} ${gridRect.height}`);
+
+  if (!CROSS_EDGES.length) return;
+
+  const cards = {};
+  document.querySelectorAll("#overview-grid .proc-card[data-proc]").forEach(el => {
+    const r = el.getBoundingClientRect();
+    cards[el.dataset.proc] = {
+      x: r.left - gridRect.left,
+      y: r.top  - gridRect.top,
+      w: r.width, h: r.height,
+    };
+  });
+
+  const defs = document.createElementNS(NS, "defs");
+  const marker = document.createElementNS(NS, "marker");
+  Object.entries({ id:"ov-arr", markerWidth:"8", markerHeight:"6", refX:"7", refY:"3", orient:"auto" })
+    .forEach(([k, v]) => marker.setAttribute(k, v));
+  const poly = document.createElementNS(NS, "polygon");
+  poly.setAttribute("points", "0 0, 8 3, 0 6");
+  poly.setAttribute("fill", "#A78BFA");
+  marker.appendChild(poly);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+
+  CROSS_EDGES.forEach(e => {
+    const s = cards[e.from], t = cards[e.to];
+    if (!s || !t) return;
+    const sCx = s.x + s.w/2, sCy = s.y + s.h/2;
+    const tCx = t.x + t.w/2, tCy = t.y + t.h/2;
+    const dx = tCx - sCx, dy = tCy - sCy;
+
+    let sx, sy, tx, ty, c1x, c1y, c2x, c2y;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 0) { sx = s.x + s.w; sy = sCy; tx = t.x;        ty = tCy; }
+      else        { sx = s.x;        sy = sCy; tx = t.x + t.w; ty = tCy; }
+      const off = Math.min(Math.abs(dx) / 2, 90);
+      c1x = sx + Math.sign(dx) * off; c1y = sy;
+      c2x = tx - Math.sign(dx) * off; c2y = ty;
+    } else {
+      if (dy > 0) { sx = sCx; sy = s.y + s.h; tx = tCx; ty = t.y;        }
+      else        { sx = sCx; sy = s.y;        tx = tCx; ty = t.y + t.h; }
+      const off = Math.min(Math.abs(dy) / 2, 90);
+      c1x = sx; c1y = sy + Math.sign(dy) * off;
+      c2x = tx; c2y = ty - Math.sign(dy) * off;
+    }
+
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", `M ${sx} ${sy} C ${c1x} ${c1y} ${c2x} ${c2y} ${tx} ${ty}`);
+    path.setAttribute("stroke", "#A78BFA");
+    path.setAttribute("stroke-width", "1.8");
+    path.setAttribute("stroke-dasharray", "6 4");
+    path.setAttribute("fill", "none");
+    path.setAttribute("marker-end", "url(#ov-arr)");
+    svg.appendChild(path);
+  });
+}
+
 
 const procNav    = document.getElementById("proc-nav");
 const overviewV  = document.getElementById("overview-view");
@@ -1344,16 +1594,50 @@ Object.entries(ALL_DATA).forEach(([name, proc]) => {
   const phasePills = s.phases
     .map(p => `<span class="pill pill-phase">${p}</span>`)
     .join("");
+  const depsCount = CROSS_EDGES.filter(e => e.from === name || e.to === name).length;
   const card = document.createElement("div");
   card.className = "proc-card";
+  card.dataset.proc = name;
   card.innerHTML = `
-    <div class="proc-card-name">${label}</div>
+    <div class="proc-card-head">
+      <div class="proc-card-name">${label}</div>
+      <div class="proc-card-count-inline">${s.unit_count} units</div>
+    </div>
     ${slugHtml}
-    <div class="proc-card-count">${s.unit_count} units</div>
+    <div class="proc-card-mini"></div>
     <div class="proc-card-pills">${phasePills}${exePills}</div>
-    <div class="proc-card-footer">core: ${s.core_count} / ${s.unit_count}</div>`;
+    <div class="proc-card-footer">
+      <span>core: ${s.core_count} / ${s.unit_count}</span>
+      ${depsCount ? `<span class="proc-card-deps">⇄ ${depsCount}</span>` : ''}
+    </div>`;
+  const miniBox = card.querySelector(".proc-card-mini");
+  const mini = buildCardMini(proc);
+  if (mini) miniBox.appendChild(mini);
+  else miniBox.innerHTML = '<span class="proc-card-mini-empty">no flow</span>';
   card.addEventListener("click", () => showProcess(name));
   ovGrid.appendChild(card);
+});
+
+// ── Overview display mode toggle ───────────────────────────
+ovGrid.classList.add("mode-info");
+const ovToggle = document.getElementById("ov-mode-toggle");
+
+function setOvMode(mode) {
+  ovGrid.classList.toggle("mode-info", mode === "info");
+  ovGrid.classList.toggle("mode-flow", mode === "flow");
+  document.querySelectorAll(".ov-mode-btn")
+    .forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+  requestAnimationFrame(() => renderOverviewEdges());
+}
+
+document.querySelectorAll(".ov-mode-btn").forEach(b => {
+  b.addEventListener("click", () => setOvMode(b.dataset.mode));
+});
+
+// Cross-process edges: render once layout settles, refresh on resize
+requestAnimationFrame(() => renderOverviewEdges());
+window.addEventListener("resize", () => {
+  if (overviewV.style.display !== "none") renderOverviewEdges();
 });
 
 // ── Navigation ────────────────────────────────────────────
@@ -1363,7 +1647,9 @@ function showOverview() {
   backBtn.style.display = "none";
   topTitle.textContent = "全プロセス一覧";
   topSub.textContent = "";
+  ovToggle.style.display = "flex";
   document.querySelectorAll(".sb-item").forEach(el => el.classList.remove("active"));
+  requestAnimationFrame(() => renderOverviewEdges());
 }
 
 function showProcess(name) {
@@ -1374,6 +1660,7 @@ function showProcess(name) {
   backBtn.style.display = "flex";
   topTitle.textContent = proc.displayName || name;
   topSub.textContent = proc.displayName ? `${name} · ${proc.stats.unit_count} units` : `${proc.stats.unit_count} units`;
+  ovToggle.style.display = "none";
   document.querySelectorAll(".sb-item").forEach(el =>
     el.classList.toggle("active", el.dataset.proc === name));
   renderFlow(proc);
