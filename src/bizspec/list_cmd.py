@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -20,6 +21,78 @@ def _load_units(process_dir: Path) -> list[dict]:
     return units
 
 
+def _unit_to_refactor_entry(u: dict) -> dict:
+    link = u.get("link") or {}
+    link = link if isinstance(link, dict) else {}
+    up = link.get("up") or []
+    down = link.get("down") or []
+
+    eff = u.get("effort") or {}
+    eff = eff if isinstance(eff, dict) else {}
+    duration = eff.get("duration")
+    frequency = eff.get("frequency")
+
+    entry: dict = {
+        "unit": u.get("unit", ""),
+        "aim": u.get("aim", ""),
+        "core": u.get("core", ""),
+        "executor": (u.get("executor") or {}).get("type", "") if isinstance(u.get("executor"), dict) else "",
+        "link_up": [str(x) for x in up] if isinstance(up, list) else [],
+        "link_down": [str(x) for x in down] if isinstance(down, list) else [],
+    }
+    if isinstance(duration, (int, float)) and not isinstance(duration, bool):
+        entry["effort_duration"] = duration
+    if isinstance(frequency, int) and not isinstance(frequency, bool):
+        entry["effort_frequency"] = frequency
+    return entry
+
+
+def _print_refactor_text(all_data: list[dict]) -> None:
+    for proc in all_data:
+        print(f"\n=== {proc['process']} ({len(proc['units'])} units) ===")
+        for u in proc["units"]:
+            core_val = u["core"]
+            core_str = str(core_val).lower() if isinstance(core_val, bool) else str(core_val)
+            print(f"\n[{u['unit']}]  core:{core_str}  executor:{u['executor']}")
+            if u["aim"]:
+                print(f"  aim: {u['aim']}")
+            if u["link_up"]:
+                print(f"  ↑ {', '.join(u['link_up'])}")
+            if u["link_down"]:
+                print(f"  ↓ {', '.join(u['link_down'])}")
+            dur = u.get("effort_duration")
+            freq = u.get("effort_frequency")
+            if dur is not None or freq is not None:
+                parts = []
+                if dur is not None:
+                    parts.append(f"{dur}h")
+                if freq is not None:
+                    parts.append(f"{freq}/月")
+                print(f"  effort: {' × '.join(parts)}")
+    print()
+
+
+def _run_list_refactor(process_dirs: list[Path], fmt: str) -> int:
+    all_data = []
+    for process_dir in process_dirs:
+        units = _load_units(process_dir)
+        if not units:
+            continue
+        all_data.append({
+            "process": process_dir.name,
+            "units": [_unit_to_refactor_entry(u) for u in units],
+        })
+
+    if fmt == "json":
+        print(json.dumps(all_data, ensure_ascii=False, indent=2))
+    elif fmt == "yaml":
+        print(yaml.dump(all_data, allow_unicode=True, default_flow_style=False, sort_keys=False), end="")
+    else:
+        _print_refactor_text(all_data)
+
+    return 0
+
+
 def run_list(args) -> int:
     root = Path(args.root).resolve()
     bizspec_dir = root / "bizspec"
@@ -38,6 +111,12 @@ def run_list(args) -> int:
             d for d in bizspec_dir.iterdir()
             if d.is_dir() and not d.name.startswith("_")
         )
+
+    refactor = getattr(args, "refactor", False)
+    fmt = getattr(args, "format", "text") or "text"
+
+    if refactor or fmt in ("yaml", "json"):
+        return _run_list_refactor(process_dirs, fmt)
 
     for process_dir in process_dirs:
         units = _load_units(process_dir)

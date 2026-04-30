@@ -30,6 +30,12 @@ def main() -> None:
     # list
     lst = sub.add_parser("list", help="unit 一覧を表示する")
     lst.add_argument("process", nargs="?", help="プロセス名（省略時は全プロセスを表示）")
+    lst.add_argument("--refactor", action="store_true", help="リファクタリング分析用の詳細ビュー（aim・link を含む）")
+    lst.add_argument(
+        "--format", choices=["text", "yaml", "json"], default="text",
+        metavar="FORMAT",
+        help="出力形式（text / yaml / json）。yaml / json は --refactor 相当の詳細データを出力する",
+    )
 
     # viz
     viz = sub.add_parser("viz", help="フロー図 HTML を生成する")
