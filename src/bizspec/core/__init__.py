@@ -7,6 +7,7 @@
 loader は使わず独自実装を保持している。
 """
 
+from .errors import VError
 from .loader import (
     iter_processes,
     iter_unit_files,
@@ -16,8 +17,21 @@ from .loader import (
     load_units_by_name,
     load_process_meta,
 )
+from .model import (
+    IO,
+    Automation,
+    Effort,
+    Executor,
+    Execution,
+    Link,
+    ProcessMeta,
+    Unit,
+)
 
 __all__ = [
+    # errors
+    "VError",
+    # loader
     "iter_processes",
     "iter_unit_files",
     "load_unit",
@@ -25,4 +39,13 @@ __all__ = [
     "load_units_with_paths",
     "load_units_by_name",
     "load_process_meta",
+    # model
+    "IO",
+    "Automation",
+    "Effort",
+    "Executor",
+    "Execution",
+    "Link",
+    "ProcessMeta",
+    "Unit",
 ]

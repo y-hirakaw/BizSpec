@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import re
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
 import yaml
+
+from .core.errors import VError
 
 _PREFIX_RE = re.compile(r"^\d+_")
 
@@ -20,12 +21,21 @@ FIBONACCI_HOURS         = {0.5, 1, 2, 3, 5, 8, 13, 21}
 NON_EMPTY_LIST_FIELDS   = ["scope", "rule"]
 
 
-@dataclass
-class VError:
-    file: Path
-    field: str
-    message: str
-    severity: str = "error"  # "error" or "warn"
+__all__ = [
+    "REQUIRED_FIELDS",
+    "VALID_EXECUTOR_TYPES",
+    "VALID_DIFFICULTY",
+    "VALID_AUTO_STATUS",
+    "VALID_LIFECYCLE_STATUS",
+    "RECOMMENDED_PHASES",
+    "FIBONACCI_HOURS",
+    "NON_EMPTY_LIST_FIELDS",
+    "VError",
+    "_check_file",
+    "_check_process",
+    "_detect_yaml_hint",
+    "run_validate",
+]
 
 
 def _detect_yaml_hint(line: str) -> str:

@@ -20,11 +20,24 @@ bizspec/
   _viz/                         # 生成物（bizspec viz の HTML 出力先）
     index.html                  # 全プロセス統合ビュー（引数なし時のみ生成）
     <プロセス名>.html
-src/bizspec/skills/             # パッケージ同梱スキル（bizspec init でコピー元になる）
-  bizspec-refine/SKILL.md
-  bizspec-refactor/SKILL.md
+src/bizspec/
+  core/                         # 共有レイヤー（公開 API は core/__init__.py を参照）
+    errors.py                   # VError（検証ダイアグノスティクス）
+    loader.py                   # YAML 読込・プロセス走査
+    model.py                    # Unit / IO / Link 等の TypedDict
+    prompt.py                   # 対話プロンプト（confirm）
+  viz/                          # bizspec viz 実装
+    layout.py                   # DAG レイアウト（純関数）
+    builder.py                  # HTML 組み立て + テンプレ読込
+    cmd.py                      # run_viz エントリ
+    templates/{process,index}.html  # 外部テンプレ（importlib.resources で読込）
+  skills/                       # パッケージ同梱スキル（bizspec init でコピー元になる）
+    bizspec-refine/SKILL.md
+    bizspec-refactor/SKILL.md
 BizSpec_要求仕様.md              # 要件定義書
 ```
+
+**core 公開 API:** 共有 helper は `from bizspec.core import VError, load_units, Unit, ...` で import する。`bizspec.viz_cmd` は後方互換 shim（中身は `bizspec.viz` に移譲）。
 
 Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx` と揃える）。
 
