@@ -20,3 +20,4 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 bizspec = ["skills/**/*"]
+"bizspec.viz" = ["templates/*.html"]
