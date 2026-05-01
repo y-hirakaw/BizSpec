@@ -572,12 +572,20 @@ class TestIndexHtmlStructure:
             assert el in html, f"missing critical element: {el}"
 
     def test_mode_toggle_buttons_present(self):
+        """モード切替の構造（ID + data-mode 属性）が残ること。
+
+        ボタンラベル（"Info" / "Flow" / "情報" / "フロー" など）はデザイン
+        テーマで変わるため、構造のみをチェックする。
+        """
         html = _generate_index_html(self._procs())
         assert 'id="ov-mode-toggle"' in html
         assert 'data-mode="info"' in html
         assert 'data-mode="flow"' in html
-        assert "情報" in html
-        assert "フロー" in html
+        # モード切替を駆動する関数がスクリプト中に存在する
+        assert "setOvMode" in html
+        # 切替対象クラスが CSS に存在する
+        assert ".mode-info" in html
+        assert ".mode-flow" in html
 
     def test_all_data_is_valid_json(self):
         import json
@@ -607,14 +615,20 @@ class TestIndexHtmlStructure:
         assert edges == []
 
     def test_node_color_logic_present(self):
-        """nodeColors 関数と heat / status / core の色コードが残ること。"""
+        """ノード色分岐が SVG ミニフローと CSS の両方に残ること。
+
+        具体的な色 hex はテーマで変わるので assert しない。代わりに
+        色を選ぶ関数（nodeColors）と、CSS で参照される色クラスの
+        定義が両方残っていることを確認する。
+        """
         html = _generate_index_html(self._procs())
+        # 色選択ロジック本体
         assert "function nodeColors" in html
-        # heat
-        assert "#FEE2E2" in html  # heat-high
-        assert "#FFEDD5" in html  # heat-medium
-        assert "#FEF9C3" in html  # heat-low
-        # status
-        assert "#F0FDF4" in html  # status-stable
-        # core
-        assert "#EFF6FF" in html  # core-true
+        # 各色クラスが CSS で定義されている
+        for cls in (
+            ".node.heat-low", ".node.heat-medium", ".node.heat-high",
+            ".node.status-draft", ".node.status-review",
+            ".node.status-stable", ".node.status-deprecated",
+            ".node.core-true", ".node.core-false",
+        ):
+            assert cls in html, f"missing CSS class: {cls}"
