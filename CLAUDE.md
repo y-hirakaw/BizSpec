@@ -34,12 +34,12 @@ Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx
 |---------|------|
 | `bizspec init` | Claude Code スキルをインタラクティブに `.claude/skills/` へインストールする（ローカル / グローバル選択） |
 | `bizspec new <process> <unit>` | unit のスケルトン YAML を生成する（`--executor` / `--phase` / `--core` / `--up` / `--down`） |
-| `bizspec search <keyword>` | 全プロセス横断でキーワード検索する（`--field` で対象フィールドを絞れる） |
+| `bizspec search <keyword>` | 全プロセス横断でキーワード検索する（`--field` で対象フィールドを絞れる、`--format json` で構造化出力） |
 | `bizspec list` | `bizspec/` 内の unit 一覧を表示（unit名・core・executor.type、effort/automationフィールドがあれば列追加） |
 | `bizspec rename <process> <old> <new>` | unit をリネームし同プロセス内の link 参照を一括更新する（`--dry-run` でプレビュー） |
 | `bizspec rm <process> <unit>` | unit を削除し link 参照を一括削除する。フロー分断検知あり（`--force` で強制） |
 | `bizspec renumber <process>` | unit ファイルをトポロジカル順に採番リネームする（`--dry-run` でプレビュー） |
-| `bizspec validate` | BizSpec YAML のスキーマ検証 |
+| `bizspec validate` | BizSpec YAML のスキーマ検証（`--format json` で CI 連携用構造化出力） |
 | `bizspec viz` | `link.up/down` を元にフロー図を生成する。引数なし時は全プロセス統合ビュー（`index.html`）も生成 |
 
 ## BizSpec YAML データ構造 (v1)

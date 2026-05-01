@@ -124,9 +124,11 @@ bizspec new issue-refinement ReadinessCheck --executor ai_agent --phase spec --c
 # Search across all processes
 bizspec search "Google Drive"
 bizspec search "PdM" --field aim scope
+bizspec search "API" --format json | jq .   # CI / jq pipelines
 
 bizspec validate                    # validate all processes
 bizspec validate issue-refinement   # validate one process
+bizspec validate --format json      # structured output for CI
 
 bizspec list                        # list all units
 bizspec list issue-refinement       # list units in one process
@@ -291,9 +293,11 @@ bizspec new issue-refinement Ready判定 --executor ai_agent --phase spec --core
 # 全プロセス横断でキーワード検索
 bizspec search "Google Drive"
 bizspec search "PdM" --field aim scope
+bizspec search "API" --format json | jq .   # CI / jq パイプライン向け
 
 bizspec validate                    # 全プロセスを検証
 bizspec validate issue-refinement   # 特定プロセスのみ検証
+bizspec validate --format json      # CI 向け構造化出力
 
 bizspec list                        # 全 unit を一覧表示
 bizspec list issue-refinement       # 特定プロセスの unit を一覧表示

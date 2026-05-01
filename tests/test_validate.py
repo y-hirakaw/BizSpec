@@ -380,9 +380,10 @@ class TestLifecycleStatus:
 # ── run_validate (CLI entry point) ────────────────────────────────────────────
 
 class _ValidateArgs:
-    def __init__(self, root, process=None):
+    def __init__(self, root, process=None, format="text"):
         self.root = str(root)
         self.process = process
+        self.format = format
 
 
 _INVALID_UNIT = (  # missing required field 'aim'
@@ -473,3 +474,60 @@ class TestRunValidate:
         import re
         m = re.search(r"(\d+) 件のエラー", out)
         assert m and int(m.group(1)) >= 2
+
+
+# ── run_validate --format json ────────────────────────────────────────────────
+
+class TestRunValidateJson:
+    def test_json_all_pass(self, tmp_path, capsys):
+        import json
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        write_unit(proc, "U", make_unit("U"))
+        result = run_validate(_ValidateArgs(tmp_path, format="json"))
+        out = capsys.readouterr().out
+        assert result == 0
+        data = json.loads(out)
+        assert data["ok"] is True
+        assert data["total_errors"] == 0
+        assert len(data["processes"]) == 1
+        assert data["processes"][0]["process"] == "proc-a"
+        assert data["processes"][0]["passed"] is True
+        assert data["processes"][0]["errors"] == []
+        assert data["processes"][0]["unit_count"] == 1
+
+    def test_json_with_errors(self, tmp_path, capsys):
+        import json
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        write_unit(proc, "Bad", _INVALID_UNIT)
+        result = run_validate(_ValidateArgs(tmp_path, format="json"))
+        out = capsys.readouterr().out
+        assert result == 1
+        data = json.loads(out)
+        assert data["ok"] is False
+        assert data["total_errors"] >= 1
+        proc_a = data["processes"][0]
+        assert proc_a["passed"] is False
+        assert any(e["field"] == "aim" for e in proc_a["errors"])
+        # file path is relative to root, contains process and filename
+        assert proc_a["errors"][0]["file"].endswith("Bad.yaml")
+
+    def test_json_no_bizspec_dir(self, tmp_path, capsys):
+        import json
+        result = run_validate(_ValidateArgs(tmp_path, format="json"))
+        out = capsys.readouterr().out
+        assert result == 1
+        data = json.loads(out)
+        assert data["ok"] is False
+        assert "error" in data
+
+    def test_json_process_not_found(self, tmp_path, capsys):
+        import json
+        (tmp_path / "bizspec").mkdir()
+        result = run_validate(_ValidateArgs(tmp_path, process="missing", format="json"))
+        out = capsys.readouterr().out
+        assert result == 1
+        data = json.loads(out)
+        assert data["ok"] is False
+        assert "missing" in data["error"]

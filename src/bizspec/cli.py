@@ -26,6 +26,11 @@ def main() -> None:
     # validate
     val = sub.add_parser("validate", help="BizSpec YAML を検証する")
     val.add_argument("process", nargs="?", help="プロセス名（省略時は全プロセスを検証）")
+    val.add_argument(
+        "--format", choices=["text", "json"], default="text",
+        metavar="FORMAT",
+        help="出力形式（text / json）。json は CI / スクリプト連携向けの構造化エラーを出力",
+    )
 
     # list
     lst = sub.add_parser("list", help="unit 一覧を表示する")
@@ -78,6 +83,11 @@ def main() -> None:
         "--field", nargs="*", choices=FIELD_CHOICES,
         metavar="FIELD",
         help=f"検索対象フィールド（複数可、省略時は全フィールド）: {FIELD_CHOICES}",
+    )
+    srch.add_argument(
+        "--format", choices=["text", "json"], default="text",
+        metavar="FORMAT",
+        help="出力形式（text / json）。json は CI / スクリプト連携向けの構造化結果を出力",
     )
 
     args = parser.parse_args()

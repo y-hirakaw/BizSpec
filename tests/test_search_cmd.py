@@ -28,10 +28,11 @@ def write_yaml(path: Path, data: dict) -> None:
 
 
 class FakeArgs:
-    def __init__(self, root, keyword, field=None):
+    def __init__(self, root, keyword, field=None, format="text"):
         self.root    = root
         self.keyword = keyword
         self.field   = field
+        self.format  = format
 
 
 # ── _extract_texts ────────────────────────────────────────────────────────────
@@ -150,3 +151,54 @@ class TestRunSearch:
     def test_missing_bizspec_dir_returns_1(self, tmp_path):
         result = run_search(FakeArgs(root=str(tmp_path), keyword="test"))
         assert result == 1
+
+
+# ── run_search --format json ──────────────────────────────────────────────────
+
+class TestRunSearchJson:
+    def test_json_with_hits(self, tmp_path, capsys):
+        import json
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        write_yaml(proc / "UnitX.yaml", make_unit_data("UnitX", aim="OpenAPI 設計"))
+        result = run_search(FakeArgs(root=str(tmp_path), keyword="OpenAPI", format="json"))
+        out = capsys.readouterr().out
+        assert result == 0
+        data = json.loads(out)
+        assert data["keyword"] == "OpenAPI"
+        assert data["total"] == 1
+        assert data["hits"][0]["unit"] == "UnitX"
+        assert data["hits"][0]["process"] == "proc-a"
+        assert any(m["field"] == "aim" for m in data["hits"][0]["matches"])
+
+    def test_json_no_hits(self, tmp_path, capsys):
+        import json
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        write_yaml(proc / "UnitX.yaml", make_unit_data("UnitX"))
+        result = run_search(FakeArgs(root=str(tmp_path), keyword="存在しない", format="json"))
+        out = capsys.readouterr().out
+        assert result == 1
+        data = json.loads(out)
+        assert data["total"] == 0
+        assert data["hits"] == []
+
+    def test_json_no_bizspec_dir(self, tmp_path, capsys):
+        import json
+        result = run_search(FakeArgs(root=str(tmp_path), keyword="x", format="json"))
+        out = capsys.readouterr().out
+        assert result == 1
+        data = json.loads(out)
+        assert data["ok"] is False
+        assert "error" in data
+
+    def test_json_field_filter_in_output(self, tmp_path, capsys):
+        import json
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        write_yaml(proc / "UnitX.yaml", make_unit_data("UnitX"))
+        result = run_search(FakeArgs(root=str(tmp_path), keyword="UnitX",
+                                     field=["unit"], format="json"))
+        out = capsys.readouterr().out
+        data = json.loads(out)
+        assert data["fields"] == ["unit"]

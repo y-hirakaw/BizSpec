@@ -276,17 +276,27 @@ def _check_process(process_dir: Path, bizspec_dir: Optional[Path] = None) -> lis
 
 
 def run_validate(args) -> int:
+    import json as _json
     root = Path(args.root).resolve()
     bizspec_dir = root / "bizspec"
+    fmt: str = getattr(args, "format", "text")
 
     if not bizspec_dir.exists():
-        print(f"ERROR: {bizspec_dir} が見つかりません", file=sys.stderr)
+        msg = f"{bizspec_dir} が見つかりません"
+        if fmt == "json":
+            print(_json.dumps({"ok": False, "error": msg}, ensure_ascii=False))
+        else:
+            print(f"ERROR: {msg}", file=sys.stderr)
         return 1
 
     if getattr(args, "process", None):
         process_dirs = [bizspec_dir / args.process]
         if not process_dirs[0].is_dir():
-            print(f"ERROR: プロセス '{args.process}' が見つかりません", file=sys.stderr)
+            msg = f"プロセス '{args.process}' が見つかりません"
+            if fmt == "json":
+                print(_json.dumps({"ok": False, "error": msg}, ensure_ascii=False))
+            else:
+                print(f"ERROR: {msg}", file=sys.stderr)
             return 1
     else:
         process_dirs = sorted(
@@ -294,21 +304,46 @@ def run_validate(args) -> int:
             if d.is_dir() and not d.name.startswith("_")
         )
 
+    # 全プロセスを集計（出力形式に依らず同じデータを作る）
+    results: list[dict] = []
     total_errors = 0
-    print()
-
     for process_dir in process_dirs:
         errors = _check_process(process_dir, bizspec_dir)
-        label = process_dir.relative_to(root)
+        unit_count = len([p for p in process_dir.glob("*.yaml") if not p.name.startswith("_")])
+        results.append({
+            "process": process_dir.name,
+            "unit_count": unit_count,
+            "passed": not errors,
+            "errors": [
+                {
+                    "file": str(e.file.relative_to(root)),
+                    "field": e.field,
+                    "message": e.message,
+                }
+                for e in errors
+            ],
+        })
+        total_errors += len(errors)
 
-        if errors:
+    if fmt == "json":
+        print(_json.dumps({
+            "ok": total_errors == 0,
+            "total_errors": total_errors,
+            "processes": results,
+        }, ensure_ascii=False, indent=2))
+        return 0 if total_errors == 0 else 1
+
+    # text 形式
+    print()
+    for r in results:
+        label = Path("bizspec") / r["process"]
+        if r["errors"]:
             print(f"FAIL  {label}")
-            for e in errors:
-                print(f"      {e.file.name:<40}  [{e.field}]  {e.message}")
-            total_errors += len(errors)
+            for e in r["errors"]:
+                fname = Path(e["file"]).name
+                print(f"      {fname:<40}  [{e['field']}]  {e['message']}")
         else:
-            unit_count = len([p for p in process_dir.glob("*.yaml") if not p.name.startswith("_")])
-            print(f"PASS  {label}  ({unit_count} units)")
+            print(f"PASS  {label}  ({r['unit_count']} units)")
 
     print()
     if total_errors == 0:

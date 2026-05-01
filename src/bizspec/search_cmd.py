@@ -65,11 +65,17 @@ def _search_process(process_dir: Path, keyword: str, fields: tuple[str, ...]) ->
 
 def run_search(args) -> int:
     root        = Path(args.root).resolve()
+    import json as _json
     bizspec_dir = root / "bizspec"
     keyword     = args.keyword
+    fmt: str    = getattr(args, "format", "text")
 
     if not bizspec_dir.exists():
-        print(f"ERROR: {bizspec_dir} が見つかりません", file=sys.stderr)
+        msg = f"{bizspec_dir} が見つかりません"
+        if fmt == "json":
+            print(_json.dumps({"ok": False, "error": msg}, ensure_ascii=False))
+        else:
+            print(f"ERROR: {msg}", file=sys.stderr)
         return 1
 
     fields = tuple(args.field) if args.field else _ALL_FIELDS
@@ -79,20 +85,38 @@ def run_search(args) -> int:
         if d.is_dir() and not d.name.startswith("_")
     )
 
-    total = 0
+    all_hits: list[dict] = []
     for process_dir in process_dirs:
-        hits = _search_process(process_dir, keyword, fields)
-        for hit in hits:
-            print(f"\n[{hit['process']}]  {hit['unit']}")
-            for field_path, text in hit["matches"]:
-                marker = text.replace(keyword, f"\033[1m{keyword}\033[0m")
-                print(f"  {field_path:<12}  {marker}")
-        total += len(hits)
+        all_hits.extend(_search_process(process_dir, keyword, fields))
+
+    if fmt == "json":
+        print(_json.dumps({
+            "keyword": keyword,
+            "fields": list(fields),
+            "total": len(all_hits),
+            "hits": [
+                {
+                    "process": h["process"],
+                    "unit":    h["unit"],
+                    "file":    h["file"],
+                    "matches": [{"field": f, "text": t} for f, t in h["matches"]],
+                }
+                for h in all_hits
+            ],
+        }, ensure_ascii=False, indent=2))
+        return 0 if all_hits else 1
+
+    # text 形式
+    for hit in all_hits:
+        print(f"\n[{hit['process']}]  {hit['unit']}")
+        for field_path, text in hit["matches"]:
+            marker = text.replace(keyword, f"\033[1m{keyword}\033[0m")
+            print(f"  {field_path:<12}  {marker}")
 
     print()
-    if total == 0:
+    if not all_hits:
         print(f'"{keyword}" にマッチする unit は見つかりませんでした')
         return 1
 
-    print(f"{total} 件の unit が見つかりました")
+    print(f"{len(all_hits)} 件の unit が見つかりました")
     return 0

@@ -77,6 +77,7 @@ bizspec search "API" --field executor
 | オプション | 説明 |
 |-----------|------|
 | `--field FIELD ...` | 検索対象フィールドを絞る（`unit` / `aim` / `scope` / `rule` / `io` / `executor`）。省略時は全フィールドを対象 |
+| `--format {text,json}` | 出力形式。`json` は `{keyword, fields, total, hits[]}` 構造で stdout に出力（CI / `jq` / AI エージェント連携向け） |
 
 マッチした unit のプロセス名・unit 名・ヒットしたフィールドと内容を一覧表示する。ヒットが0件の場合は終了コード 1。
 
@@ -87,9 +88,16 @@ bizspec search "API" --field executor
 `bizspec/` 以下の BizSpec YAML を検証する。
 
 ```sh
-bizspec validate                    # 全プロセスを検証
-bizspec validate issue-refinement   # 特定プロセスのみ検証
+bizspec validate                          # 全プロセスを検証
+bizspec validate issue-refinement         # 特定プロセスのみ検証
+bizspec validate --format json | jq .     # CI / スクリプト向け構造化出力
 ```
+
+**オプション:**
+
+| オプション | 説明 |
+|-----------|------|
+| `--format {text,json}` | 出力形式。`json` は `{ok, total_errors, processes[]}` 構造で stdout に出力（CI / `jq` / GitHub Actions annotation 連携向け） |
 
 **チェック内容:**
 - 必須フィールドの存在（unit / aim / phase / scope / rule / link / core / io / executor）
