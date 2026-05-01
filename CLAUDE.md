@@ -74,8 +74,6 @@ automation:
   status: manual | partially-automated | automated
 status: draft | review | stable | deprecated  # ライフサイクル状態（省略可）
 deprecated_reason: 廃止理由  # status: deprecated のときのみ（省略可）
-precondition:              # 開始前提条件のリスト（省略可）
-  - 前の unit の出力が確定していること
 execution:                 # 実行制御ヒント（省略可）
   parallel_with:           # 並行実行できる unit 名のリスト
     - AnotherUnit
@@ -88,7 +86,6 @@ execution:                 # 実行制御ヒント（省略可）
 - `effort` / `automation` / `status` — 省略可。`bizspec list` の列と `bizspec viz` 詳細パネルに表示
 - `effort.duration × effort.frequency` — 月間コストを算出し viz ヒートマップに反映
 - `status` — viz でノード色分けに使用（draft=黄、review=橙、stable=緑、deprecated=グレー）
-- `precondition` — 開始前提条件のリスト（省略可）
 - `execution.parallel_with` — 並行実行できる unit 名のリスト（省略可）。viz で緑の点線エッジとして可視化
 
 ## 開発環境

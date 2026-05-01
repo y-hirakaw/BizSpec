@@ -183,14 +183,6 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
         if not isinstance(data["deprecated_reason"], str):
             errors.append(VError(path, "deprecated_reason", "文字列でなければなりません"))
 
-    # precondition (optional)
-    if "precondition" in data:
-        pc = data["precondition"]
-        if not isinstance(pc, list):
-            errors.append(VError(path, "precondition", "リストである必要があります"))
-        elif len(pc) == 0:
-            errors.append(VError(path, "precondition", "空リストは許可されていません"))
-
     # execution (optional)
     if "execution" in data:
         exe = data["execution"]

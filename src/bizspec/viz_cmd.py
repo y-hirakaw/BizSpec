@@ -149,7 +149,6 @@ def _unit_to_js(u: dict) -> dict:
         },
         "lifecycle_status":     opt_str(u.get("status")),
         "deprecated_reason":    opt_str(u.get("deprecated_reason")),
-        "precondition":         lst(u.get("precondition")),
         "parallel_with":        lst((u.get("execution") or {}).get("parallel_with")),
     }
 
@@ -1918,11 +1917,6 @@ function renderDetail(name) {
     <div class="section">
       <div class="section-label">Depends On（外部プロセス）</div>
       <div class="link-chips">${u.depends_on.map(d => '<span class="link-chip link-chip-ext" title="' + d + '">' + d + '</span>').join("")}</div>
-    </div>` : ''}
-    ${u.precondition && u.precondition.length ? `
-    <div class="section">
-      <div class="section-label">Precondition</div>
-      <ul class="item-list">${u.precondition.map(p => `<li>${p}</li>`).join("")}</ul>
     </div>` : ''}
     ${u.parallel_with && u.parallel_with.length ? `
     <div class="section">

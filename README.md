@@ -61,8 +61,6 @@ automation:
   status: manual        # manual / partially-automated / automated — current state
 status: stable          # draft | review | stable | deprecated — lifecycle state
 deprecated_reason: ...  # only when status: deprecated
-precondition:           # conditions that must hold before this unit can start (optional)
-  - Previous unit output is finalized
 execution:              # execution coordination hints (optional)
   parallel_with:        # units that can run concurrently with this unit
     - AnotherUnit
@@ -74,7 +72,7 @@ execution:              # execution coordination hints (optional)
 
 `status` is the lifecycle state: `draft` → `review` → `stable` → `deprecated`. Add `deprecated_reason` when deprecating.
 
-The optional fields `depends_on`, `effort`, `automation`, `status`, `precondition`, and `execution.parallel_with` are all omittable. When present, `effort` and `automation` appear in `bizspec list` columns and the `bizspec viz` detail panel. `duration × frequency` drives the heatmap in `bizspec viz`. `execution.parallel_with` is rendered as green dotted edges.
+The optional fields `depends_on`, `effort`, `automation`, `status`, and `execution.parallel_with` are all omittable. When present, `effort` and `automation` appear in `bizspec list` columns and the `bizspec viz` detail panel. `duration × frequency` drives the heatmap in `bizspec viz`. `execution.parallel_with` is rendered as green dotted edges.
 
 ### Field responsibility rubric
 
@@ -227,8 +225,6 @@ automation:
   status: manual        # manual / partially-automated / automated — 現在の対応状況
 status: stable          # draft | review | stable | deprecated — ライフサイクル状態
 deprecated_reason: ...  # status: deprecated のときのみ
-precondition:           # この unit が開始できる前提条件（省略可）
-  - 前の unit の出力が確定していること
 execution:              # 実行制御ヒント（省略可）
   parallel_with:        # この unit と並行実行できる unit 名
     - AnotherUnit
@@ -240,7 +236,7 @@ execution:              # 実行制御ヒント（省略可）
 
 `status` はライフサイクル状態：`draft` → `review` → `stable` → `deprecated`。廃止時は `deprecated_reason` で理由を記録できます。
 
-省略可能フィールド（`depends_on` / `effort` / `automation` / `status` / `precondition` / `execution.parallel_with`）はすべて任意です。`effort` / `automation` は `bizspec list` の列と `bizspec viz` の詳細パネルに表示されます。`duration × frequency` で月間コストを算出し viz のヒートマップに反映されます。`execution.parallel_with` は viz で緑の点線エッジとして可視化されます。
+省略可能フィールド（`depends_on` / `effort` / `automation` / `status` / `execution.parallel_with`）はすべて任意です。`effort` / `automation` は `bizspec list` の列と `bizspec viz` の詳細パネルに表示されます。`duration × frequency` で月間コストを算出し viz のヒートマップに反映されます。`execution.parallel_with` は viz で緑の点線エッジとして可視化されます。
 
 ### フィールド責務ルーブリック
 
