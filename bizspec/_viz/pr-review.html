@@ -9,63 +9,63 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:              #0a0a0a;
-  --bg-elevated:     #111111;
-  --bg-card:         #131313;
-  --bg-card-hover:   #181818;
-  --bg-input:        #0e0e0e;
-  --bg-overlay:      rgba(255, 255, 255, 0.02);
+  --bg:              #F2EEE5;
+  --bg-elevated:     #FBF8F1;
+  --bg-card:         #FFFFFF;
+  --bg-card-hover:   #FBF8F1;
+  --bg-input:        #FBF8F1;
+  --bg-overlay:      rgba(31, 26, 18, 0.03);
 
-  --border:          #1f1f1f;
-  --border-strong:   #2a2a2a;
+  --border:          #E5DFD0;
+  --border-strong:   #D4CDB9;
 
-  --text-primary:    #fafafa;
-  --text-secondary:  #a8a8a8;
-  --text-muted:      #5a5a5a;
-  --text-inverse:    #0a0a0a;
+  --text-primary:    #1F1A12;
+  --text-secondary:  #6B6253;
+  --text-muted:      #A09783;
+  --text-inverse:    #FBF8F1;
 
-  --accent:          #d4ff00;
-  --accent-dim:      #9eb800;
-  --accent-soft:     rgba(212, 255, 0, 0.10);
-  --accent-glow:     rgba(212, 255, 0, 0.18);
+  --accent:          #C2410C;
+  --accent-dim:      #9A340A;
+  --accent-soft:     rgba(194, 65, 12, 0.08);
+  --accent-glow:     rgba(194, 65, 12, 0.18);
 
-  --status-draft-bg:        #211e0a;
-  --status-draft-border:    #d97706;
-  --status-draft-fg:        #fbbf24;
-  --status-review-bg:       #221608;
-  --status-review-border:   #ea580c;
-  --status-review-fg:       #fb923c;
-  --status-stable-bg:       #0d1f15;
-  --status-stable-border:   #16a34a;
-  --status-stable-fg:       #4ade80;
-  --status-deprecated-bg:   #181818;
-  --status-deprecated-border:#3a3a3a;
-  --status-deprecated-fg:   #6b6b6b;
+  --status-draft-bg:        #FBF4DC;
+  --status-draft-border:    #B59308;
+  --status-draft-fg:        #6E5403;
+  --status-review-bg:       #FBE9D6;
+  --status-review-border:   #C2410C;
+  --status-review-fg:       #7A2C0A;
+  --status-stable-bg:       #ECF1E0;
+  --status-stable-border:   #5F8C40;
+  --status-stable-fg:       #2F4D1B;
+  --status-deprecated-bg:   #ECE6D8;
+  --status-deprecated-border:#C7BFAE;
+  --status-deprecated-fg:   #8B8270;
 
-  --heat-low-bg:        #1c1d09;
-  --heat-low-border:    #a16207;
-  --heat-low-fg:        #facc15;
-  --heat-medium-bg:     #221408;
-  --heat-medium-border: #c2410c;
-  --heat-medium-fg:     #fb923c;
-  --heat-high-bg:       #260e0e;
-  --heat-high-border:   #b91c1c;
-  --heat-high-fg:       #f87171;
+  --heat-low-bg:        #FBF6DA;
+  --heat-low-border:    #DBA91F;
+  --heat-low-fg:        #7A5A04;
+  --heat-medium-bg:     #FBE5C8;
+  --heat-medium-border: #D27319;
+  --heat-medium-fg:     #92420C;
+  --heat-high-bg:       #FBDDD2;
+  --heat-high-border:   #B5482E;
+  --heat-high-fg:       #7A1F08;
 
-  --exec-script-bg:    rgba(56, 189, 248, 0.10);
-  --exec-script-fg:    #7dd3fc;
-  --exec-script-border:rgba(56, 189, 248, 0.25);
-  --exec-ai_agent-bg:    rgba(192, 132, 252, 0.10);
-  --exec-ai_agent-fg:    #d8b4fe;
-  --exec-ai_agent-border:rgba(192, 132, 252, 0.25);
-  --exec-manual-bg:    rgba(148, 163, 184, 0.10);
-  --exec-manual-fg:    #cbd5e1;
-  --exec-manual-border:rgba(148, 163, 184, 0.20);
+  --exec-script-bg:    rgba(30, 64, 175, 0.07);
+  --exec-script-fg:    #1E40AF;
+  --exec-script-border:rgba(30, 64, 175, 0.22);
+  --exec-ai_agent-bg:    rgba(109, 40, 217, 0.07);
+  --exec-ai_agent-fg:    #5B21B6;
+  --exec-ai_agent-border:rgba(109, 40, 217, 0.22);
+  --exec-manual-bg:    rgba(87, 83, 78, 0.07);
+  --exec-manual-fg:    #57534E;
+  --exec-manual-border:rgba(87, 83, 78, 0.20);
 
-  --edge-seq:         #404040;
-  --edge-skip:        #d97706;
-  --edge-parallel:    #16a34a;
-  --edge-highlight:   #d4ff00;
+  --edge-seq:         #B0A892;
+  --edge-skip:        #C2410C;
+  --edge-parallel:    #5F8C40;
+  --edge-highlight:   #C2410C;
 
   --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-body:    'IBM Plex Sans', -apple-system, BlinkMacSystemFont,
@@ -100,8 +100,8 @@ body::before {
   position: fixed; inset: 0;
   pointer-events: none;
   z-index: 1000;
-  opacity: 0.025;
-  mix-blend-mode: overlay;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/></svg>");
 }
 
@@ -542,34 +542,34 @@ svg.arrows-layer {
 
 <div class="legend-bar">
   <div class="legend-item">
-    <div class="lswatch" style="background:#131313;border-left:3px solid #d4ff00;"></div>
+    <div class="lswatch" style="background:#FFFFFF;border-left:3px solid #C2410C;"></div>
     core: true
   </div>
   <div class="legend-item">
-    <div class="lswatch" style="background:#131313;border-left:3px solid #5a5a5a;"></div>
+    <div class="lswatch" style="background:#FBF8F1;border-left:3px solid #A09783;"></div>
     core: false
   </div>
   <div class="legend-item">
-    <div class="lpill" style="background:rgba(56, 189, 248, 0.10);color:#7dd3fc;border-color:rgba(56, 189, 248, 0.25);">script</div>
+    <div class="lpill" style="background:rgba(30, 64, 175, 0.07);color:#1E40AF;border-color:rgba(30, 64, 175, 0.22);">script</div>
   </div>
   <div class="legend-item">
-    <div class="lpill" style="background:rgba(192, 132, 252, 0.10);color:#d8b4fe;border-color:rgba(192, 132, 252, 0.25);">ai_agent</div>
+    <div class="lpill" style="background:rgba(109, 40, 217, 0.07);color:#5B21B6;border-color:rgba(109, 40, 217, 0.22);">ai_agent</div>
   </div>
   <div class="legend-item">
-    <div class="lpill" style="background:rgba(148, 163, 184, 0.10);color:#cbd5e1;border-color:rgba(148, 163, 184, 0.20);">manual</div>
+    <div class="lpill" style="background:rgba(87, 83, 78, 0.07);color:#57534E;border-color:rgba(87, 83, 78, 0.20);">manual</div>
   </div>
   <div class="legend-item" id="heat-legend" style="display:none;gap:5px;">
     <span style="font-size:9.5px;color:var(--text-muted);letter-spacing:0.12em;">HEAT:</span>
-    <div class="lswatch" style="background:#1c1d09;border-color:#a16207;" title="低コスト"></div>
-    <div class="lswatch" style="background:#221408;border-color:#c2410c;" title="中コスト"></div>
-    <div class="lswatch" style="background:#260e0e;border-color:#b91c1c;" title="高コスト"></div>
+    <div class="lswatch" style="background:#FBF6DA;border-color:#DBA91F;" title="低コスト"></div>
+    <div class="lswatch" style="background:#FBE5C8;border-color:#D27319;" title="中コスト"></div>
+    <div class="lswatch" style="background:#FBDDD2;border-color:#B5482E;" title="高コスト"></div>
   </div>
   <div class="legend-item" id="status-legend" style="display:none;gap:5px;">
     <span style="font-size:9.5px;color:var(--text-muted);letter-spacing:0.12em;">STATUS:</span>
-    <div class="lswatch" style="background:#211e0a;border-color:#d97706;" title="draft"></div>
-    <div class="lswatch" style="background:#221608;border-color:#ea580c;" title="review"></div>
-    <div class="lswatch" style="background:#0d1f15;border-color:#16a34a;" title="stable"></div>
-    <div class="lswatch" style="background:#181818;border-color:#3a3a3a;" title="deprecated"></div>
+    <div class="lswatch" style="background:#FBF4DC;border-color:#B59308;" title="draft"></div>
+    <div class="lswatch" style="background:#FBE9D6;border-color:#C2410C;" title="review"></div>
+    <div class="lswatch" style="background:#ECF1E0;border-color:#5F8C40;" title="stable"></div>
+    <div class="lswatch" style="background:#ECE6D8;border-color:#C7BFAE;" title="deprecated"></div>
   </div>
 </div>
 
@@ -825,10 +825,10 @@ const canvas     = document.getElementById("canvas");
 const detailPane = document.getElementById("detail-panel");
 
 const COLOR = {
-  EDGE_SEQ:        "#404040",
-  EDGE_SKIP:       "#d97706",
-  EDGE_PARALLEL:   "#16a34a",
-  EDGE_HIGHLIGHT:  "#d4ff00",
+  EDGE_SEQ:        "#B0A892",
+  EDGE_SKIP:       "#C2410C",
+  EDGE_PARALLEL:   "#5F8C40",
+  EDGE_HIGHLIGHT:  "#C2410C",
 };
 
 // ── SVG arrows ──────────────────────────────────────────
