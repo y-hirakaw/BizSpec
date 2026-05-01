@@ -51,6 +51,7 @@ def _topological_sort(units: dict[str, tuple[Path, dict]]) -> list[str]:
 
 
 def run_renumber(args) -> int:
+    from .core.prompt import confirm
     root = Path(args.root).resolve()
     bizspec_dir = root / "bizspec"
     process_dir = bizspec_dir / args.process
@@ -90,6 +91,11 @@ def run_renumber(args) -> int:
             print(f"  {old.name}  →  {new.name}")
         print()
         return 0
+
+    yes: bool = getattr(args, "yes", False)
+    if not confirm(f"\n{args.process}: {len(renames)} ファイルを採番リネームします", yes=yes):
+        print("中止しました")
+        return 1
 
     for old, new in renames:
         old.rename(new)

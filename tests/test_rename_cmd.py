@@ -50,7 +50,7 @@ class TestRename:
         write_unit(pd, "A", [], ["B"])
         write_unit(pd, "B", ["A"], [])
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="A", new_name="A_new")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old="A", new="A_new")
         rc = run_rename(args)
         assert rc == 0
 
@@ -64,7 +64,7 @@ class TestRename:
         write_unit(pd, "A", [], ["B"])
         write_unit(pd, "B", ["A"], [])
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="A", new_name="A_new")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old="A", new="A_new")
         run_rename(args)
 
         b_data = yaml.safe_load((pd / "B.yaml").read_text())
@@ -76,7 +76,7 @@ class TestRename:
         write_unit(pd, "A", [], [])
         (pd / "A.yaml").rename(pd / "01_A.yaml")
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="A", new_name="A_new")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old="A", new="A_new")
         rc = run_rename(args)
         assert rc == 0
         assert (pd / "01_A_new.yaml").exists()
@@ -87,7 +87,7 @@ class TestRename:
         write_unit(pd, "A", [], ["B"])
         write_unit(pd, "B", ["A"], [])
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="A", new_name="A_new", dry_run=True)
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old="A", new="A_new", dry_run=True)
         rc = run_rename(args)
         assert rc == 0
         assert (pd / "A.yaml").exists()
@@ -100,19 +100,19 @@ class TestRename:
         write_unit(pd, "A", [], [])
         write_unit(pd, "B", [], [])
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="A", new_name="B")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old="A", new="B")
         rc = run_rename(args)
         assert rc == 1
 
     def test_missing_unit_returns_error(self, tmp_path):
         pd = make_process(tmp_path)
-        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="NoExist", new_name="X")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old="NoExist", new="X")
         assert run_rename(args) == 1
 
     def test_same_name_returns_error(self, tmp_path):
         pd = make_process(tmp_path)
         write_unit(pd, "A", [], [])
-        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="A", new_name="A")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old="A", new="A")
         assert run_rename(args) == 1
 
     def test_three_unit_chain(self, tmp_path):
@@ -121,7 +121,7 @@ class TestRename:
         write_unit(pd, "B", ["A"], ["C"])
         write_unit(pd, "C", ["B"], [])
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="B", new_name="B_new")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old="B", new="B_new")
         rc = run_rename(args)
         assert rc == 0
 
@@ -138,7 +138,7 @@ class TestRm:
         pd = make_process(tmp_path)
         write_unit(pd, "A", [], [])
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", unit_name="A")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", unit="A")
         rc = run_rm(args)
         assert rc == 0
         assert not (pd / "A.yaml").exists()
@@ -148,7 +148,7 @@ class TestRm:
         write_unit(pd, "A", [], ["B"])
         write_unit(pd, "B", ["A"], [])
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", unit_name="A", force=True)
+        args = FakeArgs(root=str(tmp_path), process="test-proc", unit="A", force=True)
         rc = run_rm(args)
         assert rc == 0
 
@@ -160,7 +160,7 @@ class TestRm:
         write_unit(pd, "A", [], ["B"])
         write_unit(pd, "B", ["A"], [])
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", unit_name="A")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", unit="A")
         rc = run_rm(args)
         # B の link.up が空になる → warn + abort
         assert rc == 1
@@ -171,7 +171,7 @@ class TestRm:
         write_unit(pd, "A", [], ["B"])
         write_unit(pd, "B", ["A"], [])
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", unit_name="A", force=True)
+        args = FakeArgs(root=str(tmp_path), process="test-proc", unit="A", force=True)
         rc = run_rm(args)
         assert rc == 0
         assert not (pd / "A.yaml").exists()
@@ -181,7 +181,7 @@ class TestRm:
         write_unit(pd, "A", [], ["B"])
         write_unit(pd, "B", ["A"], [])
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", unit_name="A", dry_run=True)
+        args = FakeArgs(root=str(tmp_path), process="test-proc", unit="A", dry_run=True)
         rc = run_rm(args)
         assert rc == 0
         assert (pd / "A.yaml").exists()
@@ -190,7 +190,7 @@ class TestRm:
 
     def test_missing_unit_returns_error(self, tmp_path):
         pd = make_process(tmp_path)
-        args = FakeArgs(root=str(tmp_path), process="test-proc", unit_name="NoExist")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", unit="NoExist")
         assert run_rm(args) == 1
 
     def test_middle_unit_removal_updates_both_neighbors(self, tmp_path):
@@ -200,7 +200,7 @@ class TestRm:
         write_unit(pd, "B", ["A"], ["C"])
         write_unit(pd, "C", ["B"], [])
 
-        args = FakeArgs(root=str(tmp_path), process="test-proc", unit_name="B", force=True)
+        args = FakeArgs(root=str(tmp_path), process="test-proc", unit="B", force=True)
         rc = run_rm(args)
         assert rc == 0
 
@@ -214,14 +214,14 @@ class TestRm:
 
 class TestRenameFailures:
     def test_no_bizspec_dir(self, tmp_path, capsys):
-        args = FakeArgs(root=str(tmp_path), process="x", old_name="A", new_name="B")
+        args = FakeArgs(root=str(tmp_path), process="x", old="A", new="B")
         rc = run_rename(args)
         assert rc == 1
         assert "が見つかりません" in capsys.readouterr().err
 
     def test_process_dir_not_found(self, tmp_path, capsys):
         (tmp_path / "bizspec").mkdir()
-        args = FakeArgs(root=str(tmp_path), process="missing", old_name="A", new_name="B")
+        args = FakeArgs(root=str(tmp_path), process="missing", old="A", new="B")
         rc = run_rename(args)
         assert rc == 1
         assert "プロセス" in capsys.readouterr().err
@@ -229,7 +229,7 @@ class TestRenameFailures:
     def test_same_name_rejected(self, tmp_path, capsys):
         pd = make_process(tmp_path)
         write_unit(pd, "A", [], [])
-        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="A", new_name="A")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old="A", new="A")
         rc = run_rename(args)
         assert rc == 1
         assert "同じ" in capsys.readouterr().err
@@ -237,7 +237,7 @@ class TestRenameFailures:
     def test_old_unit_not_found(self, tmp_path, capsys):
         pd = make_process(tmp_path)
         write_unit(pd, "A", [], [])
-        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="Missing", new_name="X")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old="Missing", new="X")
         rc = run_rename(args)
         assert rc == 1
         assert "見つかりません" in capsys.readouterr().err
@@ -246,7 +246,7 @@ class TestRenameFailures:
         pd = make_process(tmp_path)
         write_unit(pd, "A", [], [])
         write_unit(pd, "B", [], [])
-        args = FakeArgs(root=str(tmp_path), process="test-proc", old_name="A", new_name="B")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", old="A", new="B")
         rc = run_rename(args)
         assert rc == 1
         assert "すでに存在" in capsys.readouterr().err
@@ -268,7 +268,7 @@ class TestRenameFailures:
             encoding="utf-8",
         )
         args = FakeArgs(root=str(tmp_path), process="proc-a",
-                        old_name="X", new_name="X_new", dry_run=True)
+                        old="X", new="X_new", dry_run=True)
         rc = run_rename(args)
         out = capsys.readouterr().out
         assert rc == 0
@@ -278,14 +278,14 @@ class TestRenameFailures:
 
 class TestRmFailures:
     def test_no_bizspec_dir(self, tmp_path, capsys):
-        args = FakeArgs(root=str(tmp_path), process="x", unit_name="A")
+        args = FakeArgs(root=str(tmp_path), process="x", unit="A")
         rc = run_rm(args)
         assert rc == 1
         assert "が見つかりません" in capsys.readouterr().err
 
     def test_process_dir_not_found(self, tmp_path, capsys):
         (tmp_path / "bizspec").mkdir()
-        args = FakeArgs(root=str(tmp_path), process="missing", unit_name="A")
+        args = FakeArgs(root=str(tmp_path), process="missing", unit="A")
         rc = run_rm(args)
         assert rc == 1
         assert "プロセス" in capsys.readouterr().err
@@ -293,7 +293,7 @@ class TestRmFailures:
     def test_unit_not_found(self, tmp_path, capsys):
         pd = make_process(tmp_path)
         write_unit(pd, "A", [], [])
-        args = FakeArgs(root=str(tmp_path), process="test-proc", unit_name="Missing")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", unit="Missing")
         rc = run_rm(args)
         assert rc == 1
         assert "見つかりません" in capsys.readouterr().err
@@ -302,7 +302,7 @@ class TestRmFailures:
         pd = make_process(tmp_path)
         write_unit(pd, "A", [], ["B"])
         write_unit(pd, "B", ["A"], [])
-        args = FakeArgs(root=str(tmp_path), process="test-proc", unit_name="B")
+        args = FakeArgs(root=str(tmp_path), process="test-proc", unit="B")
         rc = run_rm(args)
         out = capsys.readouterr().out
         assert rc == 1
@@ -326,7 +326,7 @@ class TestRmFailures:
             "depends_on:\n  - proc-a:X\n",
             encoding="utf-8",
         )
-        args = FakeArgs(root=str(tmp_path), process="proc-a", unit_name="X")
+        args = FakeArgs(root=str(tmp_path), process="proc-a", unit="X")
         rc = run_rm(args)
         out = capsys.readouterr().out
         # rm proceeds (no link disconnect since X is isolated in proc-a)

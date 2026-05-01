@@ -61,12 +61,14 @@ def _find_depends_on_refs(bizspec_dir: Path, process: str, unit_name: str) -> li
 
 
 def run_rename(args) -> int:
+    from .core.prompt import confirm
     root = Path(args.root).resolve()
     bizspec_dir = root / "bizspec"
     process_dir = bizspec_dir / args.process
-    old_name: str = args.old_name
-    new_name: str = args.new_name
+    old_name: str = args.old
+    new_name: str = args.new
     dry_run: bool = getattr(args, "dry_run", False)
+    yes: bool     = getattr(args, "yes", False)
 
     if not bizspec_dir.exists():
         print(f"ERROR: {bizspec_dir} が見つかりません", file=sys.stderr)
@@ -110,6 +112,12 @@ def run_rename(args) -> int:
         print()
         return 0
 
+    # 確認プロンプト（TTY 環境でのみ）
+    extra = f"、{len(link_refs)} ファイルの link 参照も更新" if link_refs else ""
+    if not confirm(f"\n'{old_name}' を '{new_name}' にリネームします{extra}", yes=yes):
+        print("中止しました")
+        return 1
+
     # ファイル書き換え・リネーム
     data = yaml.safe_load(old_path.read_text(encoding="utf-8"))
     data["unit"] = new_name
@@ -148,12 +156,14 @@ def run_rename(args) -> int:
 
 
 def run_rm(args) -> int:
+    from .core.prompt import confirm
     root = Path(args.root).resolve()
     bizspec_dir = root / "bizspec"
     process_dir = bizspec_dir / args.process
-    unit_name: str = args.unit_name
+    unit_name: str = args.unit
     dry_run: bool = getattr(args, "dry_run", False)
     force: bool = getattr(args, "force", False)
+    yes: bool   = getattr(args, "yes", False)
 
     if not bizspec_dir.exists():
         print(f"ERROR: {bizspec_dir} が見つかりません", file=sys.stderr)
@@ -200,6 +210,12 @@ def run_rm(args) -> int:
         for msg in disconnects:
             print(msg)
         print("\n続けるには --force を指定してください")
+        return 1
+
+    # 確認プロンプト（TTY 環境でのみ）
+    extra = f"、{len(link_refs)} ファイルの link 参照も削除" if link_refs else ""
+    if not confirm(f"\n'{unit_name}' を削除します{extra}", yes=yes):
+        print("中止しました")
         return 1
 
     target_path.unlink()
