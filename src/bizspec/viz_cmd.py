@@ -4,7 +4,7 @@ import json
 import sys
 from pathlib import Path
 
-import yaml
+from .core.loader import load_units as _load_units, load_process_meta as _load_process_meta
 
 
 NODE_W = 200
@@ -12,31 +12,6 @@ NODE_H = 54
 H_GAP  = 20
 V_GAP  = 56
 MIN_CANVAS_W = 280
-
-
-def _load_units(process_dir: Path) -> list[dict]:
-    units = []
-    for path in sorted(process_dir.glob("*.yaml")):
-        if path.name.startswith("_"):
-            continue
-        try:
-            data = yaml.safe_load(path.read_text(encoding="utf-8"))
-            if isinstance(data, dict):
-                units.append(data)
-        except Exception:
-            pass
-    return units
-
-
-def _load_process_meta(process_dir: Path) -> dict:
-    meta_path = process_dir / "_process.yaml"
-    if not meta_path.exists():
-        return {}
-    try:
-        data = yaml.safe_load(meta_path.read_text(encoding="utf-8"))
-        return data if isinstance(data, dict) else {}
-    except Exception:
-        return {}
 
 
 def _topo_levels(units: list[dict]) -> list[list[str]]:

@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import yaml
+from .core.loader import load_units_with_paths
 
 _ALL_FIELDS = ("unit", "aim", "scope", "rule", "io", "executor", "depends_on")
 FIELD_CHOICES = list(_ALL_FIELDS)
@@ -47,15 +47,7 @@ def _search_process(process_dir: Path, keyword: str, fields: tuple[str, ...]) ->
     """マッチした unit の情報を返す。"""
     hits: list[dict] = []
     kw_lower = keyword.lower()
-    for path in sorted(process_dir.glob("*.yaml")):
-        if path.name.startswith("_"):
-            continue
-        try:
-            data = yaml.safe_load(path.read_text(encoding="utf-8"))
-        except Exception:
-            continue
-        if not isinstance(data, dict):
-            continue
+    for path, data in load_units_with_paths(process_dir):
         unit_name = str(data.get("unit", path.stem))
         matched: list[tuple[str, str]] = []
         for field_path, text in _extract_texts(data, fields):

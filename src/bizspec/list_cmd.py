@@ -6,19 +6,7 @@ from pathlib import Path
 
 import yaml
 
-
-def _load_units(process_dir: Path) -> list[dict]:
-    units = []
-    for path in sorted(process_dir.glob("*.yaml")):
-        if path.name.startswith("_"):
-            continue
-        try:
-            data = yaml.safe_load(path.read_text(encoding="utf-8"))
-            if isinstance(data, dict):
-                units.append(data)
-        except Exception:
-            pass
-    return units
+from .core.loader import load_units as _load_units
 
 
 def _unit_to_refactor_entry(u: dict) -> dict:

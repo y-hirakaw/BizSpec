@@ -7,25 +7,9 @@ from pathlib import Path
 
 import yaml
 
+from .core.loader import load_units_by_name as _load_units
+
 _PREFIX_RE = re.compile(r"^\d+_")
-
-
-def _load_units(process_dir: Path) -> dict[str, tuple[Path, dict]]:
-    """unit名 → (ファイルパス, data) のマップを返す。"""
-    units: dict[str, tuple[Path, dict]] = {}
-    for path in sorted(process_dir.glob("*.yaml")):
-        if path.name.startswith("_"):
-            continue
-        try:
-            data = yaml.safe_load(path.read_text(encoding="utf-8"))
-        except Exception:
-            continue
-        if not isinstance(data, dict):
-            continue
-        unit_name = data.get("unit")
-        if isinstance(unit_name, str):
-            units[unit_name] = (path, data)
-    return units
 
 
 def _topological_sort(units: dict[str, tuple[Path, dict]]) -> list[str]:

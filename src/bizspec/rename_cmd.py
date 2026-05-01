@@ -7,6 +7,8 @@ from typing import Optional
 
 import yaml
 
+from .core.loader import load_units_by_name as _load_all_units
+
 _PREFIX_RE = re.compile(r"^\d+_")
 
 
@@ -19,21 +21,6 @@ def _find_unit_file(process_dir: Path, unit_name: str) -> Optional[Path]:
         if not p.name.startswith("_") and _PREFIX_RE.sub("", p.stem) == unit_name:
             return p
     return None
-
-
-def _load_all_units(process_dir: Path) -> dict[str, tuple[Path, dict]]:
-    """unit名 → (パス, data) を返す。"""
-    units: dict[str, tuple[Path, dict]] = {}
-    for path in sorted(process_dir.glob("*.yaml")):
-        if path.name.startswith("_"):
-            continue
-        try:
-            data = yaml.safe_load(path.read_text(encoding="utf-8"))
-        except Exception:
-            continue
-        if isinstance(data, dict) and isinstance(data.get("unit"), str):
-            units[data["unit"]] = (path, data)
-    return units
 
 
 def _write_yaml(path: Path, data: dict) -> None:
@@ -60,20 +47,13 @@ def _find_link_refs(units: dict[str, tuple[Path, dict]], target: str) -> list[tu
 
 def _find_depends_on_refs(bizspec_dir: Path, process: str, unit_name: str) -> list[tuple[Path, str]]:
     """他プロセスの depends_on で process:unit_name を参照しているファイルを返す。"""
+    from .core.loader import iter_processes, load_units_with_paths
     refs = []
     entry = f"{process}:{unit_name}"
-    for proc_dir in sorted(bizspec_dir.iterdir()):
-        if not proc_dir.is_dir() or proc_dir.name.startswith("_") or proc_dir.name == process:
+    for proc_dir in iter_processes(bizspec_dir):
+        if proc_dir.name == process:
             continue
-        for path in sorted(proc_dir.glob("*.yaml")):
-            if path.name.startswith("_"):
-                continue
-            try:
-                data = yaml.safe_load(path.read_text(encoding="utf-8"))
-            except Exception:
-                continue
-            if not isinstance(data, dict):
-                continue
+        for path, data in load_units_with_paths(proc_dir):
             deps = data.get("depends_on") or []
             if isinstance(deps, list) and entry in deps:
                 refs.append((path, str(path.relative_to(bizspec_dir.parent))))
