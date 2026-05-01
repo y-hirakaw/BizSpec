@@ -83,10 +83,33 @@ class TestCheckFile:
         errors, _ = _check_file(tmp_path / "TestUnit.yaml")
         assert any(e.field == "aim" for e in errors)
 
-    def test_invalid_core_undetermined(self, tmp_path):
+    def test_core_undetermined_allowed(self, tmp_path):
+        """'undetermined' は AI がユーザー確認待ちで使う仮置き値として許容される。"""
         write_unit(tmp_path, "TestUnit", make_unit("TestUnit", core="undetermined"))
         errors, _ = _check_file(tmp_path / "TestUnit.yaml")
+        assert not any(e.field == "core" for e in errors)
+
+    def test_invalid_core_value(self, tmp_path):
+        """true / false / 'undetermined' 以外はエラー。"""
+        write_unit(tmp_path, "TestUnit", make_unit("TestUnit", core="maybe"))
+        errors, _ = _check_file(tmp_path / "TestUnit.yaml")
         assert any(e.field == "core" for e in errors)
+
+    def test_phase_recommended_no_warn(self, tmp_path):
+        """推奨語彙の phase は warn にもならない。"""
+        # make_unit のデフォルト phase は "spec"
+        write_unit(tmp_path, "U", make_unit("U"))
+        diags, _ = _check_file(tmp_path / "U.yaml")
+        assert not any(d.field == "phase" for d in diags)
+
+    def test_phase_unknown_emits_warn(self, tmp_path):
+        """推奨外の phase は severity='warn' で報告される（エラーではない）。"""
+        content = make_unit("U").replace("phase: spec", "phase: 知らない値")
+        write_unit(tmp_path, "U", content)
+        diags, _ = _check_file(tmp_path / "U.yaml")
+        phase_diags = [d for d in diags if d.field == "phase"]
+        assert len(phase_diags) == 1
+        assert phase_diags[0].severity == "warn"
 
     def test_invalid_executor_type(self, tmp_path):
         write_unit(tmp_path, "TestUnit", make_unit("TestUnit", executor_type="human"))

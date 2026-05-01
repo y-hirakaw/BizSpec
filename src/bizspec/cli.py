@@ -1,5 +1,6 @@
 import argparse
 import sys
+from bizspec import __version__
 from bizspec.init_cmd import run_init
 from bizspec.list_cmd import run_list
 from bizspec.new_cmd import run_new
@@ -12,6 +13,11 @@ from bizspec.viz_cmd import run_viz
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="bizspec")
+    parser.add_argument(
+        "-V", "--version",
+        action="version",
+        version=f"bizspec {__version__}",
+    )
     parser.add_argument(
         "--root",
         default=".",

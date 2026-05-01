@@ -15,6 +15,7 @@ VALID_EXECUTOR_TYPES    = {"script", "ai_agent", "manual"}
 VALID_DIFFICULTY        = {"low", "medium", "high"}
 VALID_AUTO_STATUS       = {"manual", "partially-automated", "automated"}
 VALID_LIFECYCLE_STATUS  = {"draft", "review", "stable", "deprecated"}
+RECOMMENDED_PHASES      = {"spec", "dev", "test", "release", "ops"}
 FIBONACCI_HOURS         = {0.5, 1, 2, 3, 5, 8, 13, 21}
 NON_EMPTY_LIST_FIELDS   = ["scope", "rule"]
 
@@ -24,6 +25,7 @@ class VError:
     file: Path
     field: str
     message: str
+    severity: str = "error"  # "error" or "warn"
 
 
 def _detect_yaml_hint(line: str) -> str:
@@ -93,10 +95,22 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
                 f"unit 名 '{unit_name}' とファイル名 '{path.name}' が一致しません"
                 f"（期待: {unit_name}.yaml または NN_{unit_name}.yaml）"))
 
-    # core は真偽値のみ
-    if "core" in data and not isinstance(data["core"], bool):
-        errors.append(VError(path, "core",
-            f"true / false でなければなりません（現在: {data['core']!r}）"))
+    # core は真偽値または "undetermined"（ユーザー確認待ちの仮置き）
+    if "core" in data:
+        v = data["core"]
+        if not (isinstance(v, bool) or v == "undetermined"):
+            errors.append(VError(path, "core",
+                f"true / false / 'undetermined' のいずれかでなければなりません（現在: {v!r}）"))
+
+    # phase は推奨語彙に含まれていれば良い（warn）
+    if "phase" in data and isinstance(data["phase"], str):
+        ph = data["phase"]
+        if ph not in RECOMMENDED_PHASES:
+            errors.append(VError(
+                path, "phase",
+                f"推奨語彙 {sorted(RECOMMENDED_PHASES)} に含まれていません（現在: {ph!r}）",
+                severity="warn",
+            ))
 
     # executor
     if "executor" in data:
@@ -307,8 +321,11 @@ def run_validate(args) -> int:
     # 全プロセスを集計（出力形式に依らず同じデータを作る）
     results: list[dict] = []
     total_errors = 0
+    total_warns = 0
     for process_dir in process_dirs:
-        errors = _check_process(process_dir, bizspec_dir)
+        diags = _check_process(process_dir, bizspec_dir)
+        errors = [d for d in diags if d.severity == "error"]
+        warns  = [d for d in diags if d.severity == "warn"]
         unit_count = len([p for p in process_dir.glob("*.yaml") if not p.name.startswith("_")])
         results.append({
             "process": process_dir.name,
@@ -322,13 +339,23 @@ def run_validate(args) -> int:
                 }
                 for e in errors
             ],
+            "warns": [
+                {
+                    "file": str(w.file.relative_to(root)),
+                    "field": w.field,
+                    "message": w.message,
+                }
+                for w in warns
+            ],
         })
         total_errors += len(errors)
+        total_warns += len(warns)
 
     if fmt == "json":
         print(_json.dumps({
             "ok": total_errors == 0,
             "total_errors": total_errors,
+            "total_warns": total_warns,
             "processes": results,
         }, ensure_ascii=False, indent=2))
         return 0 if total_errors == 0 else 1
@@ -343,11 +370,18 @@ def run_validate(args) -> int:
                 fname = Path(e["file"]).name
                 print(f"      {fname:<40}  [{e['field']}]  {e['message']}")
         else:
-            print(f"PASS  {label}  ({r['unit_count']} units)")
+            warn_suffix = f"  ({len(r['warns'])} warns)" if r["warns"] else ""
+            print(f"PASS  {label}  ({r['unit_count']} units){warn_suffix}")
+        for w in r["warns"]:
+            fname = Path(w["file"]).name
+            print(f"WARN  {fname:<40}  [{w['field']}]  {w['message']}")
 
     print()
     if total_errors == 0:
-        print("✓ すべての検証が通過しました")
+        msg = "✓ すべての検証が通過しました"
+        if total_warns:
+            msg += f"（warn {total_warns} 件）"
+        print(msg)
         return 0
 
     print(f"✗ {total_errors} 件のエラーが見つかりました")

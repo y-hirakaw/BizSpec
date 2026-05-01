@@ -51,7 +51,7 @@ Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx
 ```yaml
 unit: 〇〇判定
 aim: 目的
-phase: spec | dev | test | release  # 自由記述。フォルダではなくフィールドで管理
+phase: spec | dev | test | release | ops  # 自由記述だが推奨語彙あり
 scope: [この unit が責任を持つ範囲・成果物（名詞句）]
 rule: [制約・判断基準]
 link:
@@ -83,7 +83,7 @@ execution:                 # 実行制御ヒント（省略可）
 
 フィールドの補足：
 - `core: undetermined` — ユーザー確認が必要な場合に使用
-- `phase` — 自由記述。フォルダではなくフィールドで管理
+- `phase` — 自由記述。フォルダではなくフィールドで管理。推奨語彙は `spec` / `dev` / `test` / `release` / `ops`（外れた値は `bizspec validate` で warn 表示、エラーにはならない）
 - `depends_on` — 他プロセスの unit への依存を `プロセス名:unit名` 形式で記述（省略可）
 - `effort` / `automation` / `status` — 省略可。`bizspec list` の列と `bizspec viz` 詳細パネルに表示
 - `effort.duration × effort.frequency` — 月間コストを算出し viz ヒートマップに反映
