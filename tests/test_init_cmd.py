@@ -78,18 +78,36 @@ def test_init_invalid_choice(monkeypatch, capsys):
 
 
 def test_init_overwrites_existing(monkeypatch, tmp_path):
-    """既存のスキルディレクトリは上書きされる"""
+    """既存のスキルディレクトリは確認後に上書きされる"""
     dest = tmp_path / ".claude" / "skills"
     stale = dest / "bizspec-refine"
     stale.mkdir(parents=True)
     (stale / "OLD.md").write_text("old content")
 
     monkeypatch.setattr(init_cmd, "_local_dest", lambda: dest)
-    monkeypatch.setattr("builtins.input", lambda _: "")
+    inputs = iter(["", "y"])  # scope=local (default), overwrite confirm=yes
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
     init_cmd.run_init(None)
 
     assert not (stale / "OLD.md").exists()
     assert (stale / "SKILL.md").exists()
+
+
+def test_init_overwrite_aborts_on_no(monkeypatch, tmp_path, capsys):
+    """既存ディレクトリがあって確認を拒否すると中止される"""
+    dest = tmp_path / ".claude" / "skills"
+    stale = dest / "bizspec-refine"
+    stale.mkdir(parents=True)
+    (stale / "OLD.md").write_text("old content")
+
+    monkeypatch.setattr(init_cmd, "_local_dest", lambda: dest)
+    inputs = iter(["", "n"])  # scope=local, overwrite confirm=no
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+    rc = init_cmd.run_init(None)
+
+    assert rc == 1
+    assert (stale / "OLD.md").exists()  # preserved
+    assert "中止" in capsys.readouterr().out
 
 
 def test_init_local_creates_bizspec_dir(monkeypatch, tmp_path):

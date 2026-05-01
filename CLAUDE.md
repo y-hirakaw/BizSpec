@@ -28,6 +28,8 @@ BizSpec_要求仕様.md              # 要件定義書
 
 Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx` と揃える）。
 
+**Skills の正本ルール:** SKILL.md の編集は **必ず `src/bizspec/skills/` 側を正本** として行うこと。`.claude/skills/` 側は `bizspec init` で `src/bizspec/skills/` から **コピーされる出力** であり、`init` 実行時に既存ディレクトリは無警告で `rmtree` される。両方を編集した場合は `src/bizspec/skills/` の内容で上書きされる。CI / リリース前に `diff -r src/bizspec/skills/ .claude/skills/` で同期されていることを確認する。
+
 ## CLI コマンド
 
 | コマンド | 概要 |

@@ -35,6 +35,10 @@ disable-model-invocation: true
 - 複数の Output が混在している
 - 実行主体が unit 内で切り替わる
 
+**安全装置（暴走防止）:**
+- 1 プロセスの unit 数が **15 を超える**、または分解の階層が **4 段を超える** 場合は分割を止め、ユーザーに「統合可否」を確認する。
+- 「これ以上分割すると逆に管理しづらくなる」と感じた段階で、AI 単独で続けず必ずユーザーに判断を仰ぐ。
+
 ### ステップ3: link の整理
 
 `link.up/down` は**実行順序**を表す（データの依存関係ではない）。
@@ -94,6 +98,8 @@ AIが独断で `core` を確定させてはいけない。
 
 複数の unit は `---` で区切る。
 
+### 必須部分
+
 ```yaml
 unit: <動詞+目的語で簡潔に>
 aim: <この unit が達成する目的>
@@ -119,6 +125,49 @@ executor:
   type: script | ai_agent | manual
   reason: <選んだ根拠（1行）>
 ```
+
+### 拡張フィールド（条件付きで埋める）
+
+以下は省略可能だが、ユーザーとの会話やプロセス情報から **以下のヒントが得られたら必ず埋める**。
+これらが揃っていると `bizspec viz`（ヒートマップ・ステータス色分け・並列エッジ）と `/bizspec-refactor`（負荷分析・ボトルネック検出）が機能する。
+
+```yaml
+# 月間コストが算出可能なとき → effort を埋める
+effort:
+  duration: 0.5      # 1回あたりの所要時間（時間単位、フィボナッチ: 0.5/1/2/3/5/8/13/21）
+  frequency: 4       # 月間実行回数（1以上の整数）
+
+# 自動化の現状と難易度が分かるとき → automation を埋める
+automation:
+  difficulty: low | medium | high                          # 自動化の技術的難しさ
+  status: manual | partially-automated | automated         # 現在の対応状況
+
+# unit のライフサイクル状態を持たせたいとき → status を埋める
+status: draft | review | stable | deprecated
+deprecated_reason: <廃止理由>   # status: deprecated のときのみ
+
+# 他プロセスの unit に依存するとき → depends_on を埋める
+depends_on:
+  - <other-process>:<UnitName>
+
+# 並列実行可能な unit があるとき → execution.parallel_with を埋める
+execution:
+  parallel_with:
+    - <SiblingUnit>
+```
+
+**埋めるヒューリスティクス:**
+
+| ユーザー発言 / 観察 | 埋めるフィールド |
+|---|---|
+| 「30 分くらいかかる」「週 2 回やる」など時間・頻度に言及 | `effort.duration` / `effort.frequency` |
+| 「今は手作業」「自動化したい」「半自動」など現状言及 | `automation.status` |
+| 「スクリプト化は難しい」「API があるから簡単」など難易度言及 | `automation.difficulty` |
+| 「まだドラフト」「廃止予定」などライフサイクル言及 | `status` |
+| 「別プロセスの〇〇の出力を使う」「△△が終わってから」 | `depends_on` |
+| 「これと並行で進められる」「同時に走らせる」 | `execution.parallel_with` |
+
+埋めるかどうか不明なら省略してよい（必須ではない）。
 
 ## 利用できる CLI コマンド
 

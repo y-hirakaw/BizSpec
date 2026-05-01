@@ -40,6 +40,15 @@ def run_init(_args) -> int:
         return 1
 
     dest.mkdir(parents=True, exist_ok=True)
+    existing = [d for d in skill_dirs if (dest / d.name).exists()]
+    if existing:
+        names = ", ".join(d.name for d in existing)
+        print(f"\n⚠️  既存のスキルディレクトリを上書きします: {names}")
+        print("    （SKILL.md の正本は src/bizspec/skills/ 側です。.claude/skills/ 側の手動編集は破棄されます）")
+        confirm = input("続行しますか？ [y/N]: ").strip().lower()
+        if confirm != "y":
+            print("中止しました。")
+            return 1
     for skill_dir in skill_dirs:
         target = dest / skill_dir.name
         if target.exists():
