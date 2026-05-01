@@ -24,10 +24,12 @@ io:
 executor:
   type: manual
   reason: 対策の設計・実装判断はエンジニアリングの専門的判断が必要なため
+depends_on:
+  - bug-fix:修正実装
 effort:
   duration: 3
   frequency: 1
 automation:
   difficulty: high
   status: manual
-status: stable
+status: draft

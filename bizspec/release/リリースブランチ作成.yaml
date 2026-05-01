@@ -26,6 +26,8 @@ io:
 executor:
   type: script
   reason: ブランチ作成・タグ付与・CHANGELOG 更新は定型化・自動化できるため
+depends_on:
+  - pr-review:承認判定
 effort:
   duration: 0.5
   frequency: 2

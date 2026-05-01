@@ -26,9 +26,11 @@ io:
 executor:
   type: script
   reason: CI/CD パイプラインで自動実行できるため
+depends_on:
+  - testing:テスト結果報告
 effort:
   duration: 0.5
-  frequency: 2
+  frequency: 5
 automation:
   difficulty: low
   status: automated

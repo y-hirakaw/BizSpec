@@ -30,4 +30,7 @@ effort:
 automation:
   difficulty: low
   status: partially-automated
+execution:
+  parallel_with:
+    - バグ起票
 status: stable

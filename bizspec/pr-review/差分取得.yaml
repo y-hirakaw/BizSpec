@@ -26,6 +26,7 @@ executor:
   reason: GitHub API の定型呼び出しで完結するため
 depends_on:
   - issue-refinement:Ready判定
+  - implementation:PR作成
 effort:
   duration: 0.5
   frequency: 40

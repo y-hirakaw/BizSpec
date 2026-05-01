@@ -436,7 +436,9 @@ const units     = {
     },
     "lifecycle_status": null,
     "deprecated_reason": null,
-    "parallel_with": []
+    "parallel_with": [
+      "スパイクPBI作成"
+    ]
   },
   "ストーリーポイント算出": {
     "aim": "PBI の複雑度・不確実性・規模をもとに SP を算出する",
@@ -748,7 +750,7 @@ const units     = {
   }
 };
 const positions = {"PBI情報取得": {"left": 220, "top": 24}, "記載内容妥当性評価": {"left": 220, "top": 134}, "Ready判定": {"left": 220, "top": 244}, "ストーリーポイント算出": {"left": 220, "top": 354}, "技術PBI分解要否判断": {"left": 220, "top": 464}, "分解パターン選択": {"left": 220, "top": 574}, "スコープ別PBI分割": {"left": 0, "top": 684}, "スパイクPBI作成": {"left": 220, "top": 684}, "プラットフォーム別PBI分割": {"left": 440, "top": 684}};
-const edges     = [["PBI情報取得", "記載内容妥当性評価", "seq"], ["Ready判定", "ストーリーポイント算出", "seq"], ["ストーリーポイント算出", "技術PBI分解要否判断", "seq"], ["分解パターン選択", "プラットフォーム別PBI分割", "seq"], ["分解パターン選択", "スパイクPBI作成", "seq"], ["分解パターン選択", "スコープ別PBI分割", "seq"], ["技術PBI分解要否判断", "分解パターン選択", "seq"], ["記載内容妥当性評価", "Ready判定", "seq"], ["記載内容妥当性評価", "技術PBI分解要否判断", "seq"]];
+const edges     = [["PBI情報取得", "記載内容妥当性評価", "seq"], ["Ready判定", "ストーリーポイント算出", "seq"], ["スコープ別PBI分割", "スパイクPBI作成", "parallel"], ["ストーリーポイント算出", "技術PBI分解要否判断", "seq"], ["分解パターン選択", "プラットフォーム別PBI分割", "seq"], ["分解パターン選択", "スパイクPBI作成", "seq"], ["分解パターン選択", "スコープ別PBI分割", "seq"], ["技術PBI分解要否判断", "分解パターン選択", "seq"], ["記載内容妥当性評価", "Ready判定", "seq"], ["記載内容妥当性評価", "技術PBI分解要否判断", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

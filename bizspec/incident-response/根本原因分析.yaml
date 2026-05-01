@@ -31,4 +31,5 @@ effort:
 automation:
   difficulty: high
   status: manual
-status: stable
+status: deprecated
+deprecated_reason: 5 Why 単独では原因把握が浅くなる傾向があり、より体系的な手法（CAST 等）への置き換えを検討中

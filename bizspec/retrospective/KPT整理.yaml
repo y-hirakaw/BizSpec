@@ -31,4 +31,5 @@ effort:
 automation:
   difficulty: high
   status: manual
-status: stable
+status: deprecated
+deprecated_reason: チームの規模拡大に伴い KPT の発散時間が肥大化したため、Lean Coffee 形式に移行予定

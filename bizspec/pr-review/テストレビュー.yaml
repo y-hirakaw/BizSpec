@@ -31,3 +31,6 @@ effort:
 automation:
   difficulty: medium
   status: partially-automated
+execution:
+  parallel_with:
+    - ロジックレビュー

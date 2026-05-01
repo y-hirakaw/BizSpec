@@ -629,7 +629,7 @@ const ALL_DATA   = {
           "difficulty": "low",
           "status": "automated"
         },
-        "lifecycle_status": "stable",
+        "lifecycle_status": "review",
         "deprecated_reason": null,
         "parallel_with": []
       },
@@ -828,7 +828,9 @@ const ALL_DATA   = {
           ],
           "down": []
         },
-        "depends_on": [],
+        "depends_on": [
+          "pr-review:承認判定"
+        ],
         "effort": {
           "duration": 0.5,
           "frequency": 8
@@ -933,7 +935,7 @@ const ALL_DATA   = {
           "difficulty": "high",
           "status": "manual"
         },
-        "lifecycle_status": "stable",
+        "lifecycle_status": "draft",
         "deprecated_reason": null,
         "parallel_with": []
       },
@@ -1194,7 +1196,7 @@ const ALL_DATA   = {
           "difficulty": "medium",
           "status": "partially-automated"
         },
-        "lifecycle_status": "stable",
+        "lifecycle_status": "review",
         "deprecated_reason": null,
         "parallel_with": []
       },
@@ -1889,7 +1891,9 @@ const ALL_DATA   = {
             "ポストモーテム作成"
           ]
         },
-        "depends_on": [],
+        "depends_on": [
+          "bug-fix:修正実装"
+        ],
         "effort": {
           "duration": 3,
           "frequency": 1
@@ -1898,7 +1902,7 @@ const ALL_DATA   = {
           "difficulty": "high",
           "status": "manual"
         },
-        "lifecycle_status": "stable",
+        "lifecycle_status": "draft",
         "deprecated_reason": null,
         "parallel_with": []
       },
@@ -1948,8 +1952,8 @@ const ALL_DATA   = {
           "difficulty": "high",
           "status": "manual"
         },
-        "lifecycle_status": "stable",
-        "deprecated_reason": null,
+        "lifecycle_status": "deprecated",
+        "deprecated_reason": "5 Why 単独では原因把握が浅くなる傾向があり、より体系的な手法（CAST 等）への置き換えを検討中",
         "parallel_with": []
       }
     },
@@ -2165,7 +2169,9 @@ const ALL_DATA   = {
         },
         "lifecycle_status": null,
         "deprecated_reason": null,
-        "parallel_with": []
+        "parallel_with": [
+          "スパイクPBI作成"
+        ]
       },
       "ストーリーポイント算出": {
         "aim": "PBI の複雑度・不確実性・規模をもとに SP を算出する",
@@ -2524,6 +2530,11 @@ const ALL_DATA   = {
         "Ready判定",
         "ストーリーポイント算出",
         "seq"
+      ],
+      [
+        "スコープ別PBI分割",
+        "スパイクPBI作成",
+        "parallel"
       ],
       [
         "ストーリーポイント算出",
@@ -2939,7 +2950,9 @@ const ALL_DATA   = {
         },
         "lifecycle_status": null,
         "deprecated_reason": null,
-        "parallel_with": []
+        "parallel_with": [
+          "ロジックレビュー"
+        ]
       },
       "ロジックレビュー": {
         "aim": "実装ロジックの正しさと設計の妥当性を評価する",
@@ -3027,7 +3040,8 @@ const ALL_DATA   = {
           ]
         },
         "depends_on": [
-          "issue-refinement:Ready判定"
+          "issue-refinement:Ready判定",
+          "implementation:PR作成"
         ],
         "effort": {
           "duration": 0.5,
@@ -3116,6 +3130,11 @@ const ALL_DATA   = {
         "テストレビュー",
         "承認判定",
         "seq"
+      ],
+      [
+        "テストレビュー",
+        "ロジックレビュー",
+        "parallel"
       ],
       [
         "ロジックレビュー",
@@ -3238,7 +3257,7 @@ const ALL_DATA   = {
         "depends_on": [],
         "effort": {
           "duration": 1,
-          "frequency": 2
+          "frequency": 8
         },
         "automation": {
           "difficulty": "medium",
@@ -3286,7 +3305,9 @@ const ALL_DATA   = {
             "ステージング確認"
           ]
         },
-        "depends_on": [],
+        "depends_on": [
+          "pr-review:承認判定"
+        ],
         "effort": {
           "duration": 0.5,
           "frequency": 2
@@ -3347,7 +3368,7 @@ const ALL_DATA   = {
           "difficulty": "medium",
           "status": "partially-automated"
         },
-        "lifecycle_status": "stable",
+        "lifecycle_status": "review",
         "deprecated_reason": null,
         "parallel_with": []
       },
@@ -3436,10 +3457,12 @@ const ALL_DATA   = {
             "動作確認"
           ]
         },
-        "depends_on": [],
+        "depends_on": [
+          "testing:テスト結果報告"
+        ],
         "effort": {
           "duration": 0.5,
-          "frequency": 2
+          "frequency": 5
         },
         "automation": {
           "difficulty": "low",
@@ -3567,8 +3590,8 @@ const ALL_DATA   = {
           "difficulty": "high",
           "status": "manual"
         },
-        "lifecycle_status": "stable",
-        "deprecated_reason": null,
+        "lifecycle_status": "deprecated",
+        "deprecated_reason": "チームの規模拡大に伴い KPT の発散時間が肥大化したため、Lean Coffee 形式に移行予定",
         "parallel_with": []
       },
       "アクションアイテム決定": {
@@ -3808,7 +3831,9 @@ const ALL_DATA   = {
             "タスク分解"
           ]
         },
-        "depends_on": [],
+        "depends_on": [
+          "issue-refinement:Ready判定"
+        ],
         "effort": {
           "duration": 1,
           "frequency": 2
@@ -4124,7 +4149,7 @@ const ALL_DATA   = {
           "difficulty": "medium",
           "status": "partially-automated"
         },
-        "lifecycle_status": "stable",
+        "lifecycle_status": "draft",
         "deprecated_reason": null,
         "parallel_with": []
       },
@@ -4226,7 +4251,9 @@ const ALL_DATA   = {
         },
         "lifecycle_status": "stable",
         "deprecated_reason": null,
-        "parallel_with": []
+        "parallel_with": [
+          "バグ起票"
+        ]
       },
       "テスト計画作成": {
         "aim": "リリース対象の機能に対するテスト方針・スコープ・スケジュールを決定する",
@@ -4365,6 +4392,11 @@ const ALL_DATA   = {
         "seq"
       ],
       [
+        "テスト結果報告",
+        "バグ起票",
+        "parallel"
+      ],
+      [
         "テスト計画作成",
         "テストケース作成",
         "seq"
@@ -4386,7 +4418,7 @@ const ALL_DATA   = {
     }
   }
 };
-const CROSS_EDGES = [{"from": "issue-refinement", "to": "pr-review"}];
+const CROSS_EDGES = [{"from": "pr-review", "to": "bug-fix"}, {"from": "bug-fix", "to": "incident-response"}, {"from": "issue-refinement", "to": "pr-review"}, {"from": "implementation", "to": "pr-review"}, {"from": "pr-review", "to": "release"}, {"from": "testing", "to": "release"}, {"from": "issue-refinement", "to": "sprint-planning"}];
 
 const W = 200, H = 54;
 const NS = "http://www.w3.org/2000/svg";

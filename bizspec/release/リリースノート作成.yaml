@@ -26,7 +26,7 @@ executor:
   reason: 技術的変更をユーザー向けに要約・分類する文章生成が必要なため
 effort:
   duration: 1
-  frequency: 2
+  frequency: 8
 automation:
   difficulty: medium
   status: partially-automated

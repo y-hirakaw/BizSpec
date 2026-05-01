@@ -32,3 +32,6 @@ effort:
 automation:
   difficulty: high
   status: manual
+execution:
+  parallel_with:
+    - スパイクPBI作成

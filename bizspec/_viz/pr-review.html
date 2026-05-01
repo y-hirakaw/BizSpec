@@ -343,7 +343,9 @@ const units     = {
     },
     "lifecycle_status": null,
     "deprecated_reason": null,
-    "parallel_with": []
+    "parallel_with": [
+      "ロジックレビュー"
+    ]
   },
   "ロジックレビュー": {
     "aim": "実装ロジックの正しさと設計の妥当性を評価する",
@@ -431,7 +433,8 @@ const units     = {
       ]
     },
     "depends_on": [
-      "issue-refinement:Ready判定"
+      "issue-refinement:Ready判定",
+      "implementation:PR作成"
     ],
     "effort": {
       "duration": 0.5,
@@ -498,7 +501,7 @@ const units     = {
   }
 };
 const positions = {"差分取得": {"left": 110, "top": 24}, "テストレビュー": {"left": 0, "top": 134}, "ロジックレビュー": {"left": 220, "top": 134}, "承認判定": {"left": 110, "top": 244}};
-const edges     = [["テストレビュー", "承認判定", "seq"], ["ロジックレビュー", "承認判定", "seq"], ["差分取得", "ロジックレビュー", "seq"], ["差分取得", "テストレビュー", "seq"]];
+const edges     = [["テストレビュー", "承認判定", "seq"], ["テストレビュー", "ロジックレビュー", "parallel"], ["ロジックレビュー", "承認判定", "seq"], ["差分取得", "ロジックレビュー", "seq"], ["差分取得", "テストレビュー", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

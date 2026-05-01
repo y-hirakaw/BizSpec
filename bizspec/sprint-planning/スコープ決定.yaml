@@ -27,6 +27,8 @@ io:
 executor:
   type: manual
   reason: スコープの最終判断はチームとプロダクトオーナーの合意が必要なため
+depends_on:
+  - issue-refinement:Ready判定
 effort:
   duration: 1
   frequency: 2
