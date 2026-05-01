@@ -6,8 +6,11 @@
 ## 仕様
 
 - `_` で始まるファイル名・ディレクトリ名はスキップ（メタデータ・出力先扱い）
-- パース失敗・dict でない YAML は **黙ってスキップ**（既存挙動を維持）
-  - `tests/test_loader_behavior.py` がこの契約を固定している
+- **YAML パース失敗 (`yaml.YAMLError`) と dict でない YAML は黙ってスキップ**
+  - パース可能な YAML エラーは `bizspec validate` 側で構造化エラーとして surface する役割
+  - `tests/test_loader_behavior.py` がこの契約を固定
+- **その他の例外（`FileNotFoundError` / `PermissionError` / 等）は伝播させる**
+  - 想定外のエラーまで黙殺すると本物のバグを隠す。`except Exception` を意図的に避ける
 - 戻り値の用途別に 4 種類の API を提供：
   - `load_units`           — `list[dict]`（list/viz/search 系）
   - `load_units_with_paths`— `list[(Path, dict)]`（リネーム後参照など）
@@ -41,10 +44,14 @@ def iter_processes(bizspec_dir: Path) -> Iterator[Path]:
 
 
 def load_unit(path: Path) -> dict | None:
-    """単一の unit YAML を読む。パース失敗・dict でない場合は ``None``。"""
+    """単一の unit YAML を読む。パース失敗・dict でない場合は ``None``。
+
+    ``yaml.YAMLError`` のみ捕捉する。`FileNotFoundError` 等は伝播させる
+    （想定外の I/O エラーまで黙殺しないため）。
+    """
     try:
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except Exception:
+    except yaml.YAMLError:
         return None
     if not isinstance(data, dict):
         return None
@@ -91,6 +98,6 @@ def load_process_meta(process_dir: Path) -> dict:
         return {}
     try:
         data = yaml.safe_load(meta_path.read_text(encoding="utf-8"))
-        return data if isinstance(data, dict) else {}
-    except Exception:
+    except yaml.YAMLError:
         return {}
+    return data if isinstance(data, dict) else {}
