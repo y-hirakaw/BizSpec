@@ -28,11 +28,11 @@ def _valid_unit(name: str) -> str:
         f"unit: {name}\n"
         f"aim: aim\n"
         f"phase: spec\n"
-        f"job:\n  - 作業\n"
+        f"scope:\n  - 作業\n"
         f"rule:\n  - r\n"
         f"link:\n  up: []\n  down: []\n"
         f"core: true\n"
-        f"io:\n  in:\n    - i\n  run:\n    - r\n  out:\n    - o\n"
+        f"io:\n  in:\n    - i\n  process:\n    - r\n  out:\n    - o\n"
         f"executor:\n  type: script\n  reason: r\n"
     )
 

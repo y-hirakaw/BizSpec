@@ -21,18 +21,18 @@ def make_unit(
     core=True,
     executor_type: str = "script",
     executor_reason: str = "定型処理のため",
-    job: list | None = None,
+    scope: list | None = None,
     rule: list | None = None,
     io_in: list | None = None,
-    io_run: list | None = None,
+    io_process: list | None = None,
     io_out: list | None = None,
 ) -> str:
     up    = up    if up    is not None else []
     down  = down  if down  is not None else []
-    job   = job   if job   is not None else ["作業内容"]
-    rule  = rule  if rule  is not None else ["制約"]
+    scope  = scope if scope is not None else ["責務範囲"]
+    rule   = rule  if rule  is not None else ["制約"]
     io_in  = io_in  if io_in  is not None else ["入力"]
-    io_run = io_run if io_run is not None else ["実行手順"]
+    io_process = io_process if io_process is not None else ["実行手順"]
     io_out = io_out if io_out is not None else ["出力"]
 
     if core is True:
@@ -46,7 +46,7 @@ def make_unit(
         f"unit: {name}\n"
         f"aim: テスト用 unit\n"
         f"phase: spec\n"
-        f"job:{_list_yaml(job)}\n"
+        f"scope:{_list_yaml(scope)}\n"
         f"rule:{_list_yaml(rule)}\n"
         f"link:\n"
         f"  up:{_list_yaml(up)}\n"
@@ -54,7 +54,7 @@ def make_unit(
         f"core: {core_str}\n"
         f"io:\n"
         f"  in:{_list_yaml(io_in)}\n"
-        f"  run:{_list_yaml(io_run)}\n"
+        f"  process:{_list_yaml(io_process)}\n"
         f"  out:{_list_yaml(io_out)}\n"
         f"executor:\n"
         f"  type: {executor_type}\n"
@@ -100,9 +100,9 @@ class TestCheckFile:
         assert any(e.field == "executor.reason" for e in errors)
 
     def test_empty_job(self, tmp_path):
-        write_unit(tmp_path, "TestUnit", make_unit("TestUnit", job=[]))
+        write_unit(tmp_path, "TestUnit", make_unit("TestUnit", scope=[]))
         errors, _ = _check_file(tmp_path / "TestUnit.yaml")
-        assert any(e.field == "job" for e in errors)
+        assert any(e.field == "scope" for e in errors)
 
     def test_empty_rule(self, tmp_path):
         write_unit(tmp_path, "TestUnit", make_unit("TestUnit", rule=[]))
@@ -388,11 +388,11 @@ class _ValidateArgs:
 _INVALID_UNIT = (  # missing required field 'aim'
     "unit: BadUnit\n"
     "phase: spec\n"
-    "job:\n  - x\n"
+    "scope:\n  - x\n"
     "rule:\n  - y\n"
     "link:\n  up: []\n  down: []\n"
     "core: true\n"
-    "io:\n  in:\n    - i\n  run:\n    - r\n  out:\n    - o\n"
+    "io:\n  in:\n    - i\n  process:\n    - r\n  out:\n    - o\n"
     "executor:\n  type: script\n  reason: r\n"
 )
 

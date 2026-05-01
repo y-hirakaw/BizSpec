@@ -16,13 +16,13 @@ def write_unit(directory: Path, name: str, up: list[str], down: list[str]) -> No
         f"unit: {name}\n"
         f"aim: test\n"
         f"phase: spec\n"
-        f"job:\n  - 作業\n"
+        f"scope:\n  - 作業\n"
         f"rule:\n  - 制約\n"
         f"link:\n"
         f"  up:{up_block}\n"
         f"  down:{down_block}\n"
         f"core: true\n"
-        f"io:\n  in:\n    - 入力\n  run:\n    - 手順\n  out:\n    - 出力\n"
+        f"io:\n  in:\n    - 入力\n  process:\n    - 手順\n  out:\n    - 出力\n"
         f"executor:\n  type: script\n  reason: 定型処理\n"
     )
     (directory / f"{name}.yaml").write_text(content, encoding="utf-8")
@@ -155,9 +155,9 @@ class TestValidateWithPrefixedFiles:
         path = tmp_path / "01_MyUnit.yaml"
         path.write_text(
             "unit: MyUnit\naim: test\nphase: spec\n"
-            "job:\n  - 作業\nrule:\n  - 制約\n"
+            "scope:\n  - 作業\nrule:\n  - 制約\n"
             "link:\n  up: []\n  down: []\ncore: true\n"
-            "io:\n  in:\n    - 入力\n  run:\n    - 手順\n  out:\n    - 出力\n"
+            "io:\n  in:\n    - 入力\n  process:\n    - 手順\n  out:\n    - 出力\n"
             "executor:\n  type: script\n  reason: 定型処理\n",
             encoding="utf-8",
         )
@@ -170,9 +170,9 @@ class TestValidateWithPrefixedFiles:
         path = tmp_path / "01_WrongName.yaml"
         path.write_text(
             "unit: CorrectName\naim: test\nphase: spec\n"
-            "job:\n  - 作業\nrule:\n  - 制約\n"
+            "scope:\n  - 作業\nrule:\n  - 制約\n"
             "link:\n  up: []\n  down: []\ncore: true\n"
-            "io:\n  in:\n    - 入力\n  run:\n    - 手順\n  out:\n    - 出力\n"
+            "io:\n  in:\n    - 入力\n  process:\n    - 手順\n  out:\n    - 出力\n"
             "executor:\n  type: script\n  reason: 定型処理\n",
             encoding="utf-8",
         )

@@ -67,7 +67,7 @@ bizspec new issue-refinement Ready判定 --up 記載内容妥当性評価 --down
 
 ```sh
 bizspec search "Google Drive"
-bizspec search "PdM" --field aim job
+bizspec search "PdM" --field aim scope
 bizspec search "ai_agent" --field executor
 bizspec search "API" --field executor
 ```
@@ -76,7 +76,7 @@ bizspec search "API" --field executor
 
 | オプション | 説明 |
 |-----------|------|
-| `--field FIELD ...` | 検索対象フィールドを絞る（`unit` / `aim` / `job` / `rule` / `io` / `executor`）。省略時は全フィールドを対象 |
+| `--field FIELD ...` | 検索対象フィールドを絞る（`unit` / `aim` / `scope` / `rule` / `io` / `executor`）。省略時は全フィールドを対象 |
 
 マッチした unit のプロセス名・unit 名・ヒットしたフィールドと内容を一覧表示する。ヒットが0件の場合は終了コード 1。
 
@@ -92,7 +92,7 @@ bizspec validate issue-refinement   # 特定プロセスのみ検証
 ```
 
 **チェック内容:**
-- 必須フィールドの存在（unit / aim / phase / job / rule / link / core / io / executor）
+- 必須フィールドの存在（unit / aim / phase / scope / rule / link / core / io / executor）
 - `core` が `true` / `false` であること
 - `executor.type` が `script` / `ai_agent` / `manual` のいずれかであること
 - `link.up/down` の参照先ファイルが存在すること
@@ -192,7 +192,7 @@ bizspec viz issue-refinement   # 特定プロセスのみ出力
 
 **フロー図の共通機能:**
 - 左ペイン: `link.up/down` をもとにした DAG フロー図
-- 右ペイン: unit の詳細（aim / job / rule / io / executor / effort・automation（設定時）/ parallel_with（設定時）/ link）
+- 右ペイン: unit の詳細（aim / scope / rule / io / executor / effort・automation（設定時）/ parallel_with（設定時）/ link）
 - ノードをクリックすると詳細表示 + 接続する矢印がハイライト（青）、無関係な矢印はフェード
 - ノード色: `core: true` = 青、`core: false` = グレー（`status` が設定されている場合は status の色が優先）
 - バッジ: `executor.type`（script / ai_agent / manual）
@@ -205,22 +205,25 @@ bizspec viz issue-refinement   # 特定プロセスのみ出力
 
 ## BizSpec YAML フィールド責務ルーブリック
 
-同じ内容を `job` / `rule` / `io.run` に重複して書くと、後から読む人が迷う。
+同じ内容を `scope` / `rule` / `io.process` に重複して書くと、後から読む人が迷う。
 各フィールドの責務を明確にし、**どこに何を書くか**を統一する。
 
 | フィールド | 責務 | ここには書かない |
 |-----------|------|----------------|
 | `aim` | この unit が達成する目的を **1文で**。なぜこの unit が存在するかを表す | 手順・制約・データ |
-| `job` | 実行主体（人 / AI / スクリプト）への **作業指示**（アクションの羅列） | 制約・判断基準 |
+| `scope` | この unit が **責任を持つ範囲・成果物**（責務スコープを名詞句で表現） | アクション手順・制約 |
 | `rule` | 守るべき **制約・判断基準・ガイドライン** | 作業手順・データ |
 | `io.in` | この unit が受け取る **入力データ（モノ）** | アクション・制約 |
-| `io.run` | データ視点での **処理ステップ**（`job` をデータの流れとして言い換えたもの） | 制約・判断基準 |
+| `io.process` | 入力 → 出力への **処理ステップ**（IPO の P。動詞句） | 制約・判断基準 |
 | `io.out` | この unit が渡す **出力データ（モノ）** | アクション・制約 |
+
+`scope` と `io.process` は抽象度で分離する：`scope` は **何に責任を持つか**（名詞句）、`io.process` は **どう変換するか**（動詞句）。
 
 **迷ったときの判別:**
 
 - 「〇〇しなければならない / 〇〇の場合は…」→ **`rule`**
-- 「〇〇する / 〇〇を行う」という作業手順 → **`job`**（実行視点）または **`io.run`**（データ視点）
+- 「〇〇に責任を持つ / 〇〇を保証する」という名詞句 → **`scope`**
+- 「〇〇する / 〇〇を行う」という手順 → **`io.process`**
 - 名詞（ドキュメント・リスト・結果・フラグ）→ **`io.in`** / **`io.out`**
 
 ---
@@ -262,7 +265,7 @@ Claude Code（`claude` CLI またはデスクトップアプリ）上で `/` コ
 
 | 軸 | 内容 |
 |----|------|
-| 重複（横断） | 複数プロセスにまたがって aim や job が意味的に近い unit を検出 |
+| 重複（横断） | 複数プロセスにまたがって aim や scope が意味的に近い unit を検出 |
 | 不要候補 | ゴール達成への貢献が薄い unit を検出（core: false / 末端ノード / manual など） |
 | 統合候補 | 同一プロセス内で分割しすぎている隣接 unit を検出 |
 | 順序最適化 | 直列になっているが実は並列実行できる unit を検出 |

@@ -30,8 +30,8 @@ Each unit is one YAML file:
 unit: ReadinessCheck
 aim: Determine whether a PBI is ready for development
 phase: spec
-job:
-  - Judge Ready / Not Ready based on the validity evaluation results
+scope:
+  - Ready / Not Ready judgment with documented basis
 rule:
   - All of summary, scope, and acceptance criteria must be OK to mark Ready
 link:
@@ -43,7 +43,7 @@ core: true
 io:
   in:
     - Evaluation results for each item
-  run:
+  process:
     - Aggregate evaluation results and make a judgment
   out:
     - Readiness result
@@ -81,15 +81,18 @@ Each field has a distinct responsibility. Do not duplicate the same content acro
 | Field | Responsibility | Do NOT write here |
 |-------|---------------|-------------------|
 | `aim` | The purpose of this unit in **one sentence** | Steps, constraints, data |
-| `job` | **Work instructions** for the executor (person / AI / script) — list of actions | Constraints, judgment criteria |
+| `scope` | **What this unit is responsible for** — responsibility scope expressed as noun phrases | Step-by-step actions, constraints |
 | `rule` | **Constraints, judgment criteria, guidelines** to follow | Work steps, data |
 | `io.in` | **Input data (things)** this unit receives | Actions, constraints |
-| `io.run` | **Processing steps from a data perspective** (re-expression of `job` as data flow) | Constraints, judgment criteria |
+| `io.process` | **Processing steps** from input to output (the P in IPO; verb phrases) | Constraints, judgment criteria |
 | `io.out` | **Output data (things)** this unit produces | Actions, constraints |
+
+`scope` and `io.process` differ in abstraction: `scope` describes **what is owned** (noun phrase), `io.process` describes **how the transformation happens** (verb phrase).
 
 **Quick disambiguation:**
 - "must …" / "if … then …" → `rule`
-- "do …" / "perform …" (steps) → `job` (execution view) or `io.run` (data flow view)
+- "responsible for …" / "guarantees …" (noun phrase) → `scope`
+- "do …" / "perform …" (procedure) → `io.process`
 - Nouns (document, list, result, flag) → `io.in` / `io.out`
 
 ## Installation
@@ -120,7 +123,7 @@ bizspec new issue-refinement ReadinessCheck --executor ai_agent --phase spec --c
 
 # Search across all processes
 bizspec search "Google Drive"
-bizspec search "PdM" --field aim job
+bizspec search "PdM" --field aim scope
 
 bizspec validate                    # validate all processes
 bizspec validate issue-refinement   # validate one process
@@ -194,8 +197,8 @@ unit ごとに 1 つの YAML ファイル：
 unit: Ready判定
 aim: PBI が開発着手可能な状態かを判定する
 phase: spec
-job:
-  - 妥当性評価結果をもとに Ready / Not Ready を判定する
+scope:
+  - Ready / Not Ready 判定と判定根拠の明示
 rule:
   - 概要・スコープ・受入基準がすべて OK でなければ Ready にしない
 link:
@@ -207,7 +210,7 @@ core: true
 io:
   in:
     - 各項目の評価結果
-  run:
+  process:
     - 評価結果を総合して判定する
   out:
     - Ready判定結果
@@ -245,15 +248,18 @@ execution:              # 実行制御ヒント（省略可）
 | フィールド | 責務 | ここには書かない |
 |-----------|------|----------------|
 | `aim` | この unit が達成する目的を **1文で** | 手順・制約・データ |
-| `job` | 実行主体（人 / AI / スクリプト）への **作業指示**（アクションの羅列） | 制約・判断基準 |
+| `scope` | この unit が **責任を持つ範囲・成果物**（責務スコープを名詞句で表現） | アクション手順・制約 |
 | `rule` | 守るべき **制約・判断基準・ガイドライン** | 作業手順・データ |
 | `io.in` | この unit が受け取る **入力データ（モノ）** | アクション・制約 |
-| `io.run` | データ視点での **処理ステップ**（`job` をデータの流れとして言い換えたもの） | 制約・判断基準 |
+| `io.process` | 入力 → 出力への **処理ステップ**（IPO の P。動詞句） | 制約・判断基準 |
 | `io.out` | この unit が渡す **出力データ（モノ）** | アクション・制約 |
+
+`scope` と `io.process` は抽象度で分離する：`scope` は **何に責任を持つか**（名詞句）、`io.process` は **どう変換するか**（動詞句）。
 
 **迷ったときの判別:**
 - 「〇〇しなければならない / 〇〇の場合は…」→ `rule`
-- 「〇〇する / 〇〇を行う」という作業手順 → `job`（実行視点）または `io.run`（データ視点）
+- 「〇〇に責任を持つ / 〇〇を保証する」という名詞句 → `scope`
+- 「〇〇する / 〇〇を行う」という手順 → `io.process`
 - 名詞（ドキュメント・リスト・結果・フラグ）→ `io.in` / `io.out`
 
 ## インストール
@@ -284,7 +290,7 @@ bizspec new issue-refinement Ready判定 --executor ai_agent --phase spec --core
 
 # 全プロセス横断でキーワード検索
 bizspec search "Google Drive"
-bizspec search "PdM" --field aim job
+bizspec search "PdM" --field aim scope
 
 bizspec validate                    # 全プロセスを検証
 bizspec validate issue-refinement   # 特定プロセスのみ検証

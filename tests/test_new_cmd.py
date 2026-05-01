@@ -39,7 +39,7 @@ class TestRunNew:
         data = yaml.safe_load(
             (tmp_path / "bizspec" / "my-proc" / "MyUnit.yaml").read_text(encoding="utf-8")
         )
-        for field in ("unit", "aim", "phase", "job", "rule", "link", "core", "io", "executor"):
+        for field in ("unit", "aim", "phase", "scope", "rule", "link", "core", "io", "executor"):
             assert field in data, f"フィールド {field!r} がない"
 
     def test_unit_name_matches(self, tmp_path):

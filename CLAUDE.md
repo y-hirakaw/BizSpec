@@ -50,7 +50,7 @@ Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx
 unit: 〇〇判定
 aim: 目的
 phase: spec | dev | test | release  # 自由記述。フォルダではなくフィールドで管理
-job: [具体的な作業内容]
+scope: [この unit が責任を持つ範囲・成果物（名詞句）]
 rule: [制約・判断基準]
 link:
   up: [実行順序として前に来る unit]   # データ依存ではなく実行順序
@@ -58,7 +58,7 @@ link:
 core: true | false | undetermined
 io:
   in: [入力データ]
-  run: [実行手順]
+  process: [処理手順（IPO の P。動詞句）]
   out: [出力データ]
 executor:
   type: script | ai_agent | manual
@@ -98,16 +98,18 @@ execution:                 # 実行制御ヒント（省略可）
 
 ## フィールド責務ルーブリック
 
-`job` / `rule` / `io.run` への書き分け基準：
+`scope` / `rule` / `io.process` への書き分け基準：
 
 | フィールド | 責務 | ここには書かない |
 |-----------|------|----------------|
 | `aim` | この unit が達成する目的を 1 文で | 手順・制約・データ |
-| `job` | 実行主体（人 / AI / スクリプト）への作業指示（アクション） | 制約・判断基準 |
+| `scope` | この unit が責任を持つ範囲・成果物（名詞句で表現する責務スコープ） | アクション手順・制約 |
 | `rule` | 守るべき制約・判断基準・ガイドライン | 作業手順・データ |
 | `io.in` | この unit が受け取る入力データ（モノ） | アクション・制約 |
-| `io.run` | データ視点での処理ステップ（`job` をデータの流れとして言い換えたもの） | 制約・判断基準 |
+| `io.process` | 入力 → 出力への処理ステップ（IPO の P。動詞句） | 制約・判断基準 |
 | `io.out` | この unit が渡す出力データ（モノ） | アクション・制約 |
+
+`scope` と `io.process` は抽象度で分離する：`scope` は **何に責任を持つか**（名詞句）、`io.process` は **どう変換するか**（動詞句）。
 
 ## Skills の設計方針
 

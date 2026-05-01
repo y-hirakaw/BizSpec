@@ -7,15 +7,15 @@ from bizspec.search_cmd import run_search, _search_process, _extract_texts, _ALL
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-def make_unit_data(name="UnitA", aim="テスト", job=None, rule=None, io_run=None) -> dict:
+def make_unit_data(name="UnitA", aim="テスト", scope=None, rule=None, io_process=None) -> dict:
     return {
         "unit": name,
         "aim": aim,
-        "job": job or ["作業内容"],
+        "scope": scope or ["責務範囲"],
         "rule": rule or ["制約"],
         "io": {
             "in": ["入力"],
-            "run": io_run or ["実行手順"],
+            "process": io_process or ["実行手順"],
             "out": ["出力"],
         },
         "executor": {"type": "manual", "reason": "理由"},
@@ -43,17 +43,17 @@ class TestExtractTexts:
         assert texts.get("aim") == "テスト用 aim"
 
     def test_extracts_job_list(self):
-        data = make_unit_data(job=["作業A", "作業B"])
-        pairs = _extract_texts(data, ("job",))
+        data = make_unit_data(scope=["作業A", "作業B"])
+        pairs = _extract_texts(data, ("scope",))
         values = [t for _, t in pairs]
         assert "作業A" in values
         assert "作業B" in values
 
     def test_extracts_io_subfields(self):
-        data = make_unit_data(io_run=["Google Drive にアップロード"])
+        data = make_unit_data(io_process=["Google Drive にアップロード"])
         pairs = _extract_texts(data, ("io",))
         fields = {f for f, _ in pairs}
-        assert "io.run" in fields
+        assert "io.process" in fields
 
     def test_extracts_executor_type(self):
         data = make_unit_data()

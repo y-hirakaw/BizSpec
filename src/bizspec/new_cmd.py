@@ -7,7 +7,7 @@ SKELETON = """\
 unit: {name}
 aim: TODO
 phase: {phase}
-job:
+scope:
   - TODO
 rule:
   - TODO
@@ -18,7 +18,7 @@ core: {core}
 io:
   in:
     - TODO
-  run:
+  process:
     - TODO
   out:
     - TODO

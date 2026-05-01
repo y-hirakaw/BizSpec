@@ -25,7 +25,7 @@ from bizspec.viz_cmd import (
 def make_unit(name: str, up=None, down=None, core=True, executor_type="script", extra=None) -> dict:
     d = {
         "unit": name, "aim": f"{name}のaim", "phase": "spec", "core": core,
-        "job": ["作業"], "rule": ["制約"],
+        "scope": ["作業"], "rule": ["制約"],
         "io": {"in": ["入力"], "run": ["実行"], "out": ["出力"]},
         "executor": {"type": executor_type, "reason": "理由"},
         "link": {"up": up or [], "down": down or []},
@@ -41,10 +41,10 @@ def make_yaml(name: str, up=None, down=None, core: bool = True, executor_type: s
     down_items = "\n".join(f"    - {d}" for d in (down or []))
     return (
         f"unit: {name}\naim: テスト\nphase: spec\n"
-        f"job:\n  - 作業\nrule:\n  - 制約\n"
+        f"scope:\n  - 作業\nrule:\n  - 制約\n"
         f"link:\n  up:\n{up_items or '    []'}\n  down:\n{down_items or '    []'}\n"
         f"core: {core_str}\n"
-        f"io:\n  in:\n    - 入力\n  run:\n    - 実行\n  out:\n    - 出力\n"
+        f"io:\n  in:\n    - 入力\n  process:\n    - 実行\n  out:\n    - 出力\n"
         f"executor:\n  type: {executor_type}\n  reason: 理由\n"
     )
 

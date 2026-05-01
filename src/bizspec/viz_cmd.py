@@ -136,9 +136,9 @@ def _unit_to_js(u: dict) -> dict:
         "aim":      str(u.get("aim", "")),
         "phase":    str(u.get("phase", "")),
         "core":     u.get("core"),
-        "job":      lst(u.get("job")),
+        "scope":    lst(u.get("scope")),
         "rule":     lst(u.get("rule")),
-        "io":       {"in": lst(io.get("in")), "run": lst(io.get("run")), "out": lst(io.get("out"))},
+        "io":       {"in": lst(io.get("in")), "process": lst(io.get("process")), "out": lst(io.get("out"))},
         "executor": {"type": str(exe.get("type", "")), "reason": str(exe.get("reason", ""))},
         "link":       {"up": lst(link.get("up")), "down": lst(link.get("down"))},
         "depends_on": lst(u.get("depends_on")),
@@ -468,9 +468,9 @@ svg.arrows-layer {
 .io-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 .io-box { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; padding: 10px; }
 .io-box-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
-.io-box-in  .io-box-label { color: #0284C7; }
-.io-box-run .io-box-label { color: #7C3AED; }
-.io-box-out .io-box-label { color: #059669; }
+.io-box-in      .io-box-label { color: #0284C7; }
+.io-box-process .io-box-label { color: #7C3AED; }
+.io-box-out     .io-box-label { color: #059669; }
 .io-box ul { list-style: none; padding: 0; font-size: 11px; color: #4B5563; line-height: 1.65; }
 .io-box ul li { padding-left: 8px; position: relative; }
 .io-box ul li::before { content: "·"; position: absolute; left: 0; color: #9CA3AF; }
@@ -794,8 +794,8 @@ function renderDetail(name) {
     </div>` : ''}
 
     <div class="section">
-      <div class="section-label">Job</div>
-      <ul class="item-list">${u.job.map(j => `<li>${j}</li>`).join("")}</ul>
+      <div class="section-label">Scope</div>
+      <ul class="item-list">${u.scope.map(s => `<li>${s}</li>`).join("")}</ul>
     </div>
 
     <div class="section">
@@ -810,9 +810,9 @@ function renderDetail(name) {
           <div class="io-box-label">In</div>
           <ul>${u.io.in.map(i => `<li>${i}</li>`).join("")}</ul>
         </div>
-        <div class="io-box io-box-run">
-          <div class="io-box-label">Run</div>
-          <ul>${u.io.run.map(r => `<li>${r}</li>`).join("")}</ul>
+        <div class="io-box io-box-process">
+          <div class="io-box-label">Process</div>
+          <ul>${u.io.process.map(p => `<li>${p}</li>`).join("")}</ul>
         </div>
         <div class="io-box io-box-out">
           <div class="io-box-label">Out</div>
@@ -1281,9 +1281,9 @@ svg.arrows-layer {
 .io-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 .io-box { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; padding: 10px; }
 .io-box-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
-.io-box-in  .io-box-label { color: #0284C7; }
-.io-box-run .io-box-label { color: #7C3AED; }
-.io-box-out .io-box-label { color: #059669; }
+.io-box-in      .io-box-label { color: #0284C7; }
+.io-box-process .io-box-label { color: #7C3AED; }
+.io-box-out     .io-box-label { color: #059669; }
 .io-box ul { list-style: none; padding: 0; font-size: 11px; color: #4B5563; line-height: 1.65; }
 .io-box ul li { padding-left: 8px; position: relative; }
 .io-box ul li::before { content: "·"; position: absolute; left: 0; color: #9CA3AF; }
@@ -1872,8 +1872,8 @@ function renderDetail(name) {
       <div style="font-size:13px;color:#6B7280;background:#F3F4F6;padding:8px 12px;border-radius:6px;">${u.deprecated_reason}</div>
     </div>` : ''}
     <div class="section">
-      <div class="section-label">Job</div>
-      <ul class="item-list">${u.job.map(j => `<li>${j}</li>`).join("")}</ul>
+      <div class="section-label">Scope</div>
+      <ul class="item-list">${u.scope.map(s => `<li>${s}</li>`).join("")}</ul>
     </div>
     <div class="section">
       <div class="section-label">Rule</div>
@@ -1883,7 +1883,7 @@ function renderDetail(name) {
       <div class="section-label">IO</div>
       <div class="io-grid">
         <div class="io-box io-box-in"><div class="io-box-label">In</div><ul>${u.io.in.map(i => `<li>${i}</li>`).join("")}</ul></div>
-        <div class="io-box io-box-run"><div class="io-box-label">Run</div><ul>${u.io.run.map(r => `<li>${r}</li>`).join("")}</ul></div>
+        <div class="io-box io-box-process"><div class="io-box-label">Process</div><ul>${u.io.process.map(p => `<li>${p}</li>`).join("")}</ul></div>
         <div class="io-box io-box-out"><div class="io-box-label">Out</div><ul>${u.io.out.map(o => `<li>${o}</li>`).join("")}</ul></div>
       </div>
     </div>

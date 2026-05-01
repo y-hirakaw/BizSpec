@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-_ALL_FIELDS = ("unit", "aim", "job", "rule", "io", "executor", "depends_on")
+_ALL_FIELDS = ("unit", "aim", "scope", "rule", "io", "executor", "depends_on")
 FIELD_CHOICES = list(_ALL_FIELDS)
 
 
@@ -18,7 +18,7 @@ def _extract_texts(data: dict, fields: tuple[str, ...]) -> list[tuple[str, str]]
             continue
         if field == "io":
             io = val if isinstance(val, dict) else {}
-            for sub in ("in", "run", "out"):
+            for sub in ("in", "process", "out"):
                 sub_val = io.get(sub)
                 if isinstance(sub_val, list):
                     for item in sub_val:

@@ -10,13 +10,13 @@ import yaml
 
 _PREFIX_RE = re.compile(r"^\d+_")
 
-REQUIRED_FIELDS = ["unit", "aim", "phase", "job", "rule", "link", "core", "io", "executor"]
+REQUIRED_FIELDS = ["unit", "aim", "phase", "scope", "rule", "link", "core", "io", "executor"]
 VALID_EXECUTOR_TYPES    = {"script", "ai_agent", "manual"}
 VALID_DIFFICULTY        = {"low", "medium", "high"}
 VALID_AUTO_STATUS       = {"manual", "partially-automated", "automated"}
 VALID_LIFECYCLE_STATUS  = {"draft", "review", "stable", "deprecated"}
 FIBONACCI_HOURS         = {0.5, 1, 2, 3, 5, 8, 13, 21}
-NON_EMPTY_LIST_FIELDS   = ["job", "rule"]
+NON_EMPTY_LIST_FIELDS   = ["scope", "rule"]
 
 
 @dataclass
@@ -130,7 +130,7 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
         if not isinstance(io, dict):
             errors.append(VError(path, "io", "マッピングである必要があります"))
         else:
-            for key in ("in", "run", "out"):
+            for key in ("in", "process", "out"):
                 if key not in io:
                     errors.append(VError(path, f"io.{key}", "フィールドがありません"))
                 elif not isinstance(io[key], list):
@@ -194,7 +194,7 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
                 if not isinstance(pw, list):
                     errors.append(VError(path, "execution.parallel_with", "リストである必要があります"))
 
-    # job / rule の空リスト
+    # scope / rule の空リスト
     for key in NON_EMPTY_LIST_FIELDS:
         if key in data and isinstance(data[key], list) and len(data[key]) == 0:
             errors.append(VError(path, key, "空リストは許可されていません"))
