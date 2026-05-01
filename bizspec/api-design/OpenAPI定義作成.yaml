@@ -1,10 +1,9 @@
 unit: OpenAPI定義作成
 aim: 承認済み設計をもとに OpenAPI Specification を作成する
 phase: spec
-job:
-  - OpenAPI 3.x 形式で全エンドポイントのスキーマを記述する
-  - サンプルリクエスト・レスポンスを含める
-  - Lint ツールで定義の構文・整合性を検証する
+scope:
+  - OpenAPI 3.x 仕様の作成と Lint 通過の保証
+  - サンプルリクエスト・レスポンスの整備
 rule:
   - 'バージョンは openapi: "3.1.0" を使う'
   - '$ref を活用してスキーマの重複を排除する'
@@ -18,7 +17,7 @@ core: true
 io:
   in:
     - 承認済み API インターフェース設計書
-  run:
+  process:
     - OpenAPI YAML/JSON を作成
     - Lint で検証
   out:

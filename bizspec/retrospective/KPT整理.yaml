@@ -1,10 +1,9 @@
 unit: KPT整理
 aim: チームで Keep・Problem・Try を洗い出し、議論を構造化する
 phase: spec
-job:
-  - 各メンバーが付箋で Keep・Problem・Try を出す（5 分）
-  - 類似意見をグルーピングし、テーマを整理する
-  - 重要度・頻度が高いものを絞り込む
+scope:
+  - チームによる Keep・Problem・Try の発散
+  - グルーピングと優先度付きテーマへの収束
 rule:
   - 発言は非難なし・特定個人への言及を避ける
   - Keep は次もやるべきことの確認として必ず行う（Problem だけに終わらない）
@@ -18,7 +17,7 @@ core: true
 io:
   in:
     - スプリント実績サマリー
-  run:
+  process:
     - KPT を全員で発散・収束
     - 重要なテーマを絞り込む
   out:

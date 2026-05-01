@@ -158,9 +158,9 @@ svg.arrows-layer {
 .io-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 .io-box { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; padding: 10px; }
 .io-box-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
-.io-box-in  .io-box-label { color: #0284C7; }
-.io-box-run .io-box-label { color: #7C3AED; }
-.io-box-out .io-box-label { color: #059669; }
+.io-box-in      .io-box-label { color: #0284C7; }
+.io-box-process .io-box-label { color: #7C3AED; }
+.io-box-out     .io-box-label { color: #059669; }
 .io-box ul { list-style: none; padding: 0; font-size: 11px; color: #4B5563; line-height: 1.65; }
 .io-box ul li { padding-left: 8px; position: relative; }
 .io-box ul li::before { content: "·"; position: absolute; left: 0; color: #9CA3AF; }
@@ -299,8 +299,8 @@ const units     = {
     "aim": "GitHub から PBI の本文・ラベル・マイルストーン等を取得する",
     "phase": "spec",
     "core": true,
-    "job": [
-      "gh CLI または GitHub REST API で指定 PBI のデータを取得する"
+    "scope": [
+      "GitHub からの PBI データ（本文・ラベル・担当者・マイルストーン）取得"
     ],
     "rule": [
       "本文・ラベル・担当者・マイルストーンをすべて取得する",
@@ -310,7 +310,7 @@ const units     = {
       "in": [
         "PBI 番号 または URL（GitHub Issue）"
       ],
-      "run": [
+      "process": [
         "gh issue view <number> --json title,body,labels,milestone,assignees"
       ],
       "out": [
@@ -338,16 +338,15 @@ const units     = {
     },
     "lifecycle_status": null,
     "deprecated_reason": null,
-    "precondition": [],
     "parallel_with": []
   },
   "Ready判定": {
     "aim": "PBI が開発着手可能な状態かを判定する",
     "phase": "spec",
     "core": true,
-    "job": [
-      "妥当性評価結果をもとに Ready / Not Ready を判定する",
-      "Not Ready の場合は何が揃えば Ready になるかを列挙する"
+    "scope": [
+      "Ready / Not Ready 判定と判定根拠の明示",
+      "Not Ready 時の必要事項リストの作成"
     ],
     "rule": [
       "概要・スコープ・受入基準がすべて OK でなければ Ready にしない",
@@ -357,7 +356,7 @@ const units     = {
       "in": [
         "各項目の評価結果（OK / NG / 不十分）と指摘事項"
       ],
-      "run": [
+      "process": [
         "評価結果を総合して Ready / Not Ready を判定する"
       ],
       "out": [
@@ -387,17 +386,15 @@ const units     = {
     },
     "lifecycle_status": null,
     "deprecated_reason": null,
-    "precondition": [],
     "parallel_with": []
   },
   "スコープ別PBI分割": {
     "aim": "独立して実装・テスト可能なスコープ単位にPBIを分割する",
     "phase": "spec",
     "core": true,
-    "job": [
-      "分割可能なスコープ境界を特定する（正常系/異常系・レイアウト/データ取得等）",
-      "スコープごとの実装内容を定義する",
-      "分割後の各PBIの依存関係を明記する"
+    "scope": [
+      "独立してテスト可能なスコープ単位への分割",
+      "子PBI 間の依存関係の明確化"
     ],
     "rule": [
       "各子PBIは単独でテスト可能なスコープを持つこと",
@@ -409,7 +406,7 @@ const units     = {
         "PBI データ（JSON）",
         "実装スコープの説明"
       ],
-      "run": [
+      "process": [
         "分割可能なスコープ境界を分析する",
         "スコープごとの実装内容を定義する",
         "子PBI間の依存関係を決定する"
@@ -439,17 +436,15 @@ const units     = {
     },
     "lifecycle_status": null,
     "deprecated_reason": null,
-    "precondition": [],
     "parallel_with": []
   },
   "ストーリーポイント算出": {
     "aim": "PBI の複雑度・不確実性・規模をもとに SP を算出する",
     "phase": "spec",
     "core": true,
-    "job": [
-      "PBI 内容から実装の複雑度・不確実性・規模を評価する",
-      "フィボナッチ数列（1/2/3/5/8/13）で SP を算出する",
-      "算出根拠を添える"
+    "scope": [
+      "複雑度・不確実性・規模に基づく SP 値の算出",
+      "算出根拠の明示"
     ],
     "rule": [
       "Ready 判定結果に依存せず算出する（Not Ready でも見積もれる範囲で算出する）",
@@ -460,7 +455,7 @@ const units     = {
         "PBI データ（JSON）",
         "各項目の評価結果"
       ],
-      "run": [
+      "process": [
         "複雑度・不確実性・規模を評価して SP を算出する"
       ],
       "out": [
@@ -490,17 +485,15 @@ const units     = {
     },
     "lifecycle_status": null,
     "deprecated_reason": null,
-    "precondition": [],
     "parallel_with": []
   },
   "スパイクPBI作成": {
     "aim": "不確実性を排除してSP見積もりを正確化するためのスパイク（調査）PBIを生成する",
     "phase": "spec",
     "core": false,
-    "job": [
-      "不確実性の原因を特定する",
-      "スパイクで解消すべき調査項目を列挙する",
-      "タイムボックス（スパイクのSP上限）を設定する"
+    "scope": [
+      "不確実性の原因と調査項目の明確化",
+      "タイムボックス付きスパイク PBI ドラフトの整備"
     ],
     "rule": [
       "スパイクPBIのSPは3以下を目安とする",
@@ -513,7 +506,7 @@ const units     = {
         "不確実性の説明",
         "SP 値と見積もり根拠"
       ],
-      "run": [
+      "process": [
         "不確実性の原因を分析する",
         "調査項目リストを作成する",
         "タイムボックスを設定する"
@@ -543,17 +536,15 @@ const units     = {
     },
     "lifecycle_status": null,
     "deprecated_reason": null,
-    "precondition": [],
     "parallel_with": []
   },
   "プラットフォーム別PBI分割": {
     "aim": "複数プラットフォームにまたがるPBIをプラットフォーム単位の子PBIに分割する",
     "phase": "spec",
     "core": true,
-    "job": [
-      "関与するプラットフォーム（バックエンド / フロントエンド / アプリ）を特定する",
-      "プラットフォームごとの実装スコープを定義する",
-      "子PBI間の依存順序（BE → FE/アプリ）を記述する"
+    "scope": [
+      "プラットフォーム単位の実装スコープ定義",
+      "子PBI 間の依存順序の明記"
     ],
     "rule": [
       "各子PBIは単一プラットフォームの実装のみを含む",
@@ -565,7 +556,7 @@ const units     = {
         "PBI データ（JSON）",
         "関与プラットフォームのリスト"
       ],
-      "run": [
+      "process": [
         "関与プラットフォームを列挙する",
         "プラットフォームごとのスコープを定義する",
         "子PBIの依存順序を決定する"
@@ -595,17 +586,15 @@ const units     = {
     },
     "lifecycle_status": null,
     "deprecated_reason": null,
-    "precondition": [],
     "parallel_with": []
   },
   "分解パターン選択": {
     "aim": "分解が必要なPBIに対して、適用すべき分解パターンを1つ以上選択する",
     "phase": "spec",
     "core": false,
-    "job": [
-      "PBIの技術的特性（複数プラットフォーム・不確実性・スコープ複雑性）を評価する",
-      "適用パターンをプラットフォーム分解 / スパイク / スコープ分割から選択する",
-      "複数パターンが該当する場合はすべて列挙する"
+    "scope": [
+      "PBI 特性に基づく適用パターン（プラットフォーム分解 / スパイク / スコープ分割）の選択",
+      "複数該当時の全パターン列挙"
     ],
     "rule": [
       "複数プラットフォーム（BE/FE/アプリ）にまたがる実装はプラットフォーム分解を選択",
@@ -618,7 +607,7 @@ const units     = {
         "PBI データ（JSON）",
         "SP 値と技術的不確実性の説明"
       ],
-      "run": [
+      "process": [
         "PBIの技術的特性を分析する",
         "各パターンの適用条件を評価する",
         "適用パターンリストを出力する"
@@ -652,16 +641,15 @@ const units     = {
     },
     "lifecycle_status": null,
     "deprecated_reason": null,
-    "precondition": [],
     "parallel_with": []
   },
   "技術PBI分解要否判断": {
     "aim": "SP をもとに技術 PBI への細分化が必要かを判断し、必要な場合は分解案を提示する",
     "phase": "spec",
     "core": true,
-    "job": [
-      "SP に基づいて分解要否を判定する",
-      "分解が必要な場合は技術 PBI の分解案を提示する"
+    "scope": [
+      "SP に基づく分解要否の判定",
+      "分解必要時の技術 PBI 案の提示"
     ],
     "rule": [
       "SP 3 以下：この unit をスキップする",
@@ -674,7 +662,7 @@ const units     = {
         "SP 値と算出根拠",
         "PBI データ（JSON）"
       ],
-      "run": [
+      "process": [
         "SP 値に基づいて分解要否を判定する",
         "分解が必要な場合は技術 PBI の分解案を作成する"
       ],
@@ -707,17 +695,15 @@ const units     = {
     },
     "lifecycle_status": null,
     "deprecated_reason": null,
-    "precondition": [],
     "parallel_with": []
   },
   "記載内容妥当性評価": {
     "aim": "概要・スコープ・受入基準が適切に記載されているかを評価する",
     "phase": "spec",
     "core": true,
-    "job": [
-      "概要が目的と背景を含んでいるか確認する",
-      "スコープが明示されているか確認する",
-      "受入基準が具体的かつ検証可能な形で書かれているか確認する"
+    "scope": [
+      "概要・スコープ・受入基準の妥当性評価",
+      "不足点の具体的な指摘"
     ],
     "rule": [
       "各項目を独立して評価し、不足点を具体的に指摘する",
@@ -727,7 +713,7 @@ const units     = {
       "in": [
         "PBI データ（JSON）"
       ],
-      "run": [
+      "process": [
         "概要・スコープ・受入基準それぞれを評価基準に照らして評価する"
       ],
       "out": [
@@ -758,7 +744,6 @@ const units     = {
     },
     "lifecycle_status": null,
     "deprecated_reason": null,
-    "precondition": [],
     "parallel_with": []
   }
 };
@@ -951,8 +936,8 @@ function renderDetail(name) {
     </div>` : ''}
 
     <div class="section">
-      <div class="section-label">Job</div>
-      <ul class="item-list">${u.job.map(j => `<li>${j}</li>`).join("")}</ul>
+      <div class="section-label">Scope</div>
+      <ul class="item-list">${u.scope.map(s => `<li>${s}</li>`).join("")}</ul>
     </div>
 
     <div class="section">
@@ -967,9 +952,9 @@ function renderDetail(name) {
           <div class="io-box-label">In</div>
           <ul>${u.io.in.map(i => `<li>${i}</li>`).join("")}</ul>
         </div>
-        <div class="io-box io-box-run">
-          <div class="io-box-label">Run</div>
-          <ul>${u.io.run.map(r => `<li>${r}</li>`).join("")}</ul>
+        <div class="io-box io-box-process">
+          <div class="io-box-label">Process</div>
+          <ul>${u.io.process.map(p => `<li>${p}</li>`).join("")}</ul>
         </div>
         <div class="io-box io-box-out">
           <div class="io-box-label">Out</div>

@@ -1,10 +1,9 @@
 unit: 承認判定
 aim: レビュー結果を総合してマージ可否を判定する
 phase: dev
-job:
-  - ロジック・テスト両レビューのコメントを集約する
-  - ブロック指摘の有無を確認し Approve / Request Changes を決定する
-  - GitHub PR へレビューコメントと判定結果を投稿する
+scope:
+  - レビュー結果の集約と Approve / Request Changes の判定
+  - GitHub PR への判定・サマリー・コメントの投稿
 rule:
   - ブロック指摘が 1 件でもあれば Request Changes にする
   - nit のみであれば Approve してコメントを残す
@@ -19,7 +18,7 @@ io:
   in:
     - ロジックレビューコメント一覧
     - テストレビューコメント一覧
-  run:
+  process:
     - ブロック指摘を抽出する
     - Approve / Request Changes を決定する
     - GitHub API (POST /pulls/{number}/reviews) でレビューを投稿する

@@ -1,8 +1,8 @@
 unit: Ready判定
 aim: PBI が開発着手可能な状態かを判定する
-job:
-  - 妥当性評価結果をもとに Ready / Not Ready を判定する
-  - Not Ready の場合は何が揃えば Ready になるかを列挙する
+scope:
+  - Ready / Not Ready 判定と判定根拠の明示
+  - Not Ready 時の必要事項リストの作成
 rule:
   - 概要・スコープ・受入基準がすべて OK でなければ Ready にしない
   - 不足事項は「何を・誰が・いつまでに」の粒度で示す
@@ -16,7 +16,7 @@ core: true
 io:
   in:
     - 各項目の評価結果（OK / NG / 不十分）と指摘事項
-  run:
+  process:
     - 評価結果を総合して Ready / Not Ready を判定する
   out:
     - Ready判定結果と、Not Ready の場合の必要事項リスト

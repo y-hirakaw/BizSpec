@@ -1,9 +1,9 @@
 unit: 差分取得
 aim: レビュー対象の変更内容を取得する
 phase: dev
-job:
-  - PR の diff を GitHub API から取得する
-  - 変更ファイル一覧と追加/削除行数をまとめる
+scope:
+  - PR 差分テキストの取得
+  - 変更ファイル一覧と増減行数のまとめ
 rule:
   - 差分が 500 行を超える場合はレビュー依頼前に分割を促す
 link:
@@ -15,7 +15,7 @@ core: true
 io:
   in:
     - PR番号
-  run:
+  process:
     - GitHub API (GET /pulls/{number}/files) を呼び出す
     - ファイルパス・patch・変更行数を抽出する
   out:
