@@ -1,0 +1,56 @@
+name: Bug report
+description: Report a defect in the BizSpec CLI or skills
+labels: ["bug", "triage"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: BizSpec version
+      description: "Output of `bizspec --version`"
+      placeholder: "bizspec 0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.11.7"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: A minimal YAML or command sequence that triggers the bug
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior / error output
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Anything else that might help — workarounds tried, related issues, etc.
