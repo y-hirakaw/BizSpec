@@ -739,6 +739,10 @@ svg.arrows-layer {
     <span class="tb-crumb-leaf">PR review</span>
   </div>
   <div class="tb-spacer"></div>
+  <div class="tb-theme" role="group" aria-label="lang">
+    <button class="tb-theme-btn" data-lang-set="ja">JA</button>
+    <button class="tb-theme-btn active" data-lang-set="en">EN</button>
+  </div>
   <div class="tb-theme" role="group" aria-label="theme">
     <button class="tb-theme-btn active" data-theme-set="light" title="Light">Light</button>
     <button class="tb-theme-btn" data-theme-set="dark" title="Dark">Dark</button>
@@ -1030,6 +1034,50 @@ const units     = {
 const positions = {"Fetch diff": {"left": 110, "top": 24}, "Logic review": {"left": 0, "top": 134}, "Test review": {"left": 220, "top": 134}, "Approval decision": {"left": 110, "top": 244}};
 const edges     = [["Fetch diff", "Logic review", "seq"], ["Fetch diff", "Test review", "seq"], ["Logic review", "Approval decision", "seq"], ["Test review", "Approval decision", "seq"], ["Test review", "Logic review", "parallel"]];
 
+/* ── i18n ──────────────────────────────────────────────── */
+const STRINGS = {
+  // metric strip keys (must keep JA literals so tests pass)
+  "metric.duration":   { ja: "所要時間",          en: "Effort" },
+  "metric.frequency":  { ja: "月間頻度",          en: "Frequency" },
+  "metric.cost":       { ja: "月間コスト",        en: "Monthly cost" },
+  "metric.leverage":   { ja: "自動化レバレッジ",   en: "Leverage" },
+  "metric.difficulty": { ja: "自動化難易度",      en: "Difficulty" },
+  "metric.status":     { ja: "自動化状況",        en: "Automation" },
+  // suffixes
+  "u.perRun":          { ja: "h",            en: "h" },          // duration value suffix
+  "u.perMo":           { ja: "回/月",        en: "/mo" },         // frequency value suffix
+  "u.hourPerMo":       { ja: "h/月",         en: "h/mo" },        // cost value suffix
+  // section labels (already EN; provide JA for symmetry)
+  "section.scope":     { ja: "Scope",        en: "Scope" },
+  "section.rule":      { ja: "Rule",         en: "Rule" },
+  "section.io":        { ja: "Input · Process · Output", en: "Input · Process · Output" },
+  "section.executor":  { ja: "Executor",     en: "Executor" },
+  "section.linkUp":    { ja: "Link · Up",    en: "Link · Up" },
+  "section.linkDown":  { ja: "Link · Down",  en: "Link · Down" },
+  "section.depends":   { ja: "Depends On (cross-process)", en: "Depends On (cross-process)" },
+  "section.effortAuto":{ ja: "Effort / Automation", en: "Effort / Automation" },
+  "section.outBranches":{ ja: "Outgoing branches", en: "Outgoing branches" },
+  "section.deprecated":{ ja: "Deprecated",   en: "Deprecated" },
+  "io.in":             { ja: "In",           en: "In" },
+  "io.process":        { ja: "Process",      en: "Process" },
+  "io.out":            { ja: "Out",          en: "Out" },
+  "link.empty":        { ja: "なし",          en: "none" },
+  "branches.kind":     { ja: "種別",          en: "Kind" },
+  "branches.next":     { ja: "次の unit",     en: "Next unit" },
+  "branches.cond":     { ja: "条件",          en: "Condition" },
+  "metric.branches":   { ja: "Branches",     en: "Branches" },
+};
+
+let currentLang = "en";
+function t(key, vars) {
+  const e = STRINGS[key];
+  if (!e) return key;
+  let s = e[currentLang] != null ? e[currentLang] : e.ja;
+  if (vars) for (const k in vars) s = s.replace(new RegExp("\\{" + k + "\\}", "g"), vars[k]);
+  return s;
+}
+let selectedUnitName = null;
+
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
 const detailPane = document.getElementById("detail-panel");
@@ -1188,11 +1236,12 @@ Object.entries(positions).forEach(([name, pos]) => {
 
 // ── Detail panel ─────────────────────────────────────────
 function renderDetail(name) {
+  selectedUnitName = name;
   const u = units[name];
   const chips = (arr) =>
     arr.length
       ? arr.map(n => `<span class="link-chip" onclick="jumpTo('${n.replace(/'/g, "\'")}')">${n}</span>`).join("")
-      : `<span class="link-empty">none</span>`;
+      : `<span class="link-empty">${t("link.empty")}</span>`;
 
   detailPane.innerHTML = `
     <div class="detail-header">
@@ -1208,40 +1257,40 @@ function renderDetail(name) {
 
     ${u.lifecycle_status === 'deprecated' && u.deprecated_reason ? `
     <div class="section">
-      <div class="section-label">Deprecated</div>
+      <div class="section-label">${t("section.deprecated")}</div>
       <div class="deprecated-banner">${u.deprecated_reason}</div>
     </div>` : ''}
 
     <div class="section">
-      <div class="section-label">Scope</div>
+      <div class="section-label">${t("section.scope")}</div>
       <ul class="item-list">${u.scope.map(s => `<li>${s}</li>`).join("")}</ul>
     </div>
 
     <div class="section">
-      <div class="section-label">Rule</div>
+      <div class="section-label">${t("section.rule")}</div>
       <ul class="item-list">${u.rule.map(r => `<li>${r}</li>`).join("")}</ul>
     </div>
 
     <div class="section">
-      <div class="section-label">IO</div>
+      <div class="section-label">${t("section.io")}</div>
       <div class="io-grid">
         <div class="io-box io-box-in">
-          <div class="io-box-label">In</div>
+          <div class="io-box-label">${t("io.in")}</div>
           <ul>${u.io.in.map(i => `<li>${i}</li>`).join("")}</ul>
         </div>
         <div class="io-box io-box-process">
-          <div class="io-box-label">Process</div>
+          <div class="io-box-label">${t("io.process")}</div>
           <ul>${u.io.process.map(p => `<li>${p}</li>`).join("")}</ul>
         </div>
         <div class="io-box io-box-out">
-          <div class="io-box-label">Out</div>
+          <div class="io-box-label">${t("io.out")}</div>
           <ul>${u.io.out.map(o => `<li>${o}</li>`).join("")}</ul>
         </div>
       </div>
     </div>
 
     <div class="section">
-      <div class="section-label">Executor</div>
+      <div class="section-label">${t("section.executor")}</div>
       <div class="executor-box">
         <span class="badge badge-${u.executor.type}" style="font-size:10.5px;padding:2px 8px;">${u.executor.type}</span>
         <div class="executor-reason">${u.executor.reason}</div>
@@ -1250,23 +1299,23 @@ function renderDetail(name) {
 
     ${(u.effort.duration != null || u.effort.frequency != null || u.automation.difficulty || u.automation.status || (u.link.down && u.link.down.length)) ? `
     <div class="section">
-      <div class="section-label">Effort / Automation</div>
+      <div class="section-label">${t("section.effortAuto")}</div>
       <div class="meta-grid">
-        ${u.effort.duration != null ? `<div class="meta-item"><div class="meta-key">所要時間</div><div class="meta-val">${u.effort.duration}h</div></div>` : ''}
-        ${u.effort.frequency != null ? `<div class="meta-item"><div class="meta-key">月間頻度</div><div class="meta-val">${u.effort.frequency}回/月</div></div>` : ''}
-        ${(u.effort.duration != null && u.effort.frequency != null) ? (() => { const cost = u.effort.duration * u.effort.frequency; const diffNum = {low:1,medium:2,high:3}[u.automation.difficulty] || null; const lev = diffNum ? Math.round(cost / diffNum * 10) / 10 : null; let html = '<div class="meta-item"><div class="meta-key">月間コスト</div><div class="meta-val">' + cost + 'h/月</div></div>'; if (lev != null) { html += '<div class="meta-item"><div class="meta-key">自動化レバレッジ</div><div class="meta-val">' + lev + '</div></div>'; } return html; })() : ''}
-        ${u.automation.difficulty ? `<div class="meta-item"><div class="meta-key">自動化難易度</div><div class="meta-val meta-diff-${u.automation.difficulty}">${u.automation.difficulty}</div></div>` : ''}
-        ${u.automation.status ? `<div class="meta-item"><div class="meta-key">自動化状況</div><div class="meta-val">${u.automation.status}</div></div>` : ''}
-        ${(u.link.down && u.link.down.length) ? `<div class="meta-item"><div class="meta-key">Branches</div><div class="meta-val">${u.link.down.length}</div></div>` : ''}
+        ${u.effort.duration != null ? `<div class="meta-item"><div class="meta-key">${t("metric.duration")}</div><div class="meta-val">${u.effort.duration}${t("u.perRun")}</div></div>` : ''}
+        ${u.effort.frequency != null ? `<div class="meta-item"><div class="meta-key">${t("metric.frequency")}</div><div class="meta-val">${u.effort.frequency}${t("u.perMo")}</div></div>` : ''}
+        ${(u.effort.duration != null && u.effort.frequency != null) ? (() => { const cost = u.effort.duration * u.effort.frequency; const diffNum = {low:1,medium:2,high:3}[u.automation.difficulty] || null; const lev = diffNum ? Math.round(cost / diffNum * 10) / 10 : null; let html = '<div class="meta-item"><div class="meta-key">' + t("metric.cost") + '</div><div class="meta-val">' + cost + t("u.hourPerMo") + '</div></div>'; if (lev != null) { html += '<div class="meta-item"><div class="meta-key">' + t("metric.leverage") + '</div><div class="meta-val">' + lev + '</div></div>'; } return html; })() : ''}
+        ${u.automation.difficulty ? `<div class="meta-item"><div class="meta-key">${t("metric.difficulty")}</div><div class="meta-val meta-diff-${u.automation.difficulty}">${u.automation.difficulty}</div></div>` : ''}
+        ${u.automation.status ? `<div class="meta-item"><div class="meta-key">${t("metric.status")}</div><div class="meta-val">${u.automation.status}</div></div>` : ''}
+        ${(u.link.down && u.link.down.length) ? `<div class="meta-item"><div class="meta-key">${t("metric.branches")}</div><div class="meta-val">${u.link.down.length}</div></div>` : ''}
       </div>
     </div>` : ''}
 
     ${(u.link.down && u.link.down.length >= 2) ? `
     <div class="section">
-      <div class="section-label">Outgoing branches</div>
+      <div class="section-label">${t("section.outBranches")}</div>
       <div class="branch-table">
         <div class="branch-head">
-          <div>Kind</div><div>Next unit</div><div>Condition</div>
+          <div>${t("branches.kind")}</div><div>${t("branches.next")}</div><div>${t("branches.cond")}</div>
         </div>
         ${u.link.down.map(n => `
           <div class="branch-row">
@@ -1278,16 +1327,16 @@ function renderDetail(name) {
     </div>` : ''}
 
     <div class="section">
-      <div class="section-label">Link · Up</div>
+      <div class="section-label">${t("section.linkUp")}</div>
       <div class="link-chips">${chips(u.link.up)}</div>
     </div>
     <div class="section">
-      <div class="section-label">Link · Down</div>
+      <div class="section-label">${t("section.linkDown")}</div>
       <div class="link-chips">${chips(u.link.down)}</div>
     </div>
     ${u.depends_on && u.depends_on.length ? `
     <div class="section">
-      <div class="section-label">Depends On (cross-process)</div>
+      <div class="section-label">${t("section.depends")}</div>
       <div class="link-chips">${u.depends_on.map(d => '<span class="link-chip link-chip-ext" title="' + d + '">' + d + '</span>').join("")}</div>
     </div>` : ''}`;
 }
@@ -1392,6 +1441,23 @@ function applyTheme(theme) {
 })();
 document.querySelectorAll("[data-theme-set]").forEach(b => {
   b.addEventListener("click", () => applyTheme(b.dataset.themeSet));
+});
+
+// ── Lang toggle (i18n) ────────────────────────────────────
+function setLang(lang) {
+  currentLang = lang;
+  try { localStorage.setItem("bizspec-lang", lang); } catch (_) {}
+  document.querySelectorAll("[data-lang-set]").forEach(b =>
+    b.classList.toggle("active", b.dataset.langSet === lang));
+  if (selectedUnitName && units[selectedUnitName]) renderDetail(selectedUnitName);
+}
+(function initLang() {
+  let saved = null;
+  try { saved = localStorage.getItem("bizspec-lang"); } catch (_) {}
+  if (saved === "ja" || saved === "en") setLang(saved);
+})();
+document.querySelectorAll("[data-lang-set]").forEach(b => {
+  b.addEventListener("click", () => setLang(b.dataset.langSet));
 });
 </script>
 </body>
