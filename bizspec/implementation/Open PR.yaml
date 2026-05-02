@@ -1,0 +1,34 @@
+unit: Open PR
+aim: レビュー依頼のためのプルリクエストを作成する
+phase: dev
+scope:
+- PR 内容（概要・変更点・テスト方法）の記述
+- レビュアーアサインとレビュー依頼の発信
+rule:
+- 'タイトルは issue 番号と変更概要を含む（例: #123 ユーザー認証を追加）'
+- スクリーンショット・動作確認手順を含める
+- Draft PR は未完成の段階で早期フィードバックが目的のときのみ使う
+link:
+  up:
+  - Self review
+  down: []
+core: true
+io:
+  in:
+  - セルフレビュー済みコード
+  - PR テンプレート
+  process:
+  - 変更概要・テスト方法を記述
+  - レビュアーをアサインして PR を提出
+  out:
+  - プルリクエスト（レビュー待ち）
+executor:
+  type: script
+  reason: PR 作成と説明文の雛形生成は自動化できるため
+effort:
+  duration: 0.5
+  frequency: 20
+automation:
+  difficulty: low
+  status: partially-automated
+status: stable

@@ -1,0 +1,34 @@
+unit: Set action items
+aim: Try の中から次スプリントで実行するアクションを絞り込み、担当者を決める
+phase: spec
+scope:
+- 次スプリントで実行する具体的アクションの絞り込み
+- 各アクションへの担当者・完了基準・期限の設定
+rule:
+- アクションは「〇〇する」という具体的な動詞で表現する（「〇〇を意識する」は NG）
+- 1 スプリントに取り込むアクションは 3 件以下にする（多すぎると何もできない）
+- 完了基準が曖昧なアクションは採用しない
+link:
+  up:
+  - KPT roundup
+  down:
+  - Carry over to next sprint
+core: true
+io:
+  in:
+  - KPT まとめ（優先度付き）
+  process:
+  - Try から実行可能なアクションを選定
+  - 担当者・完了基準・期限を設定
+  out:
+  - アクションアイテム一覧（担当・期限・完了基準付き）
+executor:
+  type: manual
+  reason: チームの意思決定と担当者の合意が必要なため
+effort:
+  duration: 0.5
+  frequency: 2
+automation:
+  difficulty: high
+  status: manual
+status: stable

@@ -1,0 +1,34 @@
+unit: Define OpenAPI spec
+aim: 承認済み設計をもとに OpenAPI Specification を作成する
+phase: spec
+scope:
+- OpenAPI 3.x 仕様の作成と Lint 通過の保証
+- サンプルリクエスト・レスポンスの整備
+rule:
+- 'バージョンは openapi: "3.1.0" を使う'
+- $ref を活用してスキーマの重複を排除する
+- 必須フィールド・nullable を正確に定義する
+link:
+  up:
+  - Design review
+  down:
+  - Build mock server
+core: true
+io:
+  in:
+  - 承認済み API インターフェース設計書
+  process:
+  - OpenAPI YAML/JSON を作成
+  - Lint で検証
+  out:
+  - OpenAPI Specification ファイル（Lint 通過済み）
+executor:
+  type: ai_agent
+  reason: 設計書から OpenAPI の YAML を生成する変換タスクに適しているため
+effort:
+  duration: 2
+  frequency: 2
+automation:
+  difficulty: medium
+  status: partially-automated
+status: stable

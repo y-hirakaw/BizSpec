@@ -1,0 +1,33 @@
+unit: Build mock server
+aim: OpenAPI 定義からモックサーバーを生成し、フロントエンド開発の並行作業を可能にする
+phase: spec
+scope:
+- OpenAPI 定義に基づくモックサーバーの稼働
+- 接続情報・使い方の関係者共有
+rule:
+- モックサーバーは本番 API と同じエンドポイント・スキーマで動作させる
+- モックデータは実際の値に近い（リアルな）ものを使う
+link:
+  up:
+  - Define OpenAPI spec
+  down: []
+core: false
+io:
+  in:
+  - OpenAPI Specification ファイル
+  process:
+  - モックサーバーを生成・起動
+  - 動作確認・共有
+  out:
+  - 稼働中のモックサーバー
+  - 接続情報ドキュメント
+executor:
+  type: script
+  reason: OpenAPI 定義からのモックサーバー生成はツールで自動化できるため
+effort:
+  duration: 1
+  frequency: 2
+automation:
+  difficulty: low
+  status: automated
+status: review

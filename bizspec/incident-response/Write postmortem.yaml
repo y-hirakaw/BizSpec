@@ -1,0 +1,34 @@
+unit: Write postmortem
+aim: インシデントの経緯・原因・対応・再発防止策を文書化し、チームで共有する
+phase: ops
+scope:
+- タイムライン・原因・対応・再発防止策の文書化
+- チームへの読み合わせと知見共有
+rule:
+- Sev1・Sev2 はインシデント収束から 3 営業日以内に作成する
+- 非難なしの文化（blameless）を徹底する
+link:
+  up:
+  - Implement permanent fix
+  down: []
+core: false
+io:
+  in:
+  - インシデントログ
+  - 根本原因分析結果
+  - 対策実装完了報告
+  process:
+  - タイムライン・原因・対応を文書化
+  - アクションアイテムを整理・共有
+  out:
+  - ポストモーテム文書
+executor:
+  type: ai_agent
+  reason: インシデントログから時系列・原因・対応を整理した文書を生成する能力が必要なため
+effort:
+  duration: 2
+  frequency: 1
+automation:
+  difficulty: medium
+  status: partially-automated
+status: stable

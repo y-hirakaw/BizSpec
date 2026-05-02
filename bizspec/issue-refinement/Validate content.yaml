@@ -1,0 +1,32 @@
+unit: Validate content
+aim: 概要・スコープ・受入基準が適切に記載されているかを評価する
+scope:
+- 概要・スコープ・受入基準の妥当性評価
+- 不足点の具体的な指摘
+rule:
+- 各項目を独立して評価し、不足点を具体的に指摘する
+- 「書いてあるが不十分」と「記載なし」を区別する
+link:
+  up:
+  - Fetch PBI
+  down:
+  - Ready decision
+  - Decide tech split
+phase: spec
+core: true
+io:
+  in:
+  - PBI データ（JSON）
+  process:
+  - 概要・スコープ・受入基準それぞれを評価基準に照らして評価する
+  out:
+  - 各項目の評価結果（OK / NG / 不十分）と指摘事項
+executor:
+  type: ai_agent
+  reason: 自然言語の評価・推論が必要なため
+effort:
+  duration: 0.5
+  frequency: 20
+automation:
+  difficulty: medium
+  status: manual

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PBIリファインメント — BizSpec</title>
+<title>PBI refinement — BizSpec</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -736,7 +736,7 @@ svg.arrows-layer {
   <div class="tb-divider"></div>
   <div class="tb-crumb">
     <span class="tb-crumb-sep">/</span>
-    <span class="tb-crumb-leaf">PBIリファインメント</span>
+    <span class="tb-crumb-leaf">PBI refinement</span>
   </div>
   <div class="tb-spacer"></div>
   <div class="tb-theme" role="group" aria-label="theme">
@@ -746,7 +746,7 @@ svg.arrows-layer {
 </div>
 
 <header class="proc-head">
-  <h1>PBIリファインメント</h1>
+  <h1>PBI refinement</h1>
   <span class="subtitle">issue-refinement &nbsp;·&nbsp; 9 units &nbsp;·&nbsp; phase: spec</span>
 </header>
 
@@ -822,201 +822,7 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "PBI情報取得": {
-    "aim": "GitHub から PBI の本文・ラベル・マイルストーン等を取得する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "GitHub からの PBI データ（本文・ラベル・担当者・マイルストーン）取得"
-    ],
-    "rule": [
-      "本文・ラベル・担当者・マイルストーンをすべて取得する",
-      "取得失敗時はエラーを返し後続処理を止める"
-    ],
-    "io": {
-      "in": [
-        "PBI 番号 または URL（GitHub Issue）"
-      ],
-      "process": [
-        "gh issue view <number> --json title,body,labels,milestone,assignees"
-      ],
-      "out": [
-        "PBI データ（JSON）"
-      ]
-    },
-    "executor": {
-      "type": "script",
-      "reason": "gh CLI で一意に取得できる定型処理のため"
-    },
-    "link": {
-      "up": [],
-      "down": [
-        "記載内容妥当性評価"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 20
-    },
-    "automation": {
-      "difficulty": "low",
-      "status": "automated"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "Ready判定": {
-    "aim": "PBI が開発着手可能な状態かを判定する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "Ready / Not Ready 判定と判定根拠の明示",
-      "Not Ready 時の必要事項リストの作成"
-    ],
-    "rule": [
-      "概要・スコープ・受入基準がすべて OK でなければ Ready にしない",
-      "不足事項は「何を・誰が・いつまでに」の粒度で示す"
-    ],
-    "io": {
-      "in": [
-        "各項目の評価結果（OK / NG / 不十分）と指摘事項"
-      ],
-      "process": [
-        "評価結果を総合して Ready / Not Ready を判定する"
-      ],
-      "out": [
-        "Ready判定結果と、Not Ready の場合の必要事項リスト"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "複数評価結果の統合判断が必要なため"
-    },
-    "link": {
-      "up": [
-        "記載内容妥当性評価"
-      ],
-      "down": [
-        "ストーリーポイント算出"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 20
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "manual"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "スコープ別PBI分割": {
-    "aim": "独立して実装・テスト可能なスコープ単位にPBIを分割する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "独立してテスト可能なスコープ単位への分割",
-      "子PBI 間の依存関係の明確化"
-    ],
-    "rule": [
-      "各子PBIは単独でテスト可能なスコープを持つこと",
-      "正常系を先行PBIとして切り出すことを優先する",
-      "レイアウト作成とデータ取得は原則分割可能とみなす"
-    ],
-    "io": {
-      "in": [
-        "PBI データ（JSON）",
-        "実装スコープの説明"
-      ],
-      "process": [
-        "分割可能なスコープ境界を分析する",
-        "スコープごとの実装内容を定義する",
-        "子PBI間の依存関係を決定する"
-      ],
-      "out": [
-        "スコープ別子PBI一覧（タイトル・スコープ・依存順序）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "スコープの境界判断と分割後の独立性評価には推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "分解パターン選択"
-      ],
-      "down": []
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 5
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": [
-      "スパイクPBI作成"
-    ]
-  },
-  "ストーリーポイント算出": {
-    "aim": "PBI の複雑度・不確実性・規模をもとに SP を算出する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "複雑度・不確実性・規模に基づく SP 値の算出",
-      "算出根拠の明示"
-    ],
-    "rule": [
-      "Ready 判定結果に依存せず算出する（Not Ready でも見積もれる範囲で算出する）",
-      "SP はリリーススケジュール策定の前提となるため必須"
-    ],
-    "io": {
-      "in": [
-        "PBI データ（JSON）",
-        "各項目の評価結果"
-      ],
-      "process": [
-        "複雑度・不確実性・規模を評価して SP を算出する"
-      ],
-      "out": [
-        "SP 値と算出根拠"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "複雑度・不確実性の推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "Ready判定"
-      ],
-      "down": [
-        "技術PBI分解要否判断"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 20
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "manual"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "スパイクPBI作成": {
+  "Create spike PBI": {
     "aim": "不確実性を排除してSP見積もりを正確化するためのスパイク（調査）PBIを生成する",
     "phase": "spec",
     "core": false,
@@ -1050,7 +856,7 @@ const units     = {
     },
     "link": {
       "up": [
-        "分解パターン選択"
+        "Select split pattern"
       ],
       "down": []
     },
@@ -1067,112 +873,7 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "プラットフォーム別PBI分割": {
-    "aim": "複数プラットフォームにまたがるPBIをプラットフォーム単位の子PBIに分割する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "プラットフォーム単位の実装スコープ定義",
-      "子PBI 間の依存順序の明記"
-    ],
-    "rule": [
-      "各子PBIは単一プラットフォームの実装のみを含む",
-      "バックエンドAPIを先行PBIとして切り出す場合はその旨を依存関係に明記する",
-      "単独ではスプリントゴールを達成できない旨を子PBIに記述する"
-    ],
-    "io": {
-      "in": [
-        "PBI データ（JSON）",
-        "関与プラットフォームのリスト"
-      ],
-      "process": [
-        "関与プラットフォームを列挙する",
-        "プラットフォームごとのスコープを定義する",
-        "子PBIの依存順序を決定する"
-      ],
-      "out": [
-        "プラットフォーム別子PBI一覧（タイトル・スコープ・依存順序）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "プラットフォーム間の依存関係と実装スコープの分離には推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "分解パターン選択"
-      ],
-      "down": []
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 5
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "分解パターン選択": {
-    "aim": "分解が必要なPBIに対して、適用すべき分解パターンを1つ以上選択する",
-    "phase": "spec",
-    "core": false,
-    "scope": [
-      "PBI 特性に基づく適用パターン（プラットフォーム分解 / スパイク / スコープ分割）の選択",
-      "複数該当時の全パターン列挙"
-    ],
-    "rule": [
-      "複数プラットフォーム（BE/FE/アプリ）にまたがる実装はプラットフォーム分解を選択",
-      "不確実性が高くSP見積もりの根拠が薄い場合はスパイクを選択",
-      "実装スコープが独立して分離可能（正常系/異常系・レイアウト/データ等）な場合はスコープ分割を選択",
-      "パターンは複数選択可能"
-    ],
-    "io": {
-      "in": [
-        "PBI データ（JSON）",
-        "SP 値と技術的不確実性の説明"
-      ],
-      "process": [
-        "PBIの技術的特性を分析する",
-        "各パターンの適用条件を評価する",
-        "適用パターンリストを出力する"
-      ],
-      "out": [
-        "適用パターンリスト（プラットフォーム分解 / スパイク / スコープ分割）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "PBIの技術的特性と各パターンの適用条件を照合する推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "技術PBI分解要否判断"
-      ],
-      "down": [
-        "プラットフォーム別PBI分割",
-        "スパイクPBI作成",
-        "スコープ別PBI分割"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 8
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "manual"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "技術PBI分解要否判断": {
+  "Decide tech split": {
     "aim": "SP をもとに技術 PBI への細分化が必要かを判断し、必要な場合は分解案を提示する",
     "phase": "spec",
     "core": true,
@@ -1206,11 +907,11 @@ const units     = {
     },
     "link": {
       "up": [
-        "ストーリーポイント算出",
-        "記載内容妥当性評価"
+        "Estimate story points",
+        "Validate content"
       ],
       "down": [
-        "分解パターン選択"
+        "Select split pattern"
       ]
     },
     "depends_on": [],
@@ -1226,7 +927,306 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "記載内容妥当性評価": {
+  "Estimate story points": {
+    "aim": "PBI の複雑度・不確実性・規模をもとに SP を算出する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "複雑度・不確実性・規模に基づく SP 値の算出",
+      "算出根拠の明示"
+    ],
+    "rule": [
+      "Ready 判定結果に依存せず算出する（Not Ready でも見積もれる範囲で算出する）",
+      "SP はリリーススケジュール策定の前提となるため必須"
+    ],
+    "io": {
+      "in": [
+        "PBI データ（JSON）",
+        "各項目の評価結果"
+      ],
+      "process": [
+        "複雑度・不確実性・規模を評価して SP を算出する"
+      ],
+      "out": [
+        "SP 値と算出根拠"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "複雑度・不確実性の推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "Ready decision"
+      ],
+      "down": [
+        "Decide tech split"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 20
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "manual"
+    },
+    "lifecycle_status": null,
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Fetch PBI": {
+    "aim": "GitHub から PBI の本文・ラベル・マイルストーン等を取得する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "GitHub からの PBI データ（本文・ラベル・担当者・マイルストーン）取得"
+    ],
+    "rule": [
+      "本文・ラベル・担当者・マイルストーンをすべて取得する",
+      "取得失敗時はエラーを返し後続処理を止める"
+    ],
+    "io": {
+      "in": [
+        "PBI 番号 または URL（GitHub Issue）"
+      ],
+      "process": [
+        "gh issue view <number> --json title,body,labels,milestone,assignees"
+      ],
+      "out": [
+        "PBI データ（JSON）"
+      ]
+    },
+    "executor": {
+      "type": "script",
+      "reason": "gh CLI で一意に取得できる定型処理のため"
+    },
+    "link": {
+      "up": [],
+      "down": [
+        "Validate content"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 20
+    },
+    "automation": {
+      "difficulty": "low",
+      "status": "automated"
+    },
+    "lifecycle_status": null,
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Ready decision": {
+    "aim": "PBI が開発着手可能な状態かを判定する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "Ready / Not Ready 判定と判定根拠の明示",
+      "Not Ready 時の必要事項リストの作成"
+    ],
+    "rule": [
+      "概要・スコープ・受入基準がすべて OK でなければ Ready にしない",
+      "不足事項は「何を・誰が・いつまでに」の粒度で示す"
+    ],
+    "io": {
+      "in": [
+        "各項目の評価結果（OK / NG / 不十分）と指摘事項"
+      ],
+      "process": [
+        "評価結果を総合して Ready / Not Ready を判定する"
+      ],
+      "out": [
+        "Ready判定結果と、Not Ready の場合の必要事項リスト"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "複数評価結果の統合判断が必要なため"
+    },
+    "link": {
+      "up": [
+        "Validate content"
+      ],
+      "down": [
+        "Estimate story points"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 20
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "manual"
+    },
+    "lifecycle_status": null,
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Select split pattern": {
+    "aim": "分解が必要なPBIに対して、適用すべき分解パターンを1つ以上選択する",
+    "phase": "spec",
+    "core": false,
+    "scope": [
+      "PBI 特性に基づく適用パターン（プラットフォーム分解 / スパイク / スコープ分割）の選択",
+      "複数該当時の全パターン列挙"
+    ],
+    "rule": [
+      "複数プラットフォーム（BE/FE/アプリ）にまたがる実装はプラットフォーム分解を選択",
+      "不確実性が高くSP見積もりの根拠が薄い場合はスパイクを選択",
+      "実装スコープが独立して分離可能（正常系/異常系・レイアウト/データ等）な場合はスコープ分割を選択",
+      "パターンは複数選択可能"
+    ],
+    "io": {
+      "in": [
+        "PBI データ（JSON）",
+        "SP 値と技術的不確実性の説明"
+      ],
+      "process": [
+        "PBIの技術的特性を分析する",
+        "各パターンの適用条件を評価する",
+        "適用パターンリストを出力する"
+      ],
+      "out": [
+        "適用パターンリスト（プラットフォーム分解 / スパイク / スコープ分割）"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "PBIの技術的特性と各パターンの適用条件を照合する推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "Decide tech split"
+      ],
+      "down": [
+        "Split by platform",
+        "Create spike PBI",
+        "Split by scope"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 8
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "manual"
+    },
+    "lifecycle_status": null,
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Split by platform": {
+    "aim": "複数プラットフォームにまたがるPBIをプラットフォーム単位の子PBIに分割する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "プラットフォーム単位の実装スコープ定義",
+      "子PBI 間の依存順序の明記"
+    ],
+    "rule": [
+      "各子PBIは単一プラットフォームの実装のみを含む",
+      "バックエンドAPIを先行PBIとして切り出す場合はその旨を依存関係に明記する",
+      "単独ではスプリントゴールを達成できない旨を子PBIに記述する"
+    ],
+    "io": {
+      "in": [
+        "PBI データ（JSON）",
+        "関与プラットフォームのリスト"
+      ],
+      "process": [
+        "関与プラットフォームを列挙する",
+        "プラットフォームごとのスコープを定義する",
+        "子PBIの依存順序を決定する"
+      ],
+      "out": [
+        "プラットフォーム別子PBI一覧（タイトル・スコープ・依存順序）"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "プラットフォーム間の依存関係と実装スコープの分離には推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "Select split pattern"
+      ],
+      "down": []
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 5
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": null,
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Split by scope": {
+    "aim": "独立して実装・テスト可能なスコープ単位にPBIを分割する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "独立してテスト可能なスコープ単位への分割",
+      "子PBI 間の依存関係の明確化"
+    ],
+    "rule": [
+      "各子PBIは単独でテスト可能なスコープを持つこと",
+      "正常系を先行PBIとして切り出すことを優先する",
+      "レイアウト作成とデータ取得は原則分割可能とみなす"
+    ],
+    "io": {
+      "in": [
+        "PBI データ（JSON）",
+        "実装スコープの説明"
+      ],
+      "process": [
+        "分割可能なスコープ境界を分析する",
+        "スコープごとの実装内容を定義する",
+        "子PBI間の依存関係を決定する"
+      ],
+      "out": [
+        "スコープ別子PBI一覧（タイトル・スコープ・依存順序）"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "スコープの境界判断と分割後の独立性評価には推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "Select split pattern"
+      ],
+      "down": []
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 5
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": null,
+    "deprecated_reason": null,
+    "parallel_with": [
+      "Create spike PBI"
+    ]
+  },
+  "Validate content": {
     "aim": "概要・スコープ・受入基準が適切に記載されているかを評価する",
     "phase": "spec",
     "core": true,
@@ -1255,11 +1255,11 @@ const units     = {
     },
     "link": {
       "up": [
-        "PBI情報取得"
+        "Fetch PBI"
       ],
       "down": [
-        "Ready判定",
-        "技術PBI分解要否判断"
+        "Ready decision",
+        "Decide tech split"
       ]
     },
     "depends_on": [],
@@ -1276,8 +1276,8 @@ const units     = {
     "parallel_with": []
   }
 };
-const positions = {"PBI情報取得": {"left": 220, "top": 24}, "記載内容妥当性評価": {"left": 220, "top": 134}, "Ready判定": {"left": 220, "top": 244}, "ストーリーポイント算出": {"left": 220, "top": 354}, "技術PBI分解要否判断": {"left": 220, "top": 464}, "分解パターン選択": {"left": 220, "top": 574}, "スコープ別PBI分割": {"left": 0, "top": 684}, "スパイクPBI作成": {"left": 220, "top": 684}, "プラットフォーム別PBI分割": {"left": 440, "top": 684}};
-const edges     = [["PBI情報取得", "記載内容妥当性評価", "seq"], ["Ready判定", "ストーリーポイント算出", "seq"], ["スコープ別PBI分割", "スパイクPBI作成", "parallel"], ["ストーリーポイント算出", "技術PBI分解要否判断", "seq"], ["分解パターン選択", "プラットフォーム別PBI分割", "seq"], ["分解パターン選択", "スパイクPBI作成", "seq"], ["分解パターン選択", "スコープ別PBI分割", "seq"], ["技術PBI分解要否判断", "分解パターン選択", "seq"], ["記載内容妥当性評価", "Ready判定", "seq"], ["記載内容妥当性評価", "技術PBI分解要否判断", "seq"]];
+const positions = {"Fetch PBI": {"left": 220, "top": 24}, "Validate content": {"left": 220, "top": 134}, "Ready decision": {"left": 220, "top": 244}, "Estimate story points": {"left": 220, "top": 354}, "Decide tech split": {"left": 220, "top": 464}, "Select split pattern": {"left": 220, "top": 574}, "Create spike PBI": {"left": 0, "top": 684}, "Split by platform": {"left": 220, "top": 684}, "Split by scope": {"left": 440, "top": 684}};
+const edges     = [["Decide tech split", "Select split pattern", "seq"], ["Estimate story points", "Decide tech split", "seq"], ["Fetch PBI", "Validate content", "seq"], ["Ready decision", "Estimate story points", "seq"], ["Select split pattern", "Split by platform", "seq"], ["Select split pattern", "Create spike PBI", "seq"], ["Select split pattern", "Split by scope", "seq"], ["Split by scope", "Create spike PBI", "parallel"], ["Validate content", "Ready decision", "seq"], ["Validate content", "Decide tech split", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

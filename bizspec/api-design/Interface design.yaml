@@ -1,0 +1,34 @@
+unit: Interface design
+aim: エンドポイント・リクエスト/レスポンス構造・エラーコードを設計する
+phase: spec
+scope:
+- RESTful 原則に基づくエンドポイント・スキーマ設計
+- エラーコード・エラーレスポンス体系の定義
+rule:
+- リソース名は名詞・複数形を使う（/users, /orders）
+- エラーレスポンスは一貫したフォーマットにする
+- 破壊的変更は /v2 などのバージョニングで対応する
+link:
+  up:
+  - Requirements review
+  down:
+  - Design review
+core: true
+io:
+  in:
+  - 確認済み要件書
+  process:
+  - エンドポイント・スキーマを設計
+  - エラーコード体系を定義
+  out:
+  - API インターフェース設計書（ドラフト）
+executor:
+  type: ai_agent
+  reason: 要件からエンドポイント・スキーマを体系的に設計する推論が必要なため
+effort:
+  duration: 2
+  frequency: 2
+automation:
+  difficulty: medium
+  status: partially-automated
+status: stable

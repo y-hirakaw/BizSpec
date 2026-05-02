@@ -1,0 +1,37 @@
+unit: Split by scope
+aim: 独立して実装・テスト可能なスコープ単位にPBIを分割する
+phase: spec
+scope:
+- 独立してテスト可能なスコープ単位への分割
+- 子PBI 間の依存関係の明確化
+rule:
+- 各子PBIは単独でテスト可能なスコープを持つこと
+- 正常系を先行PBIとして切り出すことを優先する
+- レイアウト作成とデータ取得は原則分割可能とみなす
+link:
+  up:
+  - Select split pattern
+  down: []
+core: true
+io:
+  in:
+  - PBI データ（JSON）
+  - 実装スコープの説明
+  process:
+  - 分割可能なスコープ境界を分析する
+  - スコープごとの実装内容を定義する
+  - 子PBI間の依存関係を決定する
+  out:
+  - スコープ別子PBI一覧（タイトル・スコープ・依存順序）
+executor:
+  type: ai_agent
+  reason: スコープの境界判断と分割後の独立性評価には推論が必要なため
+effort:
+  duration: 1
+  frequency: 5
+automation:
+  difficulty: high
+  status: manual
+execution:
+  parallel_with:
+  - Create spike PBI

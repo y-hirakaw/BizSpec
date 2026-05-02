@@ -822,7 +822,7 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "デプロイ": {
+  "Deploy": {
     "aim": "バグ修正を本番環境に適用する",
     "phase": "dev",
     "core": true,
@@ -852,12 +852,12 @@ const units     = {
     },
     "link": {
       "up": [
-        "回帰テスト"
+        "Regression test"
       ],
       "down": []
     },
     "depends_on": [
-      "pr-review:承認判定"
+      "pr-review:Approval decision"
     ],
     "effort": {
       "duration": 0.5,
@@ -871,103 +871,7 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "バグ再現確認": {
-    "aim": "報告されたバグが再現することを確認し、再現手順を明確化する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "バグ再現の確認と再現条件の特定",
-      "再現手順・環境情報の issue への明文化"
-    ],
-    "rule": [
-      "再現できない場合は「再現不可」としてクローズするか、追加情報を報告者に依頼する",
-      "再現手順は第三者が実行できるレベルで記述する"
-    ],
-    "io": {
-      "in": [
-        "バグ issue（再現手順・環境情報）"
-      ],
-      "process": [
-        "指定の手順・環境でバグを再現",
-        "再現条件を明確化して記録"
-      ],
-      "out": [
-        "再現確認済みバグ issue（再現手順確定）"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "実際の操作・目視確認で再現を確かめる必要があるため"
-    },
-    "link": {
-      "up": [],
-      "down": [
-        "原因特定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 8
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "修正実装": {
-    "aim": "特定した原因を解消するコードを実装する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "最小限の修正コードと再発防止テストの実装",
-      "修正範囲の限定（無関係な変更の排除）"
-    ],
-    "rule": [
-      "修正範囲は最小限にとどめる（バグ修正に無関係なリファクタを混入しない）",
-      "修正を確認するテストを必ず追加する（再発防止）"
-    ],
-    "io": {
-      "in": [
-        "原因特定結果"
-      ],
-      "process": [
-        "最小限の修正を実装",
-        "バグ再現テストを追加"
-      ],
-      "out": [
-        "修正済みコード（テスト付き）"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "修正範囲の判断と実装はエンジニアの専門的判断が必要なため"
-    },
-    "link": {
-      "up": [
-        "原因特定"
-      ],
-      "down": [
-        "回帰テスト"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 8
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "draft",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "原因特定": {
+  "Identify cause": {
     "aim": "バグの原因となるコードや設定を特定する",
     "phase": "dev",
     "core": true,
@@ -998,10 +902,10 @@ const units     = {
     },
     "link": {
       "up": [
-        "バグ再現確認"
+        "Reproduce bug"
       ],
       "down": [
-        "修正実装"
+        "Implement fix"
       ]
     },
     "depends_on": [],
@@ -1017,7 +921,56 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "回帰テスト": {
+  "Implement fix": {
+    "aim": "特定した原因を解消するコードを実装する",
+    "phase": "dev",
+    "core": true,
+    "scope": [
+      "最小限の修正コードと再発防止テストの実装",
+      "修正範囲の限定（無関係な変更の排除）"
+    ],
+    "rule": [
+      "修正範囲は最小限にとどめる（バグ修正に無関係なリファクタを混入しない）",
+      "修正を確認するテストを必ず追加する（再発防止）"
+    ],
+    "io": {
+      "in": [
+        "原因特定結果"
+      ],
+      "process": [
+        "最小限の修正を実装",
+        "バグ再現テストを追加"
+      ],
+      "out": [
+        "修正済みコード（テスト付き）"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "修正範囲の判断と実装はエンジニアの専門的判断が必要なため"
+    },
+    "link": {
+      "up": [
+        "Identify cause"
+      ],
+      "down": [
+        "Regression test"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 8
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "draft",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Regression test": {
     "aim": "修正により既存機能が壊れていないことを確認する",
     "phase": "dev",
     "core": true,
@@ -1047,10 +1000,10 @@ const units     = {
     },
     "link": {
       "up": [
-        "修正実装"
+        "Implement fix"
       ],
       "down": [
-        "デプロイ"
+        "Deploy"
       ]
     },
     "depends_on": [],
@@ -1065,10 +1018,57 @@ const units     = {
     "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
+  },
+  "Reproduce bug": {
+    "aim": "報告されたバグが再現することを確認し、再現手順を明確化する",
+    "phase": "dev",
+    "core": true,
+    "scope": [
+      "バグ再現の確認と再現条件の特定",
+      "再現手順・環境情報の issue への明文化"
+    ],
+    "rule": [
+      "再現できない場合は「再現不可」としてクローズするか、追加情報を報告者に依頼する",
+      "再現手順は第三者が実行できるレベルで記述する"
+    ],
+    "io": {
+      "in": [
+        "バグ issue（再現手順・環境情報）"
+      ],
+      "process": [
+        "指定の手順・環境でバグを再現",
+        "再現条件を明確化して記録"
+      ],
+      "out": [
+        "再現確認済みバグ issue（再現手順確定）"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "実際の操作・目視確認で再現を確かめる必要があるため"
+    },
+    "link": {
+      "up": [],
+      "down": [
+        "Identify cause"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 8
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
   }
 };
-const positions = {"バグ再現確認": {"left": 40, "top": 24}, "原因特定": {"left": 40, "top": 134}, "修正実装": {"left": 40, "top": 244}, "回帰テスト": {"left": 40, "top": 354}, "デプロイ": {"left": 40, "top": 464}};
-const edges     = [["バグ再現確認", "原因特定", "seq"], ["修正実装", "回帰テスト", "seq"], ["原因特定", "修正実装", "seq"], ["回帰テスト", "デプロイ", "seq"]];
+const positions = {"Reproduce bug": {"left": 40, "top": 24}, "Identify cause": {"left": 40, "top": 134}, "Implement fix": {"left": 40, "top": 244}, "Regression test": {"left": 40, "top": 354}, "Deploy": {"left": 40, "top": 464}};
+const edges     = [["Identify cause", "Implement fix", "seq"], ["Implement fix", "Regression test", "seq"], ["Regression test", "Deploy", "seq"], ["Reproduce bug", "Identify cause", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

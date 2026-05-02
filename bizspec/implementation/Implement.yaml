@@ -1,0 +1,35 @@
+unit: Implement
+aim: タスクの要件を満たすコードを実装する
+phase: dev
+scope:
+- 要件を満たす実装コードの作成（規約・既存パターン準拠）
+- ローカル環境での動作確認
+rule:
+- 既存のコードスタイル・命名規則を遵守する
+- 1 コミットは 1 つの論理的変更単位にする
+- 秘密情報をコードにハードコードしない
+link:
+  up:
+  - Create branch
+  down:
+  - Write unit tests
+core: true
+io:
+  in:
+  - タスク定義・要件
+  - 作業ブランチ
+  process:
+  - 設計・実装方針を決定
+  - コード実装・ローカル確認
+  out:
+  - 実装済みコード（コミット済み）
+executor:
+  type: manual
+  reason: 要件解釈と設計判断はエンジニアの専門的判断が必要なため
+effort:
+  duration: 3
+  frequency: 20
+automation:
+  difficulty: high
+  status: manual
+status: stable

@@ -1,0 +1,31 @@
+unit: Ready decision
+aim: PBI が開発着手可能な状態かを判定する
+scope:
+- Ready / Not Ready 判定と判定根拠の明示
+- Not Ready 時の必要事項リストの作成
+rule:
+- 概要・スコープ・受入基準がすべて OK でなければ Ready にしない
+- 不足事項は「何を・誰が・いつまでに」の粒度で示す
+link:
+  up:
+  - Validate content
+  down:
+  - Estimate story points
+phase: spec
+core: true
+io:
+  in:
+  - 各項目の評価結果（OK / NG / 不十分）と指摘事項
+  process:
+  - 評価結果を総合して Ready / Not Ready を判定する
+  out:
+  - Ready判定結果と、Not Ready の場合の必要事項リスト
+executor:
+  type: ai_agent
+  reason: 複数評価結果の統合判断が必要なため
+effort:
+  duration: 0.5
+  frequency: 20
+automation:
+  difficulty: medium
+  status: manual

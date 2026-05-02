@@ -1,0 +1,37 @@
+unit: Create release branch
+aim: main ブランチからリリース用ブランチを作成し、バージョンタグを付与する
+phase: release
+scope:
+- リリース用ブランチとセマンティックバージョンタグの整備
+- CHANGELOG の更新
+rule:
+- バージョン番号はセマンティックバージョニング（major.minor.patch）に従う
+- リリースブランチへの直接コミットはホットフィックスのみ許可
+link:
+  up:
+  - Release decision
+  down:
+  - Staging check
+core: true
+io:
+  in:
+  - リリース判定結果（GO）
+  - バージョン番号
+  process:
+  - リリースブランチを作成
+  - タグ付与・CHANGELOG 更新
+  out:
+  - リリースブランチ（タグ付き）
+  - 更新済み CHANGELOG
+executor:
+  type: script
+  reason: ブランチ作成・タグ付与・CHANGELOG 更新は定型化・自動化できるため
+depends_on:
+- pr-review:Approval decision
+effort:
+  duration: 0.5
+  frequency: 2
+automation:
+  difficulty: low
+  status: automated
+status: stable

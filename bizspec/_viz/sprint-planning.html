@@ -822,108 +822,7 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "スコープ決定": {
-    "aim": "ベロシティと優先順位をもとに今スプリントに取り込む PBI セットを確定する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "目安 SP に基づくスプリントスコープの確定",
-      "チーム合意の取得"
-    ],
-    "rule": [
-      "合計 SP が目安 SP を 20% 以上超えない",
-      "依存関係のある PBI は両方取り込むか両方外す",
-      "スプリント途中のスコープ変更は原則禁止"
-    ],
-    "io": {
-      "in": [
-        "優先順位付きバックログ（最新）",
-        "今スプリントの目安 SP"
-      ],
-      "process": [
-        "優先度上位から SP 合計が目安以内になるよう PBI を選択",
-        "依存関係・リスクを確認して調整"
-      ],
-      "out": [
-        "今スプリントのスコープ（PBI リスト・合計 SP）"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "スコープの最終判断はチームとプロダクトオーナーの合意が必要なため"
-    },
-    "link": {
-      "up": [
-        "バックログ優先順位確認",
-        "ベロシティ確認"
-      ],
-      "down": [
-        "タスク分解"
-      ]
-    },
-    "depends_on": [
-      "issue-refinement:Ready判定"
-    ],
-    "effort": {
-      "duration": 1,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "スプリントゴール設定": {
-    "aim": "スプリントで達成すべきゴールを 1 文で表現し、チームで合意する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "達成価値を表現する 1 文のスプリントゴール文の作成",
-      "チーム合意とスプリントボードへの記録"
-    ],
-    "rule": [
-      "ゴールはスコープの列挙ではなく、達成される価値を表現する",
-      "「〇〇できるようになる」「〇〇が解消される」の形を推奨"
-    ],
-    "io": {
-      "in": [
-        "タスクリスト（担当者・工数付き）"
-      ],
-      "process": [
-        "スコープから達成価値を抽出",
-        "ゴール文を 1 文に集約"
-      ],
-      "out": [
-        "スプリントゴール文"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "ゴールへの合意はチーム全員の納得が必要なため"
-    },
-    "link": {
-      "up": [
-        "タスク分解"
-      ],
-      "down": []
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "タスク分解": {
+  "Break down tasks": {
     "aim": "確定した PBI をエンジニアが着手できるタスク単位に分解する",
     "phase": "spec",
     "core": true,
@@ -953,10 +852,10 @@ const units     = {
     },
     "link": {
       "up": [
-        "スコープ決定"
+        "Decide scope"
       ],
       "down": [
-        "スプリントゴール設定"
+        "Set sprint goal"
       ]
     },
     "depends_on": [],
@@ -972,55 +871,7 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "バックログ優先順位確認": {
-    "aim": "スプリントに取り込む PBI の優先順位を最新状態で確認する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "最新の事業優先度に基づくバックログの並び替え",
-      "上位 PBI の Ready 状態・依存関係・サイズの確認"
-    ],
-    "rule": [
-      "優先順位はビジネス価値・リスク・依存関係を考慮して決める",
-      "未 Ready の PBI は上位に置かない"
-    ],
-    "io": {
-      "in": [
-        "プロダクトバックログ",
-        "ステークホルダーからの優先度インプット"
-      ],
-      "process": [
-        "バックログを最新の優先度でソート",
-        "上位 PBI の Ready 状態を確認"
-      ],
-      "out": [
-        "優先順位付きバックログ（最新）"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "事業価値の判断はプロダクトオーナーの意思決定が必要なため"
-    },
-    "link": {
-      "up": [],
-      "down": [
-        "スコープ決定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "ベロシティ確認": {
+  "Check velocity": {
     "aim": "直近スプリントの実績ベロシティを把握し、今スプリントの受け入れ可能量を算出する",
     "phase": "spec",
     "core": true,
@@ -1053,7 +904,7 @@ const units     = {
     "link": {
       "up": [],
       "down": [
-        "スコープ決定"
+        "Decide scope"
       ]
     },
     "depends_on": [],
@@ -1068,10 +919,159 @@ const units     = {
     "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
+  },
+  "Decide scope": {
+    "aim": "ベロシティと優先順位をもとに今スプリントに取り込む PBI セットを確定する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "目安 SP に基づくスプリントスコープの確定",
+      "チーム合意の取得"
+    ],
+    "rule": [
+      "合計 SP が目安 SP を 20% 以上超えない",
+      "依存関係のある PBI は両方取り込むか両方外す",
+      "スプリント途中のスコープ変更は原則禁止"
+    ],
+    "io": {
+      "in": [
+        "優先順位付きバックログ（最新）",
+        "今スプリントの目安 SP"
+      ],
+      "process": [
+        "優先度上位から SP 合計が目安以内になるよう PBI を選択",
+        "依存関係・リスクを確認して調整"
+      ],
+      "out": [
+        "今スプリントのスコープ（PBI リスト・合計 SP）"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "スコープの最終判断はチームとプロダクトオーナーの合意が必要なため"
+    },
+    "link": {
+      "up": [
+        "Prioritize backlog",
+        "Check velocity"
+      ],
+      "down": [
+        "Break down tasks"
+      ]
+    },
+    "depends_on": [
+      "issue-refinement:Ready decision"
+    ],
+    "effort": {
+      "duration": 1,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Prioritize backlog": {
+    "aim": "スプリントに取り込む PBI の優先順位を最新状態で確認する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "最新の事業優先度に基づくバックログの並び替え",
+      "上位 PBI の Ready 状態・依存関係・サイズの確認"
+    ],
+    "rule": [
+      "優先順位はビジネス価値・リスク・依存関係を考慮して決める",
+      "未 Ready の PBI は上位に置かない"
+    ],
+    "io": {
+      "in": [
+        "プロダクトバックログ",
+        "ステークホルダーからの優先度インプット"
+      ],
+      "process": [
+        "バックログを最新の優先度でソート",
+        "上位 PBI の Ready 状態を確認"
+      ],
+      "out": [
+        "優先順位付きバックログ（最新）"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "事業価値の判断はプロダクトオーナーの意思決定が必要なため"
+    },
+    "link": {
+      "up": [],
+      "down": [
+        "Decide scope"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Set sprint goal": {
+    "aim": "スプリントで達成すべきゴールを 1 文で表現し、チームで合意する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "達成価値を表現する 1 文のスプリントゴール文の作成",
+      "チーム合意とスプリントボードへの記録"
+    ],
+    "rule": [
+      "ゴールはスコープの列挙ではなく、達成される価値を表現する",
+      "「〇〇できるようになる」「〇〇が解消される」の形を推奨"
+    ],
+    "io": {
+      "in": [
+        "タスクリスト（担当者・工数付き）"
+      ],
+      "process": [
+        "スコープから達成価値を抽出",
+        "ゴール文を 1 文に集約"
+      ],
+      "out": [
+        "スプリントゴール文"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "ゴールへの合意はチーム全員の納得が必要なため"
+    },
+    "link": {
+      "up": [
+        "Break down tasks"
+      ],
+      "down": []
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
   }
 };
-const positions = {"バックログ優先順位確認": {"left": 0, "top": 24}, "ベロシティ確認": {"left": 220, "top": 24}, "スコープ決定": {"left": 110, "top": 134}, "タスク分解": {"left": 110, "top": 244}, "スプリントゴール設定": {"left": 110, "top": 354}};
-const edges     = [["スコープ決定", "タスク分解", "seq"], ["タスク分解", "スプリントゴール設定", "seq"], ["バックログ優先順位確認", "スコープ決定", "seq"], ["ベロシティ確認", "スコープ決定", "seq"]];
+const positions = {"Check velocity": {"left": 0, "top": 24}, "Prioritize backlog": {"left": 220, "top": 24}, "Decide scope": {"left": 110, "top": 134}, "Break down tasks": {"left": 110, "top": 244}, "Set sprint goal": {"left": 110, "top": 354}};
+const edges     = [["Break down tasks", "Set sprint goal", "seq"], ["Check velocity", "Decide scope", "seq"], ["Decide scope", "Break down tasks", "seq"], ["Prioritize backlog", "Decide scope", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

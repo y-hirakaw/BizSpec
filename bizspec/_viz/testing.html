@@ -822,58 +822,7 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "テストケース作成": {
-    "aim": "テスト計画に基づいてテストケースを作成する",
-    "phase": "test",
-    "core": true,
-    "scope": [
-      "テストケース一覧の作成と網羅性の担保",
-      "テストデータの整備"
-    ],
-    "rule": [
-      "テストケースは再現可能で独立していること",
-      "期待結果を事前に明記する（テスト後に決めない）"
-    ],
-    "io": {
-      "in": [
-        "テスト計画書",
-        "仕様書・受け入れ条件"
-      ],
-      "process": [
-        "機能ごとにテスト観点を洗い出し",
-        "テストケース・テストデータを作成"
-      ],
-      "out": [
-        "テストケース一覧",
-        "テストデータ"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "仕様から網羅的なテスト観点を導出する推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "テスト計画作成"
-      ],
-      "down": [
-        "テスト実施"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 2,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": "draft",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "テスト実施": {
+  "Execute tests": {
     "aim": "テストケースに従って動作確認を行い、結果を記録する",
     "phase": "test",
     "core": true,
@@ -905,11 +854,11 @@ const units     = {
     },
     "link": {
       "up": [
-        "テストケース作成"
+        "Write test cases"
       ],
       "down": [
-        "バグ起票",
-        "テスト結果報告"
+        "File bug",
+        "Report test results"
       ]
     },
     "depends_on": [],
@@ -925,105 +874,7 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "テスト結果報告": {
-    "aim": "テスト完了後に結果サマリーをステークホルダーに報告する",
-    "phase": "test",
-    "core": true,
-    "scope": [
-      "PASS/FAIL・カバレッジ・未解決バグを含むサマリーの作成",
-      "リリース判定に必要な情報の明示と報告"
-    ],
-    "rule": [
-      "Critical・High の未解決バグがある場合はリリース保留を推奨する",
-      "数値は客観的に記録し、意見は別セクションに分ける"
-    ],
-    "io": {
-      "in": [
-        "テスト結果（PASS/FAIL リスト）",
-        "バグ issue（優先度付き）"
-      ],
-      "process": [
-        "結果を集計・サマリー作成",
-        "リリース推奨可否を判断"
-      ],
-      "out": [
-        "テスト結果レポート"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "結果の集計と文書化は定型的だが、リリース判断の推奨には評価が必要なため"
-    },
-    "link": {
-      "up": [
-        "テスト実施"
-      ],
-      "down": []
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "low",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": [
-      "バグ起票"
-    ]
-  },
-  "テスト計画作成": {
-    "aim": "リリース対象の機能に対するテスト方針・スコープ・スケジュールを決定する",
-    "phase": "test",
-    "core": true,
-    "scope": [
-      "リスクエリアに基づくテスト対象・レベル・スコープの定義",
-      "スケジュールと担当の割り当て"
-    ],
-    "rule": [
-      "リスクの高い機能（新規・変更箇所・外部連携）を優先的にカバーする",
-      "スケジュールにバッファを 20% 設ける"
-    ],
-    "io": {
-      "in": [
-        "リリース対象機能一覧",
-        "変更差分"
-      ],
-      "process": [
-        "テスト対象・リスクエリアを特定",
-        "テストレベル・スコープ・スケジュールを定義"
-      ],
-      "out": [
-        "テスト計画書"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "テストスコープの優先判断はリスク評価と経験が必要なため"
-    },
-    "link": {
-      "up": [],
-      "down": [
-        "テストケース作成"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "バグ起票": {
+  "File bug": {
     "aim": "テスト中に発見した不具合を issue として起票する",
     "phase": "test",
     "core": false,
@@ -1055,7 +906,7 @@ const units     = {
     },
     "link": {
       "up": [
-        "テスト実施"
+        "Execute tests"
       ],
       "down": []
     },
@@ -1071,10 +922,159 @@ const units     = {
     "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
+  },
+  "Plan tests": {
+    "aim": "リリース対象の機能に対するテスト方針・スコープ・スケジュールを決定する",
+    "phase": "test",
+    "core": true,
+    "scope": [
+      "リスクエリアに基づくテスト対象・レベル・スコープの定義",
+      "スケジュールと担当の割り当て"
+    ],
+    "rule": [
+      "リスクの高い機能（新規・変更箇所・外部連携）を優先的にカバーする",
+      "スケジュールにバッファを 20% 設ける"
+    ],
+    "io": {
+      "in": [
+        "リリース対象機能一覧",
+        "変更差分"
+      ],
+      "process": [
+        "テスト対象・リスクエリアを特定",
+        "テストレベル・スコープ・スケジュールを定義"
+      ],
+      "out": [
+        "テスト計画書"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "テストスコープの優先判断はリスク評価と経験が必要なため"
+    },
+    "link": {
+      "up": [],
+      "down": [
+        "Write test cases"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Report test results": {
+    "aim": "テスト完了後に結果サマリーをステークホルダーに報告する",
+    "phase": "test",
+    "core": true,
+    "scope": [
+      "PASS/FAIL・カバレッジ・未解決バグを含むサマリーの作成",
+      "リリース判定に必要な情報の明示と報告"
+    ],
+    "rule": [
+      "Critical・High の未解決バグがある場合はリリース保留を推奨する",
+      "数値は客観的に記録し、意見は別セクションに分ける"
+    ],
+    "io": {
+      "in": [
+        "テスト結果（PASS/FAIL リスト）",
+        "バグ issue（優先度付き）"
+      ],
+      "process": [
+        "結果を集計・サマリー作成",
+        "リリース推奨可否を判断"
+      ],
+      "out": [
+        "テスト結果レポート"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "結果の集計と文書化は定型的だが、リリース判断の推奨には評価が必要なため"
+    },
+    "link": {
+      "up": [
+        "Execute tests"
+      ],
+      "down": []
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "low",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": [
+      "File bug"
+    ]
+  },
+  "Write test cases": {
+    "aim": "テスト計画に基づいてテストケースを作成する",
+    "phase": "test",
+    "core": true,
+    "scope": [
+      "テストケース一覧の作成と網羅性の担保",
+      "テストデータの整備"
+    ],
+    "rule": [
+      "テストケースは再現可能で独立していること",
+      "期待結果を事前に明記する（テスト後に決めない）"
+    ],
+    "io": {
+      "in": [
+        "テスト計画書",
+        "仕様書・受け入れ条件"
+      ],
+      "process": [
+        "機能ごとにテスト観点を洗い出し",
+        "テストケース・テストデータを作成"
+      ],
+      "out": [
+        "テストケース一覧",
+        "テストデータ"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "仕様から網羅的なテスト観点を導出する推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "Plan tests"
+      ],
+      "down": [
+        "Execute tests"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 2,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "draft",
+    "deprecated_reason": null,
+    "parallel_with": []
   }
 };
-const positions = {"テスト計画作成": {"left": 110, "top": 24}, "テストケース作成": {"left": 110, "top": 134}, "テスト実施": {"left": 110, "top": 244}, "テスト結果報告": {"left": 0, "top": 354}, "バグ起票": {"left": 220, "top": 354}};
-const edges     = [["テストケース作成", "テスト実施", "seq"], ["テスト実施", "バグ起票", "seq"], ["テスト実施", "テスト結果報告", "seq"], ["テスト結果報告", "バグ起票", "parallel"], ["テスト計画作成", "テストケース作成", "seq"]];
+const positions = {"Plan tests": {"left": 110, "top": 24}, "Write test cases": {"left": 110, "top": 134}, "Execute tests": {"left": 110, "top": 244}, "File bug": {"left": 0, "top": 354}, "Report test results": {"left": 220, "top": 354}};
+const edges     = [["Execute tests", "File bug", "seq"], ["Execute tests", "Report test results", "seq"], ["Plan tests", "Write test cases", "seq"], ["Report test results", "File bug", "parallel"], ["Write test cases", "Execute tests", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

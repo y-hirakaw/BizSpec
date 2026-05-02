@@ -1,0 +1,34 @@
+unit: Split by platform
+aim: 複数プラットフォームにまたがるPBIをプラットフォーム単位の子PBIに分割する
+phase: spec
+scope:
+- プラットフォーム単位の実装スコープ定義
+- 子PBI 間の依存順序の明記
+rule:
+- 各子PBIは単一プラットフォームの実装のみを含む
+- バックエンドAPIを先行PBIとして切り出す場合はその旨を依存関係に明記する
+- 単独ではスプリントゴールを達成できない旨を子PBIに記述する
+link:
+  up:
+  - Select split pattern
+  down: []
+core: true
+io:
+  in:
+  - PBI データ（JSON）
+  - 関与プラットフォームのリスト
+  process:
+  - 関与プラットフォームを列挙する
+  - プラットフォームごとのスコープを定義する
+  - 子PBIの依存順序を決定する
+  out:
+  - プラットフォーム別子PBI一覧（タイトル・スコープ・依存順序）
+executor:
+  type: ai_agent
+  reason: プラットフォーム間の依存関係と実装スコープの分離には推論が必要なため
+effort:
+  duration: 1
+  frequency: 5
+automation:
+  difficulty: high
+  status: manual

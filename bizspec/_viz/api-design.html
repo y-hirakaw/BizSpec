@@ -822,107 +822,7 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "OpenAPI定義作成": {
-    "aim": "承認済み設計をもとに OpenAPI Specification を作成する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "OpenAPI 3.x 仕様の作成と Lint 通過の保証",
-      "サンプルリクエスト・レスポンスの整備"
-    ],
-    "rule": [
-      "バージョンは openapi: \"3.1.0\" を使う",
-      "$ref を活用してスキーマの重複を排除する",
-      "必須フィールド・nullable を正確に定義する"
-    ],
-    "io": {
-      "in": [
-        "承認済み API インターフェース設計書"
-      ],
-      "process": [
-        "OpenAPI YAML/JSON を作成",
-        "Lint で検証"
-      ],
-      "out": [
-        "OpenAPI Specification ファイル（Lint 通過済み）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "設計書から OpenAPI の YAML を生成する変換タスクに適しているため"
-    },
-    "link": {
-      "up": [
-        "設計レビュー"
-      ],
-      "down": [
-        "モックサーバー構築"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 2,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "インターフェース設計": {
-    "aim": "エンドポイント・リクエスト/レスポンス構造・エラーコードを設計する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "RESTful 原則に基づくエンドポイント・スキーマ設計",
-      "エラーコード・エラーレスポンス体系の定義"
-    ],
-    "rule": [
-      "リソース名は名詞・複数形を使う（/users, /orders）",
-      "エラーレスポンスは一貫したフォーマットにする",
-      "破壊的変更は /v2 などのバージョニングで対応する"
-    ],
-    "io": {
-      "in": [
-        "確認済み要件書"
-      ],
-      "process": [
-        "エンドポイント・スキーマを設計",
-        "エラーコード体系を定義"
-      ],
-      "out": [
-        "API インターフェース設計書（ドラフト）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "要件からエンドポイント・スキーマを体系的に設計する推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "要件確認"
-      ],
-      "down": [
-        "設計レビュー"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 2,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "モックサーバー構築": {
+  "Build mock server": {
     "aim": "OpenAPI 定義からモックサーバーを生成し、フロントエンド開発の並行作業を可能にする",
     "phase": "spec",
     "core": false,
@@ -953,7 +853,7 @@ const units     = {
     },
     "link": {
       "up": [
-        "OpenAPI定義作成"
+        "Define OpenAPI spec"
       ],
       "down": []
     },
@@ -970,7 +870,157 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "要件確認": {
+  "Define OpenAPI spec": {
+    "aim": "承認済み設計をもとに OpenAPI Specification を作成する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "OpenAPI 3.x 仕様の作成と Lint 通過の保証",
+      "サンプルリクエスト・レスポンスの整備"
+    ],
+    "rule": [
+      "バージョンは openapi: \"3.1.0\" を使う",
+      "$ref を活用してスキーマの重複を排除する",
+      "必須フィールド・nullable を正確に定義する"
+    ],
+    "io": {
+      "in": [
+        "承認済み API インターフェース設計書"
+      ],
+      "process": [
+        "OpenAPI YAML/JSON を作成",
+        "Lint で検証"
+      ],
+      "out": [
+        "OpenAPI Specification ファイル（Lint 通過済み）"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "設計書から OpenAPI の YAML を生成する変換タスクに適しているため"
+    },
+    "link": {
+      "up": [
+        "Design review"
+      ],
+      "down": [
+        "Build mock server"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 2,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Design review": {
+    "aim": "設計の一貫性・RESTful 原則・セキュリティ要件を確認し、承認する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "RESTful 原則・命名規則準拠とセキュリティ要件充足の確認",
+      "利用者フィードバックの取得と設計合意"
+    ],
+    "rule": [
+      "セキュリティ上の問題（認証なしエンドポイント・過剰なデータ露出）はブロッカー",
+      "フィードバックは設計者と合意してから OpenAPI 定義に進む"
+    ],
+    "io": {
+      "in": [
+        "API インターフェース設計書（ドラフト）"
+      ],
+      "process": [
+        "RESTful 原則・セキュリティをチェック",
+        "利用者からフィードバックを取得",
+        "設計を修正・承認"
+      ],
+      "out": [
+        "承認済み API インターフェース設計書"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "セキュリティ判断と利用者との合意は人間の判断が必要なため"
+    },
+    "link": {
+      "up": [
+        "Interface design"
+      ],
+      "down": [
+        "Define OpenAPI spec"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Interface design": {
+    "aim": "エンドポイント・リクエスト/レスポンス構造・エラーコードを設計する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "RESTful 原則に基づくエンドポイント・スキーマ設計",
+      "エラーコード・エラーレスポンス体系の定義"
+    ],
+    "rule": [
+      "リソース名は名詞・複数形を使う（/users, /orders）",
+      "エラーレスポンスは一貫したフォーマットにする",
+      "破壊的変更は /v2 などのバージョニングで対応する"
+    ],
+    "io": {
+      "in": [
+        "確認済み要件書"
+      ],
+      "process": [
+        "エンドポイント・スキーマを設計",
+        "エラーコード体系を定義"
+      ],
+      "out": [
+        "API インターフェース設計書（ドラフト）"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "要件からエンドポイント・スキーマを体系的に設計する推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "Requirements review"
+      ],
+      "down": [
+        "Design review"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 2,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Requirements review": {
     "aim": "API に求められる機能・非機能要件・利用者ユースケースを確認する",
     "phase": "spec",
     "core": true,
@@ -1002,7 +1052,7 @@ const units     = {
     "link": {
       "up": [],
       "down": [
-        "インターフェース設計"
+        "Interface design"
       ]
     },
     "depends_on": [],
@@ -1017,60 +1067,10 @@ const units     = {
     "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
-  },
-  "設計レビュー": {
-    "aim": "設計の一貫性・RESTful 原則・セキュリティ要件を確認し、承認する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "RESTful 原則・命名規則準拠とセキュリティ要件充足の確認",
-      "利用者フィードバックの取得と設計合意"
-    ],
-    "rule": [
-      "セキュリティ上の問題（認証なしエンドポイント・過剰なデータ露出）はブロッカー",
-      "フィードバックは設計者と合意してから OpenAPI 定義に進む"
-    ],
-    "io": {
-      "in": [
-        "API インターフェース設計書（ドラフト）"
-      ],
-      "process": [
-        "RESTful 原則・セキュリティをチェック",
-        "利用者からフィードバックを取得",
-        "設計を修正・承認"
-      ],
-      "out": [
-        "承認済み API インターフェース設計書"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "セキュリティ判断と利用者との合意は人間の判断が必要なため"
-    },
-    "link": {
-      "up": [
-        "インターフェース設計"
-      ],
-      "down": [
-        "OpenAPI定義作成"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
   }
 };
-const positions = {"要件確認": {"left": 40, "top": 24}, "インターフェース設計": {"left": 40, "top": 134}, "設計レビュー": {"left": 40, "top": 244}, "OpenAPI定義作成": {"left": 40, "top": 354}, "モックサーバー構築": {"left": 40, "top": 464}};
-const edges     = [["OpenAPI定義作成", "モックサーバー構築", "seq"], ["インターフェース設計", "設計レビュー", "seq"], ["要件確認", "インターフェース設計", "seq"], ["設計レビュー", "OpenAPI定義作成", "seq"]];
+const positions = {"Requirements review": {"left": 40, "top": 24}, "Interface design": {"left": 40, "top": 134}, "Design review": {"left": 40, "top": 244}, "Define OpenAPI spec": {"left": 40, "top": 354}, "Build mock server": {"left": 40, "top": 464}};
+const edges     = [["Define OpenAPI spec", "Build mock server", "seq"], ["Design review", "Define OpenAPI spec", "seq"], ["Interface design", "Design review", "seq"], ["Requirements review", "Interface design", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

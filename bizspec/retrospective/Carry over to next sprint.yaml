@@ -1,0 +1,32 @@
+unit: Carry over to next sprint
+aim: 決定したアクションアイテムをバックログまたはタスクとして登録する
+phase: spec
+scope:
+- アクションアイテムの issue トラッカーへの登録
+- 次スプリントプランニングでの取り込み確認
+rule:
+- 登録しただけで満足しない。次のスプリントレトロで実施状況を振り返る
+- 前スプリントのアクションアイテム達成状況を必ず確認してから新しいアクションを決める
+link:
+  up:
+  - Set action items
+  down: []
+core: true
+io:
+  in:
+  - アクションアイテム一覧（担当・期限・完了基準付き）
+  process:
+  - issue トラッカーにタスクを登録
+  - 次スプリントプランニングで取り込みを確認
+  out:
+  - 登録済みアクションアイテム issue
+executor:
+  type: script
+  reason: issue 登録はテンプレートと API で自動化できるため
+effort:
+  duration: 0.5
+  frequency: 2
+automation:
+  difficulty: low
+  status: partially-automated
+status: stable

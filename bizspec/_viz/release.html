@@ -822,104 +822,7 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "ステージング確認": {
-    "aim": "ステージング環境にデプロイし、本番相当の動作確認を行う",
-    "phase": "release",
-    "core": true,
-    "scope": [
-      "ステージング環境への展開と主要フローのスモークテスト",
-      "パフォーマンス・エラーレートの異常検知"
-    ],
-    "rule": [
-      "本番データを使用しない（本番同等の匿名化データを使う）",
-      "スモークテストは本番前の最終確認であり、新規バグ探索は行わない"
-    ],
-    "io": {
-      "in": [
-        "リリースブランチ"
-      ],
-      "process": [
-        "ステージングにデプロイ",
-        "スモークテスト実施・監視"
-      ],
-      "out": [
-        "ステージング確認結果（OK/NG）"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "実際の動作を目視・操作で確認する最終チェックが必要なため"
-    },
-    "link": {
-      "up": [
-        "リリースブランチ作成"
-      ],
-      "down": [
-        "本番デプロイ"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "リリースノート作成": {
-    "aim": "リリース内容をユーザー・ステークホルダー向けに整理した変更履歴を作成する",
-    "phase": "release",
-    "core": false,
-    "scope": [
-      "PR・issue からのリリース内容のカテゴリ別整理",
-      "ユーザー向け平易な言葉でのリリースノート作成"
-    ],
-    "rule": [
-      "破壊的変更は必ず明示し、移行手順を記載する",
-      "内部リファクタや技術的変更は省略してよい"
-    ],
-    "io": {
-      "in": [
-        "マージ済み PR リスト",
-        "解決済み issue リスト"
-      ],
-      "process": [
-        "PR・issue からリリース内容を抽出・分類",
-        "ユーザー向けに言葉を整える"
-      ],
-      "out": [
-        "リリースノート"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "技術的変更をユーザー向けに要約・分類する文章生成が必要なため"
-    },
-    "link": {
-      "up": [],
-      "down": [
-        "リリース判定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 8
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "リリースブランチ作成": {
+  "Create release branch": {
     "aim": "main ブランチからリリース用ブランチを作成し、バージョンタグを付与する",
     "phase": "release",
     "core": true,
@@ -951,14 +854,14 @@ const units     = {
     },
     "link": {
       "up": [
-        "リリース判定"
+        "Release decision"
       ],
       "down": [
-        "ステージング確認"
+        "Staging check"
       ]
     },
     "depends_on": [
-      "pr-review:承認判定"
+      "pr-review:Approval decision"
     ],
     "effort": {
       "duration": 0.5,
@@ -972,7 +875,60 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "リリース判定": {
+  "Production deploy": {
+    "aim": "本番環境にリリースをデプロイする",
+    "phase": "release",
+    "core": true,
+    "scope": [
+      "本番デプロイパイプラインの実行と進行監視",
+      "デプロイ完了確認とステークホルダーへの通知"
+    ],
+    "rule": [
+      "デプロイ実行前にロールバック手順を確認する",
+      "ピーク時間帯（9:00-18:00）を避けてデプロイする",
+      "デプロイ中はインシデント対応できる担当者が待機する"
+    ],
+    "io": {
+      "in": [
+        "ステージング確認結果（OK）",
+        "リリースブランチ"
+      ],
+      "process": [
+        "デプロイパイプラインを起動",
+        "完了まで監視・ログ確認"
+      ],
+      "out": [
+        "デプロイ完了通知"
+      ]
+    },
+    "executor": {
+      "type": "script",
+      "reason": "CI/CD パイプラインで自動実行できるため"
+    },
+    "link": {
+      "up": [
+        "Staging check"
+      ],
+      "down": [
+        "Smoke test"
+      ]
+    },
+    "depends_on": [
+      "testing:Report test results"
+    ],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 5
+    },
+    "automation": {
+      "difficulty": "low",
+      "status": "automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Release decision": {
     "aim": "リリース基準を満たしているか確認し、GO/NOGO を判断する",
     "phase": "release",
     "core": true,
@@ -1005,10 +961,10 @@ const units     = {
     },
     "link": {
       "up": [
-        "リリースノート作成"
+        "Write release notes"
       ],
       "down": [
-        "リリースブランチ作成"
+        "Create release branch"
       ]
     },
     "depends_on": [],
@@ -1024,7 +980,7 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "動作確認": {
+  "Smoke test": {
     "aim": "本番デプロイ後にサービスが正常稼働していることを確認する",
     "phase": "release",
     "core": true,
@@ -1054,7 +1010,7 @@ const units     = {
     },
     "link": {
       "up": [
-        "本番デプロイ"
+        "Production deploy"
       ],
       "down": []
     },
@@ -1071,62 +1027,106 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "本番デプロイ": {
-    "aim": "本番環境にリリースをデプロイする",
+  "Staging check": {
+    "aim": "ステージング環境にデプロイし、本番相当の動作確認を行う",
     "phase": "release",
     "core": true,
     "scope": [
-      "本番デプロイパイプラインの実行と進行監視",
-      "デプロイ完了確認とステークホルダーへの通知"
+      "ステージング環境への展開と主要フローのスモークテスト",
+      "パフォーマンス・エラーレートの異常検知"
     ],
     "rule": [
-      "デプロイ実行前にロールバック手順を確認する",
-      "ピーク時間帯（9:00-18:00）を避けてデプロイする",
-      "デプロイ中はインシデント対応できる担当者が待機する"
+      "本番データを使用しない（本番同等の匿名化データを使う）",
+      "スモークテストは本番前の最終確認であり、新規バグ探索は行わない"
     ],
     "io": {
       "in": [
-        "ステージング確認結果（OK）",
         "リリースブランチ"
       ],
       "process": [
-        "デプロイパイプラインを起動",
-        "完了まで監視・ログ確認"
+        "ステージングにデプロイ",
+        "スモークテスト実施・監視"
       ],
       "out": [
-        "デプロイ完了通知"
+        "ステージング確認結果（OK/NG）"
       ]
     },
     "executor": {
-      "type": "script",
-      "reason": "CI/CD パイプラインで自動実行できるため"
+      "type": "manual",
+      "reason": "実際の動作を目視・操作で確認する最終チェックが必要なため"
     },
     "link": {
       "up": [
-        "ステージング確認"
+        "Create release branch"
       ],
       "down": [
-        "動作確認"
+        "Production deploy"
       ]
     },
-    "depends_on": [
-      "testing:テスト結果報告"
-    ],
+    "depends_on": [],
     "effort": {
-      "duration": 0.5,
-      "frequency": 5
+      "duration": 1,
+      "frequency": 2
     },
     "automation": {
-      "difficulty": "low",
-      "status": "automated"
+      "difficulty": "medium",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Write release notes": {
+    "aim": "リリース内容をユーザー・ステークホルダー向けに整理した変更履歴を作成する",
+    "phase": "release",
+    "core": false,
+    "scope": [
+      "PR・issue からのリリース内容のカテゴリ別整理",
+      "ユーザー向け平易な言葉でのリリースノート作成"
+    ],
+    "rule": [
+      "破壊的変更は必ず明示し、移行手順を記載する",
+      "内部リファクタや技術的変更は省略してよい"
+    ],
+    "io": {
+      "in": [
+        "マージ済み PR リスト",
+        "解決済み issue リスト"
+      ],
+      "process": [
+        "PR・issue からリリース内容を抽出・分類",
+        "ユーザー向けに言葉を整える"
+      ],
+      "out": [
+        "リリースノート"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "技術的変更をユーザー向けに要約・分類する文章生成が必要なため"
+    },
+    "link": {
+      "up": [],
+      "down": [
+        "Release decision"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 8
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "partially-automated"
     },
     "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   }
 };
-const positions = {"リリースノート作成": {"left": 40, "top": 24}, "リリース判定": {"left": 40, "top": 134}, "リリースブランチ作成": {"left": 40, "top": 244}, "ステージング確認": {"left": 40, "top": 354}, "本番デプロイ": {"left": 40, "top": 464}, "動作確認": {"left": 40, "top": 574}};
-const edges     = [["ステージング確認", "本番デプロイ", "seq"], ["リリースノート作成", "リリース判定", "seq"], ["リリースブランチ作成", "ステージング確認", "seq"], ["リリース判定", "リリースブランチ作成", "seq"], ["本番デプロイ", "動作確認", "seq"]];
+const positions = {"Write release notes": {"left": 40, "top": 24}, "Release decision": {"left": 40, "top": 134}, "Create release branch": {"left": 40, "top": 244}, "Staging check": {"left": 40, "top": 354}, "Production deploy": {"left": 40, "top": 464}, "Smoke test": {"left": 40, "top": 574}};
+const edges     = [["Create release branch", "Staging check", "seq"], ["Production deploy", "Smoke test", "seq"], ["Release decision", "Create release branch", "seq"], ["Staging check", "Production deploy", "seq"], ["Write release notes", "Release decision", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

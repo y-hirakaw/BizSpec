@@ -822,106 +822,7 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "コードベース説明": {
-    "aim": "アーキテクチャ・主要コンポーネント・開発フローを新メンバーに説明する",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "アーキテクチャと主要コンポーネントの理解促進",
-      "開発フロー・ブランチ戦略・規約の共有"
-    ],
-    "rule": [
-      "一度に詰め込みすぎず、重要なものから優先的に説明する",
-      "説明後に質問時間を設ける"
-    ],
-    "io": {
-      "in": [
-        "セットアップ済み開発環境",
-        "アーキテクチャ図・コーディング規約"
-      ],
-      "process": [
-        "アーキテクチャ・コンポーネントを説明",
-        "開発フロー・規約を説明"
-      ],
-      "out": [
-        "新メンバーのコードベース理解（確認済み）"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "質疑応答を通じた理解確認と補足説明に人手が必要なため"
-    },
-    "link": {
-      "up": [
-        "環境構築支援"
-      ],
-      "down": [
-        "初タスクアサイン"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 2,
-      "frequency": 1
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "フィードバック": {
-    "aim": "初タスク完了後に新メンバーへフィードバックを行い、次のステップを示す",
-    "phase": "spec",
-    "core": false,
-    "scope": [
-      "成果物に基づく具体的フィードバックの提供",
-      "次のタスク・成長目標の合意"
-    ],
-    "rule": [
-      "フィードバックは具体的な事実に基づいて行う（「なんとなく」はNG）",
-      "批判でなく成長を促す言い方にする"
-    ],
-    "io": {
-      "in": [
-        "進捗状況・課題メモ",
-        "完了した初タスクの成果物"
-      ],
-      "process": [
-        "成果物をレビューしてフィードバックを整理",
-        "対話でフィードバック・次ステップを設定"
-      ],
-      "out": [
-        "フィードバック記録",
-        "次タスク・成長目標"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "成長を促すフィードバックには対話と状況判断が必要なため"
-    },
-    "link": {
-      "up": [
-        "進捗確認"
-      ],
-      "down": []
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 1
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "初タスクアサイン": {
+  "Assign first task": {
     "aim": "新メンバーが独力でほぼ完結できる規模の初タスクを選定してアサインする",
     "phase": "spec",
     "core": true,
@@ -953,10 +854,10 @@ const units     = {
     },
     "link": {
       "up": [
-        "コードベース説明"
+        "Codebase walkthrough"
       ],
       "down": [
-        "進捗確認"
+        "Check progress"
       ]
     },
     "depends_on": [],
@@ -972,7 +873,155 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "環境構築支援": {
+  "Check progress": {
+    "aim": "初タスクの進捗をメンターが確認し、詰まりポイントを早期発見する",
+    "phase": "spec",
+    "core": false,
+    "scope": [
+      "定期的な進捗チェックと詰まりポイントの早期発見",
+      "自走を促すヒント提供とサポート"
+    ],
+    "rule": [
+      "解法を即答せず、まず新メンバーが自分で考える時間を与える",
+      "詰まりが 2 時間以上続く場合はメンターに声をかけるよう伝えておく"
+    ],
+    "io": {
+      "in": [
+        "アサイン済み初タスク"
+      ],
+      "process": [
+        "定期的に進捗をヒアリング",
+        "詰まりポイントに対してヒント・サポート"
+      ],
+      "out": [
+        "進捗状況・課題メモ"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "新メンバーの理解度を対話で確認しサポートする必要があるため"
+    },
+    "link": {
+      "up": [
+        "Assign first task"
+      ],
+      "down": [
+        "Feedback"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 1
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Codebase walkthrough": {
+    "aim": "アーキテクチャ・主要コンポーネント・開発フローを新メンバーに説明する",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "アーキテクチャと主要コンポーネントの理解促進",
+      "開発フロー・ブランチ戦略・規約の共有"
+    ],
+    "rule": [
+      "一度に詰め込みすぎず、重要なものから優先的に説明する",
+      "説明後に質問時間を設ける"
+    ],
+    "io": {
+      "in": [
+        "セットアップ済み開発環境",
+        "アーキテクチャ図・コーディング規約"
+      ],
+      "process": [
+        "アーキテクチャ・コンポーネントを説明",
+        "開発フロー・規約を説明"
+      ],
+      "out": [
+        "新メンバーのコードベース理解（確認済み）"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "質疑応答を通じた理解確認と補足説明に人手が必要なため"
+    },
+    "link": {
+      "up": [
+        "Setup environment"
+      ],
+      "down": [
+        "Assign first task"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 2,
+      "frequency": 1
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Feedback": {
+    "aim": "初タスク完了後に新メンバーへフィードバックを行い、次のステップを示す",
+    "phase": "spec",
+    "core": false,
+    "scope": [
+      "成果物に基づく具体的フィードバックの提供",
+      "次のタスク・成長目標の合意"
+    ],
+    "rule": [
+      "フィードバックは具体的な事実に基づいて行う（「なんとなく」はNG）",
+      "批判でなく成長を促す言い方にする"
+    ],
+    "io": {
+      "in": [
+        "進捗状況・課題メモ",
+        "完了した初タスクの成果物"
+      ],
+      "process": [
+        "成果物をレビューしてフィードバックを整理",
+        "対話でフィードバック・次ステップを設定"
+      ],
+      "out": [
+        "フィードバック記録",
+        "次タスク・成長目標"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "成長を促すフィードバックには対話と状況判断が必要なため"
+    },
+    "link": {
+      "up": [
+        "Check progress"
+      ],
+      "down": []
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 1
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Setup environment": {
     "aim": "新メンバーの開発環境・アクセス権・ツールをセットアップする",
     "phase": "spec",
     "core": true,
@@ -1006,7 +1055,7 @@ const units     = {
     "link": {
       "up": [],
       "down": [
-        "コードベース説明"
+        "Codebase walkthrough"
       ]
     },
     "depends_on": [],
@@ -1021,59 +1070,10 @@ const units     = {
     "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
-  },
-  "進捗確認": {
-    "aim": "初タスクの進捗をメンターが確認し、詰まりポイントを早期発見する",
-    "phase": "spec",
-    "core": false,
-    "scope": [
-      "定期的な進捗チェックと詰まりポイントの早期発見",
-      "自走を促すヒント提供とサポート"
-    ],
-    "rule": [
-      "解法を即答せず、まず新メンバーが自分で考える時間を与える",
-      "詰まりが 2 時間以上続く場合はメンターに声をかけるよう伝えておく"
-    ],
-    "io": {
-      "in": [
-        "アサイン済み初タスク"
-      ],
-      "process": [
-        "定期的に進捗をヒアリング",
-        "詰まりポイントに対してヒント・サポート"
-      ],
-      "out": [
-        "進捗状況・課題メモ"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "新メンバーの理解度を対話で確認しサポートする必要があるため"
-    },
-    "link": {
-      "up": [
-        "初タスクアサイン"
-      ],
-      "down": [
-        "フィードバック"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 1
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
   }
 };
-const positions = {"環境構築支援": {"left": 40, "top": 24}, "コードベース説明": {"left": 40, "top": 134}, "初タスクアサイン": {"left": 40, "top": 244}, "進捗確認": {"left": 40, "top": 354}, "フィードバック": {"left": 40, "top": 464}};
-const edges     = [["コードベース説明", "初タスクアサイン", "seq"], ["初タスクアサイン", "進捗確認", "seq"], ["環境構築支援", "コードベース説明", "seq"], ["進捗確認", "フィードバック", "seq"]];
+const positions = {"Setup environment": {"left": 40, "top": 24}, "Codebase walkthrough": {"left": 40, "top": 134}, "Assign first task": {"left": 40, "top": 244}, "Check progress": {"left": 40, "top": 354}, "Feedback": {"left": 40, "top": 464}};
+const edges     = [["Assign first task", "Check progress", "seq"], ["Check progress", "Feedback", "seq"], ["Codebase walkthrough", "Assign first task", "seq"], ["Setup environment", "Codebase walkthrough", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

@@ -1,0 +1,35 @@
+unit: KPT roundup
+aim: チームで Keep・Problem・Try を洗い出し、議論を構造化する
+phase: spec
+scope:
+- チームによる Keep・Problem・Try の発散
+- グルーピングと優先度付きテーマへの収束
+rule:
+- 発言は非難なし・特定個人への言及を避ける
+- Keep は次もやるべきことの確認として必ず行う（Problem だけに終わらない）
+- Try は Problem の原因解消につながるものを優先する
+link:
+  up:
+  - Collect metrics
+  down:
+  - Set action items
+core: true
+io:
+  in:
+  - スプリント実績サマリー
+  process:
+  - KPT を全員で発散・収束
+  - 重要なテーマを絞り込む
+  out:
+  - KPT まとめ（グルーピング・優先度付き）
+executor:
+  type: manual
+  reason: チームの対話と合意形成はファシリテーターと全員参加が必要なため
+effort:
+  duration: 1
+  frequency: 2
+automation:
+  difficulty: high
+  status: manual
+status: deprecated
+deprecated_reason: チームの規模拡大に伴い KPT の発散時間が肥大化したため、Lean Coffee 形式に移行予定

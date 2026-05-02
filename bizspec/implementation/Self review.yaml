@@ -1,0 +1,33 @@
+unit: Self review
+aim: PR 提出前にコードを自己チェックし、明らかな問題を取り除く
+phase: dev
+scope:
+- 差分の自己点検（意図しない変更・デバッグコード混入の排除）
+- コーディング規約・セキュリティ・パフォーマンス観点の品質保証
+rule:
+- コミットに不要なファイル（.env・ログ・バイナリ）が含まれていないか確認する
+- TODO/FIXME を残す場合は issue 番号を付記する
+link:
+  up:
+  - Write unit tests
+  down:
+  - Open PR
+core: false
+io:
+  in:
+  - 実装済みコード・ユニットテスト
+  process:
+  - 差分を通読してチェックリストを消化
+  - 問題があれば修正しコミット
+  out:
+  - セルフレビュー済みコード
+executor:
+  type: ai_agent
+  reason: コードの品質・セキュリティ・規約適合を網羅的にチェックする推論が必要なため
+effort:
+  duration: 0.5
+  frequency: 20
+automation:
+  difficulty: medium
+  status: partially-automated
+status: stable

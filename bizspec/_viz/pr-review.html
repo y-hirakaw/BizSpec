@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRレビュー — BizSpec</title>
+<title>PR review — BizSpec</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -736,7 +736,7 @@ svg.arrows-layer {
   <div class="tb-divider"></div>
   <div class="tb-crumb">
     <span class="tb-crumb-sep">/</span>
-    <span class="tb-crumb-leaf">PRレビュー</span>
+    <span class="tb-crumb-leaf">PR review</span>
   </div>
   <div class="tb-spacer"></div>
   <div class="tb-theme" role="group" aria-label="theme">
@@ -746,7 +746,7 @@ svg.arrows-layer {
 </div>
 
 <header class="proc-head">
-  <h1>PRレビュー</h1>
+  <h1>PR review</h1>
   <span class="subtitle">pr-review &nbsp;·&nbsp; 4 units &nbsp;·&nbsp; phase: dev</span>
 </header>
 
@@ -822,160 +822,7 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "テストレビュー": {
-    "aim": "テストコードの網羅性と品質を評価する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "テストの網羅性（正常系・異常系・境界値）の評価",
-      "壊れやすい実装パターン（モック過多・実装依存）の検出"
-    ],
-    "rule": [
-      "ハッピーパスのみのテストは必ず異常系の追加を求める",
-      "テスト対象コードに変更があってテストが 0 件の場合はブロック扱いにする"
-    ],
-    "io": {
-      "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
-      ],
-      "process": [
-        "テストファイルの diff を重点的に確認する",
-        "カバレッジの抜けを指摘する"
-      ],
-      "out": [
-        "テストレビューコメント一覧（指摘レベル・箇所・内容）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "テストの意図・網羅性の判断に推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "差分取得"
-      ],
-      "down": [
-        "承認判定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 40
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": [
-      "ロジックレビュー"
-    ]
-  },
-  "ロジックレビュー": {
-    "aim": "実装ロジックの正しさと設計の妥当性を評価する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "実装ロジックの正しさとリスク（バグ・境界値漏れ・副作用）の指摘",
-      "命名・責務分割の妥当性評価"
-    ],
-    "rule": [
-      "指摘は「問題点・理由・改善案」の 3 点セットで記述する",
-      "{'軽微なスタイル指摘は nit': 'プレフィックスをつける'}"
-    ],
-    "io": {
-      "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
-      ],
-      "process": [
-        "差分を読みロジック上の問題点を列挙する",
-        "設計・責務・命名の観点でフィードバックを作成する"
-      ],
-      "out": [
-        "ロジックレビューコメント一覧（指摘レベル・箇所・内容）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "コードの意図理解と設計判断に自然言語推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "差分取得"
-      ],
-      "down": [
-        "承認判定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 2,
-      "frequency": 40
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "差分取得": {
-    "aim": "レビュー対象の変更内容を取得する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "PR 差分テキストの取得",
-      "変更ファイル一覧と増減行数のまとめ"
-    ],
-    "rule": [
-      "差分が 500 行を超える場合はレビュー依頼前に分割を促す"
-    ],
-    "io": {
-      "in": [
-        "PR番号"
-      ],
-      "process": [
-        "GitHub API (GET /pulls/{number}/files) を呼び出す",
-        "ファイルパス・patch・変更行数を抽出する"
-      ],
-      "out": [
-        "変更ファイル一覧（ファイルパス・追加行数・削除行数）",
-        "差分テキスト"
-      ]
-    },
-    "executor": {
-      "type": "script",
-      "reason": "GitHub API の定型呼び出しで完結するため"
-    },
-    "link": {
-      "up": [],
-      "down": [
-        "ロジックレビュー",
-        "テストレビュー"
-      ]
-    },
-    "depends_on": [
-      "issue-refinement:Ready判定",
-      "implementation:PR作成"
-    ],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 40
-    },
-    "automation": {
-      "difficulty": "low",
-      "status": "automated"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "承認判定": {
+  "Approval decision": {
     "aim": "レビュー結果を総合してマージ可否を判定する",
     "phase": "dev",
     "core": true,
@@ -1008,8 +855,8 @@ const units     = {
     },
     "link": {
       "up": [
-        "ロジックレビュー",
-        "テストレビュー"
+        "Logic review",
+        "Test review"
       ],
       "down": []
     },
@@ -1025,10 +872,163 @@ const units     = {
     "lifecycle_status": null,
     "deprecated_reason": null,
     "parallel_with": []
+  },
+  "Fetch diff": {
+    "aim": "レビュー対象の変更内容を取得する",
+    "phase": "dev",
+    "core": true,
+    "scope": [
+      "PR 差分テキストの取得",
+      "変更ファイル一覧と増減行数のまとめ"
+    ],
+    "rule": [
+      "差分が 500 行を超える場合はレビュー依頼前に分割を促す"
+    ],
+    "io": {
+      "in": [
+        "PR番号"
+      ],
+      "process": [
+        "GitHub API (GET /pulls/{number}/files) を呼び出す",
+        "ファイルパス・patch・変更行数を抽出する"
+      ],
+      "out": [
+        "変更ファイル一覧（ファイルパス・追加行数・削除行数）",
+        "差分テキスト"
+      ]
+    },
+    "executor": {
+      "type": "script",
+      "reason": "GitHub API の定型呼び出しで完結するため"
+    },
+    "link": {
+      "up": [],
+      "down": [
+        "Logic review",
+        "Test review"
+      ]
+    },
+    "depends_on": [
+      "issue-refinement:Ready decision",
+      "implementation:Open PR"
+    ],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 40
+    },
+    "automation": {
+      "difficulty": "low",
+      "status": "automated"
+    },
+    "lifecycle_status": null,
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Logic review": {
+    "aim": "実装ロジックの正しさと設計の妥当性を評価する",
+    "phase": "dev",
+    "core": true,
+    "scope": [
+      "実装ロジックの正しさとリスク（バグ・境界値漏れ・副作用）の指摘",
+      "命名・責務分割の妥当性評価"
+    ],
+    "rule": [
+      "指摘は「問題点・理由・改善案」の 3 点セットで記述する",
+      "{'軽微なスタイル指摘は nit': 'プレフィックスをつける'}"
+    ],
+    "io": {
+      "in": [
+        "変更ファイル一覧",
+        "差分テキスト"
+      ],
+      "process": [
+        "差分を読みロジック上の問題点を列挙する",
+        "設計・責務・命名の観点でフィードバックを作成する"
+      ],
+      "out": [
+        "ロジックレビューコメント一覧（指摘レベル・箇所・内容）"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "コードの意図理解と設計判断に自然言語推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "Fetch diff"
+      ],
+      "down": [
+        "Approval decision"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 2,
+      "frequency": 40
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": null,
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Test review": {
+    "aim": "テストコードの網羅性と品質を評価する",
+    "phase": "dev",
+    "core": true,
+    "scope": [
+      "テストの網羅性（正常系・異常系・境界値）の評価",
+      "壊れやすい実装パターン（モック過多・実装依存）の検出"
+    ],
+    "rule": [
+      "ハッピーパスのみのテストは必ず異常系の追加を求める",
+      "テスト対象コードに変更があってテストが 0 件の場合はブロック扱いにする"
+    ],
+    "io": {
+      "in": [
+        "変更ファイル一覧",
+        "差分テキスト"
+      ],
+      "process": [
+        "テストファイルの diff を重点的に確認する",
+        "カバレッジの抜けを指摘する"
+      ],
+      "out": [
+        "テストレビューコメント一覧（指摘レベル・箇所・内容）"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "テストの意図・網羅性の判断に推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "Fetch diff"
+      ],
+      "down": [
+        "Approval decision"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 40
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": null,
+    "deprecated_reason": null,
+    "parallel_with": [
+      "Logic review"
+    ]
   }
 };
-const positions = {"差分取得": {"left": 110, "top": 24}, "テストレビュー": {"left": 0, "top": 134}, "ロジックレビュー": {"left": 220, "top": 134}, "承認判定": {"left": 110, "top": 244}};
-const edges     = [["テストレビュー", "承認判定", "seq"], ["テストレビュー", "ロジックレビュー", "parallel"], ["ロジックレビュー", "承認判定", "seq"], ["差分取得", "ロジックレビュー", "seq"], ["差分取得", "テストレビュー", "seq"]];
+const positions = {"Fetch diff": {"left": 110, "top": 24}, "Logic review": {"left": 0, "top": 134}, "Test review": {"left": 220, "top": 134}, "Approval decision": {"left": 110, "top": 244}};
+const edges     = [["Fetch diff", "Logic review", "seq"], ["Fetch diff", "Test review", "seq"], ["Logic review", "Approval decision", "seq"], ["Test review", "Approval decision", "seq"], ["Test review", "Logic review", "parallel"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

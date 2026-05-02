@@ -1,0 +1,34 @@
+unit: Assess security impact
+aim: 更新対象の CVE・破壊的変更・互換性を確認し、対応方針を決定する
+phase: ops
+scope:
+- CVE 影響度と破壊的変更の評価
+- 対応方針（即時適用 / 計画適用 / 見送り）の決定と根拠の記録
+rule:
+- CVSS 7.0 以上は即時適用を原則とする
+- 影響なしと判断した場合はその根拠を記録する
+link:
+  up:
+  - Detect updates
+  down:
+  - Apply updates
+core: true
+io:
+  in:
+  - 更新対象リスト（CVE・優先度付き）
+  - ライブラリの CHANGELOG・リリースノート
+  process:
+  - CVE の影響・破壊的変更を確認
+  - 対応方針を決定・記録
+  out:
+  - 対応方針決定済みリスト
+executor:
+  type: ai_agent
+  reason: CVE の内容とコードへの影響を評価する推論が必要なため
+effort:
+  duration: 1
+  frequency: 2
+automation:
+  difficulty: medium
+  status: partially-automated
+status: review

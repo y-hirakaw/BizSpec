@@ -1,0 +1,33 @@
+unit: Apply updates
+aim: 対象ライブラリを指定バージョンに更新し、ロックファイルを更新する
+phase: ops
+scope:
+- 対象ライブラリの指定バージョンへの更新
+- ロックファイル更新とコミットの確定
+rule:
+- 一度に更新するパッケージは関連するものをまとめ、無関係なものは別 PR にする
+- 自動化ツール（Dependabot 等）の PR を活用する
+link:
+  up:
+  - Assess security impact
+  down:
+  - Run tests
+core: true
+io:
+  in:
+  - 対応方針決定済みリスト
+  process:
+  - パッケージマネージャーでバージョンを更新
+  - ロックファイルを更新・コミット
+  out:
+  - 更新済みロックファイル・依存定義
+executor:
+  type: script
+  reason: パッケージの更新・ロックファイルの生成は自動化できるため
+effort:
+  duration: 0.5
+  frequency: 2
+automation:
+  difficulty: low
+  status: automated
+status: stable

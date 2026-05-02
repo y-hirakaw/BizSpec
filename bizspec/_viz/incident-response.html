@@ -822,7 +822,57 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "インシデント検知": {
+  "Assess impact": {
+    "aim": "インシデントの影響ユーザー数・機能範囲・データ被害を特定する",
+    "phase": "ops",
+    "core": true,
+    "scope": [
+      "影響ユーザー数・機能範囲・時間帯の特定",
+      "外部公開要否（ステータスページ更新等）の判断"
+    ],
+    "rule": [
+      "推測で範囲を狭めない（不明な部分は「未確認」と明示）",
+      "調査結果を 15 分ごとにインシデントチャンネルに報告する"
+    ],
+    "io": {
+      "in": [
+        "インシデント認定（Severity・開始時刻）",
+        "ログ・メトリクス・エラートレース"
+      ],
+      "process": [
+        "ログ・トレースを解析して影響箇所を特定",
+        "影響ユーザー数・機能範囲を集計"
+      ],
+      "out": [
+        "影響範囲レポート"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "大量のログ・トレースから影響範囲を推論・集約する能力が必要なため"
+    },
+    "link": {
+      "up": [
+        "Detect incident"
+      ],
+      "down": [
+        "Triage"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 1
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Detect incident": {
     "aim": "異常をアラートまたはユーザー報告から検知し、インシデントとして認定する",
     "phase": "ops",
     "core": true,
@@ -854,7 +904,7 @@ const units     = {
     "link": {
       "up": [],
       "down": [
-        "影響範囲調査"
+        "Assess impact"
       ]
     },
     "depends_on": [],
@@ -870,7 +920,158 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "ポストモーテム作成": {
+  "Implement permanent fix": {
+    "aim": "根本原因に対する修正を実装・テスト・デプロイする",
+    "phase": "ops",
+    "core": true,
+    "scope": [
+      "再発防止策のタスク化",
+      "通常 PR プロセスを経た修正の本番適用"
+    ],
+    "rule": [
+      "緊急パッチは通常の PR プロセスを経る（レビューを省略しない）",
+      "対策は技術的修正だけでなく、監視強化・手順変更も含めて検討する"
+    ],
+    "io": {
+      "in": [
+        "根本原因分析結果"
+      ],
+      "process": [
+        "再発防止策をタスク化",
+        "実装・テスト・デプロイ"
+      ],
+      "out": [
+        "対策実装完了報告"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "対策の設計・実装判断はエンジニアリングの専門的判断が必要なため"
+    },
+    "link": {
+      "up": [
+        "Root cause analysis"
+      ],
+      "down": [
+        "Write postmortem"
+      ]
+    },
+    "depends_on": [
+      "bug-fix:Implement fix"
+    ],
+    "effort": {
+      "duration": 3,
+      "frequency": 1
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "draft",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Root cause analysis": {
+    "aim": "インシデントの根本原因を特定し、再発防止策の方向性を決定する",
+    "phase": "ops",
+    "core": true,
+    "scope": [
+      "直接原因と根本原因の特定と区別",
+      "再発防止策の方向性（技術・プロセス・組織）の整理"
+    ],
+    "rule": [
+      "個人の責任を問わず、システム・プロセスの問題として捉える",
+      "「〇〇がミスをした」ではなく「〇〇が起きやすい状況があった」という視点で分析する"
+    ],
+    "io": {
+      "in": [
+        "一次対応完了報告",
+        "インシデントログ・ログ・トレース"
+      ],
+      "process": [
+        "5 Why で根本原因を特定",
+        "直接原因・根本原因・再発防止策を整理"
+      ],
+      "out": [
+        "根本原因分析結果"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "ログと事象から因果関係を推論し、根本原因を体系的に整理する分析が必要なため"
+    },
+    "link": {
+      "up": [
+        "Triage"
+      ],
+      "down": [
+        "Implement permanent fix"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 2,
+      "frequency": 1
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "deprecated",
+    "deprecated_reason": "5 Why 単独では原因把握が浅くなる傾向があり、より体系的な手法（CAST 等）への置き換えを検討中",
+    "parallel_with": []
+  },
+  "Triage": {
+    "aim": "サービス影響を最小化するための緊急措置を実施する",
+    "phase": "ops",
+    "core": true,
+    "scope": [
+      "サービス影響を止める緊急措置の選択と実施",
+      "措置内容と収束時刻のインシデントログへの記録"
+    ],
+    "rule": [
+      "原因特定より先に影響を止めることを優先する",
+      "切り戻しが最速・最安全な場合はためらわず実施する",
+      "すべての操作を時刻付きでログに残す"
+    ],
+    "io": {
+      "in": [
+        "影響範囲レポート"
+      ],
+      "process": [
+        "緊急措置の選択・実施",
+        "影響収束を確認・記録"
+      ],
+      "out": [
+        "一次対応完了報告（措置内容・収束時刻）"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "緊急措置の選択と実行はオンコール担当者の状況判断が必要なため"
+    },
+    "link": {
+      "up": [
+        "Assess impact"
+      ],
+      "down": [
+        "Root cause analysis"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 1
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Write postmortem": {
     "aim": "インシデントの経緯・原因・対応・再発防止策を文書化し、チームで共有する",
     "phase": "ops",
     "core": false,
@@ -902,7 +1103,7 @@ const units     = {
     },
     "link": {
       "up": [
-        "恒久対策実装"
+        "Implement permanent fix"
       ],
       "down": []
     },
@@ -918,211 +1119,10 @@ const units     = {
     "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
-  },
-  "一次対応": {
-    "aim": "サービス影響を最小化するための緊急措置を実施する",
-    "phase": "ops",
-    "core": true,
-    "scope": [
-      "サービス影響を止める緊急措置の選択と実施",
-      "措置内容と収束時刻のインシデントログへの記録"
-    ],
-    "rule": [
-      "原因特定より先に影響を止めることを優先する",
-      "切り戻しが最速・最安全な場合はためらわず実施する",
-      "すべての操作を時刻付きでログに残す"
-    ],
-    "io": {
-      "in": [
-        "影響範囲レポート"
-      ],
-      "process": [
-        "緊急措置の選択・実施",
-        "影響収束を確認・記録"
-      ],
-      "out": [
-        "一次対応完了報告（措置内容・収束時刻）"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "緊急措置の選択と実行はオンコール担当者の状況判断が必要なため"
-    },
-    "link": {
-      "up": [
-        "影響範囲調査"
-      ],
-      "down": [
-        "根本原因分析"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 1
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "影響範囲調査": {
-    "aim": "インシデントの影響ユーザー数・機能範囲・データ被害を特定する",
-    "phase": "ops",
-    "core": true,
-    "scope": [
-      "影響ユーザー数・機能範囲・時間帯の特定",
-      "外部公開要否（ステータスページ更新等）の判断"
-    ],
-    "rule": [
-      "推測で範囲を狭めない（不明な部分は「未確認」と明示）",
-      "調査結果を 15 分ごとにインシデントチャンネルに報告する"
-    ],
-    "io": {
-      "in": [
-        "インシデント認定（Severity・開始時刻）",
-        "ログ・メトリクス・エラートレース"
-      ],
-      "process": [
-        "ログ・トレースを解析して影響箇所を特定",
-        "影響ユーザー数・機能範囲を集計"
-      ],
-      "out": [
-        "影響範囲レポート"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "大量のログ・トレースから影響範囲を推論・集約する能力が必要なため"
-    },
-    "link": {
-      "up": [
-        "インシデント検知"
-      ],
-      "down": [
-        "一次対応"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 1
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "恒久対策実装": {
-    "aim": "根本原因に対する修正を実装・テスト・デプロイする",
-    "phase": "ops",
-    "core": true,
-    "scope": [
-      "再発防止策のタスク化",
-      "通常 PR プロセスを経た修正の本番適用"
-    ],
-    "rule": [
-      "緊急パッチは通常の PR プロセスを経る（レビューを省略しない）",
-      "対策は技術的修正だけでなく、監視強化・手順変更も含めて検討する"
-    ],
-    "io": {
-      "in": [
-        "根本原因分析結果"
-      ],
-      "process": [
-        "再発防止策をタスク化",
-        "実装・テスト・デプロイ"
-      ],
-      "out": [
-        "対策実装完了報告"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "対策の設計・実装判断はエンジニアリングの専門的判断が必要なため"
-    },
-    "link": {
-      "up": [
-        "根本原因分析"
-      ],
-      "down": [
-        "ポストモーテム作成"
-      ]
-    },
-    "depends_on": [
-      "bug-fix:修正実装"
-    ],
-    "effort": {
-      "duration": 3,
-      "frequency": 1
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "draft",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "根本原因分析": {
-    "aim": "インシデントの根本原因を特定し、再発防止策の方向性を決定する",
-    "phase": "ops",
-    "core": true,
-    "scope": [
-      "直接原因と根本原因の特定と区別",
-      "再発防止策の方向性（技術・プロセス・組織）の整理"
-    ],
-    "rule": [
-      "個人の責任を問わず、システム・プロセスの問題として捉える",
-      "「〇〇がミスをした」ではなく「〇〇が起きやすい状況があった」という視点で分析する"
-    ],
-    "io": {
-      "in": [
-        "一次対応完了報告",
-        "インシデントログ・ログ・トレース"
-      ],
-      "process": [
-        "5 Why で根本原因を特定",
-        "直接原因・根本原因・再発防止策を整理"
-      ],
-      "out": [
-        "根本原因分析結果"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "ログと事象から因果関係を推論し、根本原因を体系的に整理する分析が必要なため"
-    },
-    "link": {
-      "up": [
-        "一次対応"
-      ],
-      "down": [
-        "恒久対策実装"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 2,
-      "frequency": 1
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "deprecated",
-    "deprecated_reason": "5 Why 単独では原因把握が浅くなる傾向があり、より体系的な手法（CAST 等）への置き換えを検討中",
-    "parallel_with": []
   }
 };
-const positions = {"インシデント検知": {"left": 40, "top": 24}, "影響範囲調査": {"left": 40, "top": 134}, "一次対応": {"left": 40, "top": 244}, "根本原因分析": {"left": 40, "top": 354}, "恒久対策実装": {"left": 40, "top": 464}, "ポストモーテム作成": {"left": 40, "top": 574}};
-const edges     = [["インシデント検知", "影響範囲調査", "seq"], ["一次対応", "根本原因分析", "seq"], ["影響範囲調査", "一次対応", "seq"], ["恒久対策実装", "ポストモーテム作成", "seq"], ["根本原因分析", "恒久対策実装", "seq"]];
+const positions = {"Detect incident": {"left": 40, "top": 24}, "Assess impact": {"left": 40, "top": 134}, "Triage": {"left": 40, "top": 244}, "Root cause analysis": {"left": 40, "top": 354}, "Implement permanent fix": {"left": 40, "top": 464}, "Write postmortem": {"left": 40, "top": 574}};
+const edges     = [["Assess impact", "Triage", "seq"], ["Detect incident", "Assess impact", "seq"], ["Implement permanent fix", "Write postmortem", "seq"], ["Root cause analysis", "Implement permanent fix", "seq"], ["Triage", "Root cause analysis", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

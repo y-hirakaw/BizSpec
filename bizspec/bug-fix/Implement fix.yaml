@@ -1,0 +1,33 @@
+unit: Implement fix
+aim: 特定した原因を解消するコードを実装する
+phase: dev
+scope:
+- 最小限の修正コードと再発防止テストの実装
+- 修正範囲の限定（無関係な変更の排除）
+rule:
+- 修正範囲は最小限にとどめる（バグ修正に無関係なリファクタを混入しない）
+- 修正を確認するテストを必ず追加する（再発防止）
+link:
+  up:
+  - Identify cause
+  down:
+  - Regression test
+core: true
+io:
+  in:
+  - 原因特定結果
+  process:
+  - 最小限の修正を実装
+  - バグ再現テストを追加
+  out:
+  - 修正済みコード（テスト付き）
+executor:
+  type: manual
+  reason: 修正範囲の判断と実装はエンジニアの専門的判断が必要なため
+effort:
+  duration: 1
+  frequency: 8
+automation:
+  difficulty: high
+  status: manual
+status: draft

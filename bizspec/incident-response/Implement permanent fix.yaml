@@ -1,0 +1,35 @@
+unit: Implement permanent fix
+aim: 根本原因に対する修正を実装・テスト・デプロイする
+phase: ops
+scope:
+- 再発防止策のタスク化
+- 通常 PR プロセスを経た修正の本番適用
+rule:
+- 緊急パッチは通常の PR プロセスを経る（レビューを省略しない）
+- 対策は技術的修正だけでなく、監視強化・手順変更も含めて検討する
+link:
+  up:
+  - Root cause analysis
+  down:
+  - Write postmortem
+core: true
+io:
+  in:
+  - 根本原因分析結果
+  process:
+  - 再発防止策をタスク化
+  - 実装・テスト・デプロイ
+  out:
+  - 対策実装完了報告
+executor:
+  type: manual
+  reason: 対策の設計・実装判断はエンジニアリングの専門的判断が必要なため
+depends_on:
+- bug-fix:Implement fix
+effort:
+  duration: 3
+  frequency: 1
+automation:
+  difficulty: high
+  status: manual
+status: draft

@@ -822,105 +822,7 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "PR作成": {
-    "aim": "レビュー依頼のためのプルリクエストを作成する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "PR 内容（概要・変更点・テスト方法）の記述",
-      "レビュアーアサインとレビュー依頼の発信"
-    ],
-    "rule": [
-      "タイトルは issue 番号と変更概要を含む（例: #123 ユーザー認証を追加）",
-      "スクリーンショット・動作確認手順を含める",
-      "Draft PR は未完成の段階で早期フィードバックが目的のときのみ使う"
-    ],
-    "io": {
-      "in": [
-        "セルフレビュー済みコード",
-        "PR テンプレート"
-      ],
-      "process": [
-        "変更概要・テスト方法を記述",
-        "レビュアーをアサインして PR を提出"
-      ],
-      "out": [
-        "プルリクエスト（レビュー待ち）"
-      ]
-    },
-    "executor": {
-      "type": "script",
-      "reason": "PR 作成と説明文の雛形生成は自動化できるため"
-    },
-    "link": {
-      "up": [
-        "セルフレビュー"
-      ],
-      "down": []
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 20
-    },
-    "automation": {
-      "difficulty": "low",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "セルフレビュー": {
-    "aim": "PR 提出前にコードを自己チェックし、明らかな問題を取り除く",
-    "phase": "dev",
-    "core": false,
-    "scope": [
-      "差分の自己点検（意図しない変更・デバッグコード混入の排除）",
-      "コーディング規約・セキュリティ・パフォーマンス観点の品質保証"
-    ],
-    "rule": [
-      "コミットに不要なファイル（.env・ログ・バイナリ）が含まれていないか確認する",
-      "TODO/FIXME を残す場合は issue 番号を付記する"
-    ],
-    "io": {
-      "in": [
-        "実装済みコード・ユニットテスト"
-      ],
-      "process": [
-        "差分を通読してチェックリストを消化",
-        "問題があれば修正しコミット"
-      ],
-      "out": [
-        "セルフレビュー済みコード"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "コードの品質・セキュリティ・規約適合を網羅的にチェックする推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "ユニットテスト作成"
-      ],
-      "down": [
-        "PR作成"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 20
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "ブランチ作成": {
+  "Create branch": {
     "aim": "対応する issue に紐づいた作業ブランチを作成する",
     "phase": "dev",
     "core": true,
@@ -952,7 +854,7 @@ const units     = {
     "link": {
       "up": [],
       "down": [
-        "実装"
+        "Implement"
       ]
     },
     "depends_on": [],
@@ -968,57 +870,7 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "ユニットテスト作成": {
-    "aim": "実装したロジックを検証するユニットテストを作成する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "正常系・異常系・境界値を網羅したユニットテストの整備",
-      "全件パスとカバレッジ目標の達成"
-    ],
-    "rule": [
-      "カバレッジ 80% 以上を目標とする",
-      "外部依存はモックを使う",
-      "テスト名は「何をテストしているか」が分かる命名にする"
-    ],
-    "io": {
-      "in": [
-        "実装済みコード"
-      ],
-      "process": [
-        "テストケース洗い出し",
-        "テスト実装・実行"
-      ],
-      "out": [
-        "ユニットテストコード（全件パス）"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "テストケースの設計には実装意図の理解と判断が必要なため"
-    },
-    "link": {
-      "up": [
-        "実装"
-      ],
-      "down": [
-        "セルフレビュー"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 20
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "manual"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "実装": {
+  "Implement": {
     "aim": "タスクの要件を満たすコードを実装する",
     "phase": "dev",
     "core": true,
@@ -1050,10 +902,10 @@ const units     = {
     },
     "link": {
       "up": [
-        "ブランチ作成"
+        "Create branch"
       ],
       "down": [
-        "ユニットテスト作成"
+        "Write unit tests"
       ]
     },
     "depends_on": [],
@@ -1068,10 +920,158 @@ const units     = {
     "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
+  },
+  "Open PR": {
+    "aim": "レビュー依頼のためのプルリクエストを作成する",
+    "phase": "dev",
+    "core": true,
+    "scope": [
+      "PR 内容（概要・変更点・テスト方法）の記述",
+      "レビュアーアサインとレビュー依頼の発信"
+    ],
+    "rule": [
+      "タイトルは issue 番号と変更概要を含む（例: #123 ユーザー認証を追加）",
+      "スクリーンショット・動作確認手順を含める",
+      "Draft PR は未完成の段階で早期フィードバックが目的のときのみ使う"
+    ],
+    "io": {
+      "in": [
+        "セルフレビュー済みコード",
+        "PR テンプレート"
+      ],
+      "process": [
+        "変更概要・テスト方法を記述",
+        "レビュアーをアサインして PR を提出"
+      ],
+      "out": [
+        "プルリクエスト（レビュー待ち）"
+      ]
+    },
+    "executor": {
+      "type": "script",
+      "reason": "PR 作成と説明文の雛形生成は自動化できるため"
+    },
+    "link": {
+      "up": [
+        "Self review"
+      ],
+      "down": []
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 20
+    },
+    "automation": {
+      "difficulty": "low",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Self review": {
+    "aim": "PR 提出前にコードを自己チェックし、明らかな問題を取り除く",
+    "phase": "dev",
+    "core": false,
+    "scope": [
+      "差分の自己点検（意図しない変更・デバッグコード混入の排除）",
+      "コーディング規約・セキュリティ・パフォーマンス観点の品質保証"
+    ],
+    "rule": [
+      "コミットに不要なファイル（.env・ログ・バイナリ）が含まれていないか確認する",
+      "TODO/FIXME を残す場合は issue 番号を付記する"
+    ],
+    "io": {
+      "in": [
+        "実装済みコード・ユニットテスト"
+      ],
+      "process": [
+        "差分を通読してチェックリストを消化",
+        "問題があれば修正しコミット"
+      ],
+      "out": [
+        "セルフレビュー済みコード"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "コードの品質・セキュリティ・規約適合を網羅的にチェックする推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "Write unit tests"
+      ],
+      "down": [
+        "Open PR"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 20
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Write unit tests": {
+    "aim": "実装したロジックを検証するユニットテストを作成する",
+    "phase": "dev",
+    "core": true,
+    "scope": [
+      "正常系・異常系・境界値を網羅したユニットテストの整備",
+      "全件パスとカバレッジ目標の達成"
+    ],
+    "rule": [
+      "カバレッジ 80% 以上を目標とする",
+      "外部依存はモックを使う",
+      "テスト名は「何をテストしているか」が分かる命名にする"
+    ],
+    "io": {
+      "in": [
+        "実装済みコード"
+      ],
+      "process": [
+        "テストケース洗い出し",
+        "テスト実装・実行"
+      ],
+      "out": [
+        "ユニットテストコード（全件パス）"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "テストケースの設計には実装意図の理解と判断が必要なため"
+    },
+    "link": {
+      "up": [
+        "Implement"
+      ],
+      "down": [
+        "Self review"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 20
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
   }
 };
-const positions = {"ブランチ作成": {"left": 40, "top": 24}, "実装": {"left": 40, "top": 134}, "ユニットテスト作成": {"left": 40, "top": 244}, "セルフレビュー": {"left": 40, "top": 354}, "PR作成": {"left": 40, "top": 464}};
-const edges     = [["セルフレビュー", "PR作成", "seq"], ["ブランチ作成", "実装", "seq"], ["ユニットテスト作成", "セルフレビュー", "seq"], ["実装", "ユニットテスト作成", "seq"]];
+const positions = {"Create branch": {"left": 40, "top": 24}, "Implement": {"left": 40, "top": 134}, "Write unit tests": {"left": 40, "top": 244}, "Self review": {"left": 40, "top": 354}, "Open PR": {"left": 40, "top": 464}};
+const edges     = [["Create branch", "Implement", "seq"], ["Implement", "Write unit tests", "seq"], ["Self review", "Open PR", "seq"], ["Write unit tests", "Self review", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

@@ -1,0 +1,33 @@
+unit: Write release notes
+aim: リリース内容をユーザー・ステークホルダー向けに整理した変更履歴を作成する
+phase: release
+scope:
+- PR・issue からのリリース内容のカテゴリ別整理
+- ユーザー向け平易な言葉でのリリースノート作成
+rule:
+- 破壊的変更は必ず明示し、移行手順を記載する
+- 内部リファクタや技術的変更は省略してよい
+link:
+  up: []
+  down:
+  - Release decision
+core: false
+io:
+  in:
+  - マージ済み PR リスト
+  - 解決済み issue リスト
+  process:
+  - PR・issue からリリース内容を抽出・分類
+  - ユーザー向けに言葉を整える
+  out:
+  - リリースノート
+executor:
+  type: ai_agent
+  reason: 技術的変更をユーザー向けに要約・分類する文章生成が必要なため
+effort:
+  duration: 1
+  frequency: 8
+automation:
+  difficulty: medium
+  status: partially-automated
+status: stable

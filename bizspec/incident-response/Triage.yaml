@@ -1,0 +1,34 @@
+unit: Triage
+aim: サービス影響を最小化するための緊急措置を実施する
+phase: ops
+scope:
+- サービス影響を止める緊急措置の選択と実施
+- 措置内容と収束時刻のインシデントログへの記録
+rule:
+- 原因特定より先に影響を止めることを優先する
+- 切り戻しが最速・最安全な場合はためらわず実施する
+- すべての操作を時刻付きでログに残す
+link:
+  up:
+  - Assess impact
+  down:
+  - Root cause analysis
+core: true
+io:
+  in:
+  - 影響範囲レポート
+  process:
+  - 緊急措置の選択・実施
+  - 影響収束を確認・記録
+  out:
+  - 一次対応完了報告（措置内容・収束時刻）
+executor:
+  type: manual
+  reason: 緊急措置の選択と実行はオンコール担当者の状況判断が必要なため
+effort:
+  duration: 1
+  frequency: 1
+automation:
+  difficulty: high
+  status: manual
+status: stable

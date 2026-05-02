@@ -822,7 +822,7 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "アップデート実施": {
+  "Apply updates": {
     "aim": "対象ライブラリを指定バージョンに更新し、ロックファイルを更新する",
     "phase": "ops",
     "core": true,
@@ -852,10 +852,10 @@ const units     = {
     },
     "link": {
       "up": [
-        "セキュリティ影響確認"
+        "Assess security impact"
       ],
       "down": [
-        "テスト実行"
+        "Run tests"
       ]
     },
     "depends_on": [],
@@ -871,7 +871,7 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "セキュリティ影響確認": {
+  "Assess security impact": {
     "aim": "更新対象の CVE・破壊的変更・互換性を確認し、対応方針を決定する",
     "phase": "ops",
     "core": true,
@@ -902,10 +902,10 @@ const units     = {
     },
     "link": {
       "up": [
-        "更新対象抽出"
+        "Detect updates"
       ],
       "down": [
-        "アップデート実施"
+        "Apply updates"
       ]
     },
     "depends_on": [],
@@ -921,54 +921,7 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "テスト実行": {
-    "aim": "アップデート後に全テストが通過することを確認する",
-    "phase": "ops",
-    "core": true,
-    "scope": [
-      "更新後の自動テスト全件 PASS の保証",
-      "FAIL 時の破壊的変更影響の特定と対処"
-    ],
-    "rule": [
-      "テストが FAIL したまま PR をマージしない",
-      "既存テストを弱めてパスさせることは禁止"
-    ],
-    "io": {
-      "in": [
-        "更新済みロックファイル・依存定義"
-      ],
-      "process": [
-        "テストスイートを実行",
-        "FAIL があれば原因を特定して修正"
-      ],
-      "out": [
-        "テスト結果（全 PASS）"
-      ]
-    },
-    "executor": {
-      "type": "script",
-      "reason": "テストスイートの実行は CI で完全自動化できるため"
-    },
-    "link": {
-      "up": [
-        "アップデート実施"
-      ],
-      "down": []
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "low",
-      "status": "automated"
-    },
-    "lifecycle_status": "stable",
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "更新対象抽出": {
+  "Detect updates": {
     "aim": "依存ライブラリのうち更新が必要なものを洗い出す",
     "phase": "ops",
     "core": true,
@@ -999,8 +952,55 @@ const units     = {
     "link": {
       "up": [],
       "down": [
-        "セキュリティ影響確認"
+        "Assess security impact"
       ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "low",
+      "status": "automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "Run tests": {
+    "aim": "アップデート後に全テストが通過することを確認する",
+    "phase": "ops",
+    "core": true,
+    "scope": [
+      "更新後の自動テスト全件 PASS の保証",
+      "FAIL 時の破壊的変更影響の特定と対処"
+    ],
+    "rule": [
+      "テストが FAIL したまま PR をマージしない",
+      "既存テストを弱めてパスさせることは禁止"
+    ],
+    "io": {
+      "in": [
+        "更新済みロックファイル・依存定義"
+      ],
+      "process": [
+        "テストスイートを実行",
+        "FAIL があれば原因を特定して修正"
+      ],
+      "out": [
+        "テスト結果（全 PASS）"
+      ]
+    },
+    "executor": {
+      "type": "script",
+      "reason": "テストスイートの実行は CI で完全自動化できるため"
+    },
+    "link": {
+      "up": [
+        "Apply updates"
+      ],
+      "down": []
     },
     "depends_on": [],
     "effort": {
@@ -1016,8 +1016,8 @@ const units     = {
     "parallel_with": []
   }
 };
-const positions = {"更新対象抽出": {"left": 40, "top": 24}, "セキュリティ影響確認": {"left": 40, "top": 134}, "アップデート実施": {"left": 40, "top": 244}, "テスト実行": {"left": 40, "top": 354}};
-const edges     = [["アップデート実施", "テスト実行", "seq"], ["セキュリティ影響確認", "アップデート実施", "seq"], ["更新対象抽出", "セキュリティ影響確認", "seq"]];
+const positions = {"Detect updates": {"left": 40, "top": 24}, "Assess security impact": {"left": 40, "top": 134}, "Apply updates": {"left": 40, "top": 244}, "Run tests": {"left": 40, "top": 354}};
+const edges     = [["Apply updates", "Run tests", "seq"], ["Assess security impact", "Apply updates", "seq"], ["Detect updates", "Assess security impact", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");

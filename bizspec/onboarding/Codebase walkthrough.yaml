@@ -1,0 +1,34 @@
+unit: Codebase walkthrough
+aim: アーキテクチャ・主要コンポーネント・開発フローを新メンバーに説明する
+phase: spec
+scope:
+- アーキテクチャと主要コンポーネントの理解促進
+- 開発フロー・ブランチ戦略・規約の共有
+rule:
+- 一度に詰め込みすぎず、重要なものから優先的に説明する
+- 説明後に質問時間を設ける
+link:
+  up:
+  - Setup environment
+  down:
+  - Assign first task
+core: true
+io:
+  in:
+  - セットアップ済み開発環境
+  - アーキテクチャ図・コーディング規約
+  process:
+  - アーキテクチャ・コンポーネントを説明
+  - 開発フロー・規約を説明
+  out:
+  - 新メンバーのコードベース理解（確認済み）
+executor:
+  type: manual
+  reason: 質疑応答を通じた理解確認と補足説明に人手が必要なため
+effort:
+  duration: 2
+  frequency: 1
+automation:
+  difficulty: high
+  status: manual
+status: stable

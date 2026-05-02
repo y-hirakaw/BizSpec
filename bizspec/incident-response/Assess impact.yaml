@@ -1,0 +1,34 @@
+unit: Assess impact
+aim: インシデントの影響ユーザー数・機能範囲・データ被害を特定する
+phase: ops
+scope:
+- 影響ユーザー数・機能範囲・時間帯の特定
+- 外部公開要否（ステータスページ更新等）の判断
+rule:
+- 推測で範囲を狭めない（不明な部分は「未確認」と明示）
+- 調査結果を 15 分ごとにインシデントチャンネルに報告する
+link:
+  up:
+  - Detect incident
+  down:
+  - Triage
+core: true
+io:
+  in:
+  - インシデント認定（Severity・開始時刻）
+  - ログ・メトリクス・エラートレース
+  process:
+  - ログ・トレースを解析して影響箇所を特定
+  - 影響ユーザー数・機能範囲を集計
+  out:
+  - 影響範囲レポート
+executor:
+  type: ai_agent
+  reason: 大量のログ・トレースから影響範囲を推論・集約する能力が必要なため
+effort:
+  duration: 1
+  frequency: 1
+automation:
+  difficulty: high
+  status: partially-automated
+status: stable

@@ -822,92 +822,39 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "KPT整理": {
-    "aim": "チームで Keep・Problem・Try を洗い出し、議論を構造化する",
+  "Carry over to next sprint": {
+    "aim": "決定したアクションアイテムをバックログまたはタスクとして登録する",
     "phase": "spec",
     "core": true,
     "scope": [
-      "チームによる Keep・Problem・Try の発散",
-      "グルーピングと優先度付きテーマへの収束"
+      "アクションアイテムの issue トラッカーへの登録",
+      "次スプリントプランニングでの取り込み確認"
     ],
     "rule": [
-      "発言は非難なし・特定個人への言及を避ける",
-      "Keep は次もやるべきことの確認として必ず行う（Problem だけに終わらない）",
-      "Try は Problem の原因解消につながるものを優先する"
+      "登録しただけで満足しない。次のスプリントレトロで実施状況を振り返る",
+      "前スプリントのアクションアイテム達成状況を必ず確認してから新しいアクションを決める"
     ],
     "io": {
       "in": [
-        "スプリント実績サマリー"
-      ],
-      "process": [
-        "KPT を全員で発散・収束",
-        "重要なテーマを絞り込む"
-      ],
-      "out": [
-        "KPT まとめ（グルーピング・優先度付き）"
-      ]
-    },
-    "executor": {
-      "type": "manual",
-      "reason": "チームの対話と合意形成はファシリテーターと全員参加が必要なため"
-    },
-    "link": {
-      "up": [
-        "メトリクス収集"
-      ],
-      "down": [
-        "アクションアイテム決定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 2
-    },
-    "automation": {
-      "difficulty": "high",
-      "status": "manual"
-    },
-    "lifecycle_status": "deprecated",
-    "deprecated_reason": "チームの規模拡大に伴い KPT の発散時間が肥大化したため、Lean Coffee 形式に移行予定",
-    "parallel_with": []
-  },
-  "アクションアイテム決定": {
-    "aim": "Try の中から次スプリントで実行するアクションを絞り込み、担当者を決める",
-    "phase": "spec",
-    "core": true,
-    "scope": [
-      "次スプリントで実行する具体的アクションの絞り込み",
-      "各アクションへの担当者・完了基準・期限の設定"
-    ],
-    "rule": [
-      "アクションは「〇〇する」という具体的な動詞で表現する（「〇〇を意識する」は NG）",
-      "1 スプリントに取り込むアクションは 3 件以下にする（多すぎると何もできない）",
-      "完了基準が曖昧なアクションは採用しない"
-    ],
-    "io": {
-      "in": [
-        "KPT まとめ（優先度付き）"
-      ],
-      "process": [
-        "Try から実行可能なアクションを選定",
-        "担当者・完了基準・期限を設定"
-      ],
-      "out": [
         "アクションアイテム一覧（担当・期限・完了基準付き）"
+      ],
+      "process": [
+        "issue トラッカーにタスクを登録",
+        "次スプリントプランニングで取り込みを確認"
+      ],
+      "out": [
+        "登録済みアクションアイテム issue"
       ]
     },
     "executor": {
-      "type": "manual",
-      "reason": "チームの意思決定と担当者の合意が必要なため"
+      "type": "script",
+      "reason": "issue 登録はテンプレートと API で自動化できるため"
     },
     "link": {
       "up": [
-        "KPT整理"
+        "Set action items"
       ],
-      "down": [
-        "次スプリント反映"
-      ]
+      "down": []
     },
     "depends_on": [],
     "effort": {
@@ -915,14 +862,14 @@ const units     = {
       "frequency": 2
     },
     "automation": {
-      "difficulty": "high",
-      "status": "manual"
+      "difficulty": "low",
+      "status": "partially-automated"
     },
     "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "メトリクス収集": {
+  "Collect metrics": {
     "aim": "スプリントの実績データを収集し、議論の客観的な基盤を作る",
     "phase": "spec",
     "core": true,
@@ -953,7 +900,7 @@ const units     = {
     "link": {
       "up": [],
       "down": [
-        "KPT整理"
+        "KPT roundup"
       ]
     },
     "depends_on": [],
@@ -969,39 +916,92 @@ const units     = {
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "次スプリント反映": {
-    "aim": "決定したアクションアイテムをバックログまたはタスクとして登録する",
+  "KPT roundup": {
+    "aim": "チームで Keep・Problem・Try を洗い出し、議論を構造化する",
     "phase": "spec",
     "core": true,
     "scope": [
-      "アクションアイテムの issue トラッカーへの登録",
-      "次スプリントプランニングでの取り込み確認"
+      "チームによる Keep・Problem・Try の発散",
+      "グルーピングと優先度付きテーマへの収束"
     ],
     "rule": [
-      "登録しただけで満足しない。次のスプリントレトロで実施状況を振り返る",
-      "前スプリントのアクションアイテム達成状況を必ず確認してから新しいアクションを決める"
+      "発言は非難なし・特定個人への言及を避ける",
+      "Keep は次もやるべきことの確認として必ず行う（Problem だけに終わらない）",
+      "Try は Problem の原因解消につながるものを優先する"
     ],
     "io": {
       "in": [
-        "アクションアイテム一覧（担当・期限・完了基準付き）"
+        "スプリント実績サマリー"
       ],
       "process": [
-        "issue トラッカーにタスクを登録",
-        "次スプリントプランニングで取り込みを確認"
+        "KPT を全員で発散・収束",
+        "重要なテーマを絞り込む"
       ],
       "out": [
-        "登録済みアクションアイテム issue"
+        "KPT まとめ（グルーピング・優先度付き）"
       ]
     },
     "executor": {
-      "type": "script",
-      "reason": "issue 登録はテンプレートと API で自動化できるため"
+      "type": "manual",
+      "reason": "チームの対話と合意形成はファシリテーターと全員参加が必要なため"
     },
     "link": {
       "up": [
-        "アクションアイテム決定"
+        "Collect metrics"
       ],
-      "down": []
+      "down": [
+        "Set action items"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "deprecated",
+    "deprecated_reason": "チームの規模拡大に伴い KPT の発散時間が肥大化したため、Lean Coffee 形式に移行予定",
+    "parallel_with": []
+  },
+  "Set action items": {
+    "aim": "Try の中から次スプリントで実行するアクションを絞り込み、担当者を決める",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "次スプリントで実行する具体的アクションの絞り込み",
+      "各アクションへの担当者・完了基準・期限の設定"
+    ],
+    "rule": [
+      "アクションは「〇〇する」という具体的な動詞で表現する（「〇〇を意識する」は NG）",
+      "1 スプリントに取り込むアクションは 3 件以下にする（多すぎると何もできない）",
+      "完了基準が曖昧なアクションは採用しない"
+    ],
+    "io": {
+      "in": [
+        "KPT まとめ（優先度付き）"
+      ],
+      "process": [
+        "Try から実行可能なアクションを選定",
+        "担当者・完了基準・期限を設定"
+      ],
+      "out": [
+        "アクションアイテム一覧（担当・期限・完了基準付き）"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "チームの意思決定と担当者の合意が必要なため"
+    },
+    "link": {
+      "up": [
+        "KPT roundup"
+      ],
+      "down": [
+        "Carry over to next sprint"
+      ]
     },
     "depends_on": [],
     "effort": {
@@ -1009,16 +1009,16 @@ const units     = {
       "frequency": 2
     },
     "automation": {
-      "difficulty": "low",
-      "status": "partially-automated"
+      "difficulty": "high",
+      "status": "manual"
     },
     "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   }
 };
-const positions = {"メトリクス収集": {"left": 40, "top": 24}, "KPT整理": {"left": 40, "top": 134}, "アクションアイテム決定": {"left": 40, "top": 244}, "次スプリント反映": {"left": 40, "top": 354}};
-const edges     = [["KPT整理", "アクションアイテム決定", "seq"], ["アクションアイテム決定", "次スプリント反映", "seq"], ["メトリクス収集", "KPT整理", "seq"]];
+const positions = {"Collect metrics": {"left": 40, "top": 24}, "KPT roundup": {"left": 40, "top": 134}, "Set action items": {"left": 40, "top": 244}, "Carry over to next sprint": {"left": 40, "top": 354}};
+const edges     = [["Collect metrics", "KPT roundup", "seq"], ["KPT roundup", "Set action items", "seq"], ["Set action items", "Carry over to next sprint", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
