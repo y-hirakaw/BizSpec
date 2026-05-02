@@ -13,8 +13,22 @@ English | [日本語](README.ja.md)
 
 **BizSpec** decomposes a business workflow into the smallest executable units (YAML), tags each one as `script` / `ai_agent` / `manual`, and visualizes the flow as clickable HTML. Pair it with Claude Code skills (`/bizspec-refine`, `/bizspec-refactor`) to refine processes interactively.
 
-<!-- TODO: add viz screenshot to docs/img/ and embed below -->
-<!-- ![viz demo](docs/img/viz-demo.png) -->
+![Leverage heatmap — units sorted by cost × ease × automation gap. The top-left "Quick Win" cell is high-cost, easy-to-automate, manual work.](design/readme1.png)
+
+<details>
+<summary>More views</summary>
+
+<br>
+
+**Process detail** — DAG of one process plus per-unit metrics (effort × frequency × difficulty), IO, scope, and rules.
+
+![Process detail view: PR review with Logic review selected](design/readme2.png)
+
+**All processes overview** — KPIs and a cross-process table at a glance.
+
+![Overview view: 12 processes summarized](design/readme3.png)
+
+</details>
 
 ## Quick start
 

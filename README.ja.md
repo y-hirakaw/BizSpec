@@ -13,8 +13,22 @@
 
 **BizSpec** は業務プロセスを最小実行単位（YAML）に分解し、各ステップを `script` / `ai_agent` / `manual` で分類して、フローを HTML で可視化する CLI ツールです。Claude Code スキル（`/bizspec-refine`, `/bizspec-refactor`）と組み合わせて、AI が業務を直接リファクタできる形に整えます。
 
-<!-- TODO: viz スクリーンショットを docs/img/ に追加して差し込み -->
-<!-- ![viz demo](docs/img/viz-demo.png) -->
+![Leverage heatmap — cost × ease × 自動化ギャップでスコアリング。左上 "Quick Win" セルは「コスト大 × 自動化が容易 × 現状 manual」](design/readme1.png)
+
+<details>
+<summary>その他のビュー</summary>
+
+<br>
+
+**プロセス詳細** — 1 プロセスの DAG と、選択 unit の効果 (effort × frequency × difficulty)、IO、Scope、Rule。
+
+![プロセス詳細: PR review の Logic review を選択](design/readme2.png)
+
+**全プロセス概観** — KPI とプロセス横断テーブル。
+
+![Overview: 12 プロセスの一覧](design/readme3.png)
+
+</details>
 
 ## Quick start
 
