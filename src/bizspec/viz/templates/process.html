@@ -282,6 +282,63 @@ header.proc-head .subtitle {
 .pill-script   { background: var(--exec-script-bg);   color: var(--exec-script-fg); }
 .pill-ai_agent { background: var(--exec-ai_agent-bg); color: var(--exec-ai_agent-fg); }
 .pill-manual   { background: var(--exec-manual-bg);   color: var(--exec-manual-fg); }
+.pill-branch-always      { background: var(--bg-subtle); color: var(--text-secondary); }
+.pill-branch-conditional { background: rgba(217, 119, 6, 0.10); color: var(--warn); }
+.pill-branch-ref         { background: var(--bg-subtle); color: var(--text-muted); }
+.pill {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  letter-spacing: 0;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+.pill.no-mono { font-family: var(--font-body); }
+
+/* Outgoing branches table */
+.branch-table {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.branch-head, .branch-row {
+  display: grid;
+  grid-template-columns: 100px 1.6fr 0.9fr;
+  align-items: center;
+}
+.branch-head {
+  padding: 8px 14px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--bg-inset);
+  border-bottom: 1px solid var(--border);
+}
+.branch-row {
+  padding: 10px 14px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.branch-row:last-child { border-bottom: none; }
+.branch-next { color: var(--text-primary); font-weight: 500; }
+.branch-next-link {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+}
+.branch-next-link:hover { text-decoration: underline; }
+.branch-cond {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
 
 /* ── Filter bar ─────────────────────────────────────────── */
 .filter-bar {
@@ -986,7 +1043,7 @@ function renderDetail(name) {
       </div>
     </div>
 
-    ${(u.effort.duration != null || u.effort.frequency != null || u.automation.difficulty || u.automation.status) ? `
+    ${(u.effort.duration != null || u.effort.frequency != null || u.automation.difficulty || u.automation.status || (u.link.down && u.link.down.length)) ? `
     <div class="section">
       <div class="section-label">Effort / Automation</div>
       <div class="meta-grid">
@@ -995,6 +1052,23 @@ function renderDetail(name) {
         ${(u.effort.duration != null && u.effort.frequency != null) ? (() => { const cost = u.effort.duration * u.effort.frequency; const diffNum = {low:1,medium:2,high:3}[u.automation.difficulty] || null; const lev = diffNum ? Math.round(cost / diffNum * 10) / 10 : null; let html = '<div class="meta-item"><div class="meta-key">月間コスト</div><div class="meta-val">' + cost + 'h/月</div></div>'; if (lev != null) { html += '<div class="meta-item"><div class="meta-key">自動化レバレッジ</div><div class="meta-val">' + lev + '</div></div>'; } return html; })() : ''}
         ${u.automation.difficulty ? `<div class="meta-item"><div class="meta-key">自動化難易度</div><div class="meta-val meta-diff-${u.automation.difficulty}">${u.automation.difficulty}</div></div>` : ''}
         ${u.automation.status ? `<div class="meta-item"><div class="meta-key">自動化状況</div><div class="meta-val">${u.automation.status}</div></div>` : ''}
+        ${(u.link.down && u.link.down.length) ? `<div class="meta-item"><div class="meta-key">Branches</div><div class="meta-val">${u.link.down.length}</div></div>` : ''}
+      </div>
+    </div>` : ''}
+
+    ${(u.link.down && u.link.down.length >= 2) ? `
+    <div class="section">
+      <div class="section-label">Outgoing branches</div>
+      <div class="branch-table">
+        <div class="branch-head">
+          <div>Kind</div><div>Next unit</div><div>Condition</div>
+        </div>
+        ${u.link.down.map(n => `
+          <div class="branch-row">
+            <div><span class="pill pill-branch-always no-mono">always</span></div>
+            <div class="branch-next">→ <span class="branch-next-link" onclick="jumpTo('${n.replace(/'/g, "\\'")}')">${n}</span></div>
+            <div class="branch-cond">—</div>
+          </div>`).join("")}
       </div>
     </div>` : ''}
 

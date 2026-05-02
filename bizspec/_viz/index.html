@@ -1191,6 +1191,329 @@ svg.arrows-layer {
 .filter-search:focus { border-color: var(--accent); }
 .filter-search::placeholder { color: var(--text-muted); }
 
+/* ── Heatmap view ──────────────────────────────────────── */
+#heatmap-view {
+  flex: 1 1 0;
+  display: none;
+  overflow: hidden;
+}
+#heatmap-view.active { display: flex; }
+.hm-main {
+  flex: 1 1 0;
+  overflow: auto;
+  padding: 20px 24px 40px;
+  min-width: 0;
+}
+.hm-side {
+  width: 340px;
+  flex: 0 0 auto;
+  border-left: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding: 20px 18px;
+  overflow: auto;
+}
+.hm-header { margin-bottom: 14px; }
+.hm-h1 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+.hm-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+.hm-sub strong { color: var(--accent); font-weight: 600; }
+
+.hm-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.hm-kpi {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.hm-kpi-label {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.hm-kpi-val {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+.hm-kpi-sub {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.hm-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px 14px;
+  margin-bottom: 16px;
+}
+.hm-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.hm-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+.hm-card-subtitle {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.hm-card-legend {
+  display: flex; gap: 10px;
+  font-size: 10.5px; color: var(--text-secondary);
+}
+.hm-legend-dot {
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.hm-legend-dot .sw {
+  width: 9px; height: 9px;
+  border-radius: 2px;
+  border: 1px solid currentColor;
+  display: inline-block;
+}
+
+.hm-grid {
+  display: grid;
+  grid-template-columns: 62px repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.hm-grid-corner,
+.hm-grid-col-head {
+  background: var(--bg-inset);
+  padding: 6px 8px;
+  font-size: 9.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: flex; align-items: center;
+}
+.hm-grid-corner { justify-content: flex-end; }
+.hm-grid-col-head { justify-content: space-between; }
+.hm-grid-col-head .max {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.hm-grid-row-head {
+  background: var(--bg-inset);
+  padding: 8px;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: flex-end;
+}
+.hm-grid-row-name {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.hm-grid-row-hint {
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+.hm-cell {
+  background: var(--bg-elevated);
+  padding: 8px;
+  min-height: 92px;
+  position: relative;
+}
+.hm-cell.sweet {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.hm-cell-quickwin {
+  position: absolute; top: 4px; right: 4px;
+  font-size: 9px; color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.hm-cell-empty {
+  font-size: 10.5px; color: var(--text-muted); font-style: italic;
+}
+.hm-cell-list {
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+.hm-chip {
+  font-size: 10.5px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid;
+}
+.hm-chip.manual    { background: rgba(220, 38, 38, 0.10); color: var(--danger); border-color: rgba(220, 38, 38, 0.33); }
+.hm-chip.partial   { background: rgba(217, 119, 6, 0.12); color: var(--warn);   border-color: rgba(217, 119, 6, 0.33); }
+.hm-chip.automated { background: rgba(163, 163, 163, 0.18); color: var(--text-muted); border-color: rgba(163, 163, 163, 0.40); }
+[data-theme="dark"] .hm-chip.manual    { background: rgba(248, 113, 113, 0.16); color: var(--danger); border-color: rgba(248, 113, 113, 0.40); }
+[data-theme="dark"] .hm-chip.partial   { background: rgba(245, 158, 11, 0.18);  color: var(--warn);   border-color: rgba(245, 158, 11, 0.40); }
+[data-theme="dark"] .hm-chip.automated { background: rgba(154, 154, 168, 0.16); color: var(--text-muted); border-color: rgba(154, 154, 168, 0.40); }
+
+.hm-axis-x {
+  margin-top: 6px;
+  padding-left: 62px;
+  font-size: 9.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hm-guide-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.hm-guide {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.hm-guide.qw   { border-left-color: var(--accent); }
+.hm-guide.str  { border-left-color: var(--warn); }
+.hm-guide.skip { border-left-color: var(--text-muted); }
+.hm-guide-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.hm-guide-body {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Top 10 right rail */
+.hm-side-h2 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--text-primary);
+}
+.hm-side-tag {
+  font-size: 10px; color: var(--text-muted);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.hm-side-desc {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  margin: 4px 0 14px;
+  line-height: 1.5;
+}
+.hm-top {
+  display: flex; flex-direction: column;
+  gap: 1px;
+  background: var(--border-soft);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.hm-top-row {
+  background: var(--bg-elevated);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background .15s var(--ease);
+}
+.hm-top-row:hover { background: var(--bg-subtle); }
+.hm-top-head { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.hm-top-rank {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  min-width: 16px;
+}
+.hm-top-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hm-top-score {
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+.hm-top-meta {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 5px;
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+.hm-top-meta .proc { font-family: var(--font-mono); }
+.hm-top-meta .sep { color: var(--text-muted); }
+.hm-top-meta .stat-manual    { color: var(--danger); }
+.hm-top-meta .stat-partial   { color: var(--warn); }
+.hm-top-meta .stat-automated { color: var(--text-muted); }
+.hm-top-bar {
+  height: 3px;
+  background: var(--bg-inset);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.hm-top-bar-fill { height: 100%; }
+
+.hm-score-explainer {
+  margin-top: 16px;
+  padding: 10px 12px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+}
+.hm-score-explainer-h {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.hm-score-explainer-body {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+.hm-score-explainer-body .term {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+/* tabs become clickable */
+#tabs .tab { cursor: pointer; }
+
 /* ── Scrollbars (subtle) ──────────────────────────────── */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -1219,6 +1542,10 @@ svg.arrows-layer {
     <span class="tb-dot"></span>
     <span>synced</span>
   </div>
+  <div class="tb-theme" role="group" aria-label="lang">
+    <button class="tb-theme-btn active" data-lang-set="ja">JA</button>
+    <button class="tb-theme-btn" data-lang-set="en">EN</button>
+  </div>
   <div class="tb-theme" role="group" aria-label="theme">
     <button class="tb-theme-btn active" data-theme-set="light" title="Light">Light</button>
     <button class="tb-theme-btn" data-theme-set="dark" title="Dark">Dark</button>
@@ -1226,11 +1553,11 @@ svg.arrows-layer {
 </header>
 
 <nav id="tabs">
-  <span class="tab active">Overview</span>
-  <span class="tab">Processes</span>
-  <span class="tab">Heatmap</span>
-  <span class="tab">Graph</span>
-  <span class="tab">YAML</span>
+  <span class="tab active" data-view="overview">Overview</span>
+  <span class="tab" data-view="processes">Processes</span>
+  <span class="tab" data-view="heatmap">Heatmap</span>
+  <span class="tab" data-view="graph">Graph</span>
+  <span class="tab" data-view="yaml">YAML</span>
 </nav>
 
 <div class="layout">
@@ -1266,6 +1593,60 @@ svg.arrows-layer {
           <div id="overview-grid"></div>
         </div>
       </div>
+    </div>
+    <div id="heatmap-view">
+      <div class="hm-main">
+        <div class="hm-header">
+          <h1 class="hm-h1">Leverage heatmap</h1>
+          <div class="hm-sub">改善レバレッジが大きい unit を可視化。<strong>左上のセル</strong> = 高コスト × 着手簡単 = quick win.</div>
+        </div>
+        <div id="hm-kpi-grid" class="hm-kpi-grid"></div>
+        <div class="hm-card">
+          <div class="hm-card-head">
+            <div>
+              <div class="hm-card-title">Effort × Difficulty</div>
+              <div class="hm-card-subtitle">Y: 自動化の難易度 · X: 月間コスト · 色: status</div>
+            </div>
+            <div class="hm-card-legend">
+              <span class="hm-legend-dot" style="color: var(--danger);"><span class="sw" style="background: rgba(220,38,38,0.10);"></span>manual</span>
+              <span class="hm-legend-dot" style="color: var(--warn);"><span class="sw" style="background: rgba(217,119,6,0.12);"></span>partial</span>
+              <span class="hm-legend-dot" style="color: var(--text-muted);"><span class="sw" style="background: rgba(163,163,163,0.18);"></span>automated</span>
+            </div>
+          </div>
+          <div id="hm-grid" class="hm-grid"></div>
+          <div class="hm-axis-x">← 高コスト · 低コスト →</div>
+        </div>
+        <div class="hm-guide-grid">
+          <div class="hm-guide qw">
+            <div class="hm-guide-title">Quick wins (左上)</div>
+            <div class="hm-guide-body">高コスト × 着手簡単 × manual。最初に取り組むべき領域。</div>
+          </div>
+          <div class="hm-guide str">
+            <div class="hm-guide-title">Strategic (左下)</div>
+            <div class="hm-guide-body">高コスト だが difficulty=high。中長期で計画的に。</div>
+          </div>
+          <div class="hm-guide skip">
+            <div class="hm-guide-title">Skip / monitor (右)</div>
+            <div class="hm-guide-body">コストが小さいので投資対効果が低い。後回しでよい。</div>
+          </div>
+        </div>
+      </div>
+      <aside class="hm-side">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;">
+          <h2 class="hm-side-h2">Top 10 leverage</h2>
+          <span class="hm-side-tag">quick wins</span>
+        </div>
+        <div class="hm-side-desc">score 順 (cost × ease × gap)。クリックで unit 詳細へ。</div>
+        <div id="hm-top" class="hm-top"></div>
+        <div class="hm-score-explainer">
+          <div class="hm-score-explainer-h">How score works</div>
+          <div class="hm-score-explainer-body">
+            <div><span class="term">Pain</span> = duration × frequency</div>
+            <div><span class="term">Ease</span> = low:3 / med:2 / high:1</div>
+            <div><span class="term">Gap</span> = manual:3 / partial:2 / auto:0</div>
+          </div>
+        </div>
+      </aside>
     </div>
     <div id="flow-view">
       <div id="flow-legend">
@@ -5258,6 +5639,128 @@ const ALL_DATA   = {
 };
 const CROSS_EDGES = [{"from": "pr-review", "to": "bug-fix"}, {"from": "bug-fix", "to": "incident-response"}, {"from": "issue-refinement", "to": "pr-review"}, {"from": "implementation", "to": "pr-review"}, {"from": "pr-review", "to": "release"}, {"from": "testing", "to": "release"}, {"from": "issue-refinement", "to": "sprint-planning"}];
 
+/* ── i18n ──────────────────────────────────────────────── */
+const STRINGS = {
+  "topbar.workspace":   { ja: "ワークスペース · default", en: "workspace · default" },
+  "topbar.search":      { ja: "⌘K  検索…",     en: "⌘K  Search…" },
+  "topbar.synced":      { ja: "同期済み",        en: "synced" },
+  "topbar.allProc":     { ja: "全プロセス",      en: "All Processes" },
+  "topbar.heatmap":     { ja: "ヒートマップ",    en: "Heatmap" },
+  "topbar.scoreFormula":{ ja: "leverage = cost × ease × gap", en: "leverage = cost × ease × gap" },
+  "btn.backOverview":   { ja: "← 概要へ",       en: "← Overview" },
+  "tab.overview":       { ja: "概要",          en: "Overview" },
+  "tab.processes":      { ja: "プロセス",       en: "Processes" },
+  "tab.heatmap":        { ja: "ヒートマップ",    en: "Heatmap" },
+  "tab.graph":          { ja: "グラフ",         en: "Graph" },
+  "tab.yaml":           { ja: "YAML",         en: "YAML" },
+  "sidebar.processes":  { ja: "プロセス",       en: "Processes" },
+  "ov.title":           { ja: "全プロセス",      en: "All processes" },
+  "ov.summary":         { ja: "{p} プロセス · {u} unit · {c}h/月 を運用中",
+                          en: "{p} processes · {u} units · {c}h/mo committed" },
+  "ov.modeInfo":        { ja: "情報",          en: "Info" },
+  "ov.modeFlow":        { ja: "フロー",         en: "Flow" },
+  "kpi.processes":      { ja: "プロセス数",      en: "Processes" },
+  "kpi.totalUnits":     { ja: "Unit 総数",     en: "Total units" },
+  "kpi.monthlyCost":    { ja: "月間コスト",      en: "Monthly cost" },
+  "kpi.automatable":    { ja: "自動化可能",      en: "Automatable" },
+  "kpi.aiScript":       { ja: "ai + script",  en: "ai + script" },
+  "kpi.stable":         { ja: "安定",          en: "stable" },
+  "th.process":         { ja: "プロセス",       en: "Process" },
+  "th.phase":           { ja: "フェーズ",       en: "Phase" },
+  "th.units":           { ja: "Unit数",        en: "Units" },
+  "th.executors":       { ja: "実行主体",       en: "Executors" },
+  "th.cost":            { ja: "コスト",         en: "Cost" },
+  "th.hpermo":          { ja: "h/月",          en: "h/mo" },
+  "hm.title":           { ja: "Leverage heatmap", en: "Leverage heatmap" },
+  "hm.subA":            { ja: "改善レバレッジが大きい unit を可視化。",
+                          en: "Visualizes units with the largest improvement leverage. " },
+  "hm.subB":            { ja: "左上のセル",      en: "Top-left cell" },
+  "hm.subC":            { ja: " = 高コスト × 着手簡単 = quick win.", en: " = high cost × easy = quick win." },
+  "hm.gridTitle":       { ja: "Effort × Difficulty", en: "Effort × Difficulty" },
+  "hm.gridSub":         { ja: "Y: 自動化の難易度 · X: 月間コスト · 色: status",
+                          en: "Y: difficulty · X: monthly cost · color: status" },
+  "hm.diff":            { ja: "↓ diff",        en: "↓ diff" },
+  "hm.costPrefix":      { ja: "cost",          en: "cost" },
+  "hm.col.top25":       { ja: "上位25%",       en: "top 25%" },
+  "hm.col.le50":        { ja: "≤ 50%",        en: "≤ 50%" },
+  "hm.col.le75":        { ja: "≤ 75%",        en: "≤ 75%" },
+  "hm.col.le100":       { ja: "≤ 100%",       en: "≤ 100%" },
+  "hm.row.low":         { ja: "low",          en: "low" },
+  "hm.row.medium":      { ja: "medium",       en: "medium" },
+  "hm.row.high":        { ja: "high",         en: "high" },
+  "hm.hint.low":        { ja: "簡単",          en: "easy" },
+  "hm.hint.medium":     { ja: "中",            en: "medium" },
+  "hm.hint.high":       { ja: "難しい",        en: "hard" },
+  "hm.axisX":           { ja: "← 高コスト · 低コスト →", en: "← high cost · low cost →" },
+  "hm.quickWin":        { ja: "★ QUICK WIN",  en: "★ QUICK WIN" },
+  "hm.kpi.totalUnits":  { ja: "Unit 数",       en: "Total units" },
+  "hm.kpi.manualUnits": { ja: "Manual unit",   en: "Manual units" },
+  "hm.kpi.manualHours": { ja: "Manual 時間",   en: "Manual hours" },
+  "hm.kpi.topScore":    { ja: "最高スコア",     en: "Top score" },
+  "hm.kpi.ofTotal":     { ja: "全体の {pct}%", en: "{pct}% of total" },
+  "hm.kpi.ofMonthly":   { ja: "{total}h/月 中", en: "of {total}h/mo" },
+  "hm.guide.qwTitle":   { ja: "Quick wins (左上)",   en: "Quick wins (top-left)" },
+  "hm.guide.qwBody":    { ja: "高コスト × 着手簡単 × manual。最初に取り組むべき領域。",
+                          en: "High cost × easy × manual. Start here." },
+  "hm.guide.strTitle":  { ja: "Strategic (左下)",    en: "Strategic (bottom-left)" },
+  "hm.guide.strBody":   { ja: "高コスト だが difficulty=high。中長期で計画的に。",
+                          en: "High cost but difficulty=high. Plan for the medium term." },
+  "hm.guide.skipTitle": { ja: "Skip / monitor (右)", en: "Skip / monitor (right)" },
+  "hm.guide.skipBody":  { ja: "コストが小さいので投資対効果が低い。後回しでよい。",
+                          en: "Low cost, low ROI. Defer." },
+  "hm.top10":           { ja: "Top 10 leverage", en: "Top 10 leverage" },
+  "hm.top10Tag":        { ja: "quick wins",   en: "quick wins" },
+  "hm.top10Desc":       { ja: "score 順 (cost × ease × gap)。クリックで unit 詳細へ。",
+                          en: "Sorted by score (cost × ease × gap). Click for details." },
+  "hm.scoreHow":        { ja: "How score works", en: "How score works" },
+  "hm.score.pain":      { ja: "Pain",         en: "Pain" },
+  "hm.score.painDef":   { ja: "= duration × frequency", en: "= duration × frequency" },
+  "hm.score.ease":      { ja: "Ease",         en: "Ease" },
+  "hm.score.easeDef":   { ja: "= low:3 / med:2 / high:1", en: "= low:3 / med:2 / high:1" },
+  "hm.score.gap":       { ja: "Gap",          en: "Gap" },
+  "hm.score.gapDef":    { ja: " = manual:3 / partial:2 / auto:0", en: " = manual:3 / partial:2 / auto:0" },
+  "hm.legend.manual":   { ja: "manual",       en: "manual" },
+  "hm.legend.partial":  { ja: "partial",      en: "partial" },
+  "hm.legend.automated":{ ja: "automated",    en: "automated" },
+  "hm.empty":           { ja: "Unit に automation データを追加すると表示されます (automation.difficulty / automation.status)。",
+                          en: "Add automation.difficulty + automation.status to YAML to populate." },
+  "flow.legend.coreT":  { ja: "core: true",   en: "core: true" },
+  "flow.legend.coreF":  { ja: "core: false",  en: "core: false" },
+  "flow.legend.status": { ja: "STATUS",       en: "STATUS" },
+  "filter.core":        { ja: "Core",         en: "Core" },
+  "filter.executor":    { ja: "実行主体",      en: "Executor" },
+  "filter.phase":       { ja: "フェーズ",      en: "Phase" },
+  "filter.status":      { ja: "状態",          en: "Status" },
+  "filter.search":      { ja: "検索",          en: "Search" },
+  "filter.search.ph":   { ja: "unit / aim…", en: "unit / aim…" },
+  "filter.all":         { ja: "全て",          en: "all" },
+  "detail.empty":       { ja: "ノードを選択",   en: "Select a node" },
+  "detail.scope":       { ja: "Scope",        en: "Scope" },
+  "detail.rule":        { ja: "Rule",         en: "Rule" },
+  "detail.io":          { ja: "Input · Process · Output", en: "Input · Process · Output" },
+  "detail.io.in":       { ja: "In",           en: "In" },
+  "detail.io.process":  { ja: "Process",      en: "Process" },
+  "detail.io.out":      { ja: "Out",          en: "Out" },
+  "detail.executor":    { ja: "Executor",     en: "Executor" },
+  "detail.linkUp":      { ja: "Link · Up",    en: "Link · Up" },
+  "detail.linkDown":    { ja: "Link · Down",  en: "Link · Down" },
+  "detail.depends":     { ja: "Depends On (cross-process)", en: "Depends On (cross-process)" },
+  "detail.parallel":    { ja: "Parallel With", en: "Parallel With" },
+  "detail.deprecated":  { ja: "Deprecated",   en: "Deprecated" },
+  "detail.effortAuto":  { ja: "Effort / Automation", en: "Effort / Automation" },
+  "detail.empty.link":  { ja: "なし",          en: "none" },
+  "back.btn":           { ja: "← 概要へ",      en: "← Overview" },
+};
+
+let currentLang = "ja";
+function t(key, vars) {
+  const e = STRINGS[key];
+  if (!e) return key;
+  let s = e[currentLang] != null ? e[currentLang] : e.ja;
+  if (vars) for (const k in vars) s = s.replace(new RegExp("\\{" + k + "\\}", "g"), vars[k]);
+  return s;
+}
+
 const W = 200, H = 54;
 const NS = "http://www.w3.org/2000/svg";
 
@@ -5536,23 +6039,6 @@ const totalCostNum = procEntries.reduce((s, [, p]) => s + processCost(p), 0);
 const allMaxCost   = Math.max(1, ...procEntries.map(([, p]) => processCost(p)));
 const autoShare    = automatableShare(ALL_DATA);
 
-document.getElementById("ov-sub").innerHTML =
-  `${totalProcs} processes · ${totalUnits} units · <strong>${totalCostNum}h/mo</strong> committed`;
-
-document.getElementById("kpi-grid").innerHTML = [
-  ["Processes",  totalProcs,            "stable"],
-  ["Total units", totalUnits,           ""],
-  ["Monthly cost", totalCostNum + "h",  ""],
-  ["Automatable", autoShare + "%",      "ai + script"],
-].map(([k, v, sub]) => `
-  <div class="kpi">
-    <div class="kpi-label">${k}</div>
-    <div class="kpi-row">
-      <div class="kpi-val">${v}</div>
-      ${sub ? `<div class="kpi-sub">${sub}</div>` : ""}
-    </div>
-  </div>`).join("");
-
 function exTone(t) { return ["script", "ai_agent", "manual"].includes(t) ? t : "manual"; }
 function pillsFor(stats) {
   return ["script", "ai_agent", "manual"]
@@ -5561,37 +6047,56 @@ function pillsFor(stats) {
     .join(" ");
 }
 
-const ptable = document.getElementById("ptable");
-ptable.innerHTML =
-  `<div class="ptable-head">
-    <div></div>
-    <div>Process</div>
-    <div>Phase</div>
-    <div>Units</div>
-    <div>Executors</div>
-    <div>Cost</div>
-    <div style="text-align:right">h/mo</div>
-  </div>` +
-  procEntries.map(([name, proc]) => {
-    const cost  = processCost(proc);
-    const ratio = cost / allMaxCost;
-    const fillCls = ratio > 0.66 ? "high" : ratio > 0.33 ? "medium" : "low";
-    const phase   = (proc.stats.phases && proc.stats.phases[0]) || "";
-    const phaseCls = ["spec","dev","test","release","ops"].includes(phase) ? phase : "";
-    return `
-      <div class="ptable-row" data-proc="${name}">
-        <div><span class="ptable-dot"></span></div>
-        <div class="ptable-name">${proc.displayName || name}</div>
-        <div>${phase ? `<span class="pill pill-phase no-mono ${phaseCls}">${phase}</span>` : ""}</div>
-        <div class="ptable-count">${proc.stats.unit_count}</div>
-        <div class="ptable-pills">${pillsFor(proc.stats)}</div>
-        <div class="ptable-bar-wrap">
-          <div class="ptable-bar"><div class="ptable-bar-fill ${fillCls}" style="width:${Math.round(ratio * 100)}%"></div></div>
-        </div>
-        <div class="ptable-cost">${cost}</div>
-      </div>`;
-  }).join("");
-ptable.addEventListener("click", e => {
+function renderOverviewBody() {
+  document.getElementById("ov-sub").innerHTML =
+    t("ov.summary", { p: totalProcs, u: totalUnits, c: totalCostNum + "h" }).replace(/(\d+h\/(?:mo|月)|\d+h(?: 中)?)/, '<strong>$1</strong>');
+  document.getElementById("kpi-grid").innerHTML = [
+    [t("kpi.processes"),    totalProcs,            t("kpi.stable")],
+    [t("kpi.totalUnits"),   totalUnits,            ""],
+    [t("kpi.monthlyCost"),  totalCostNum + "h",    ""],
+    [t("kpi.automatable"),  autoShare + "%",       t("kpi.aiScript")],
+  ].map(([k, v, sub]) => `
+    <div class="kpi">
+      <div class="kpi-label">${k}</div>
+      <div class="kpi-row">
+        <div class="kpi-val">${v}</div>
+        ${sub ? `<div class="kpi-sub">${sub}</div>` : ""}
+      </div>
+    </div>`).join("");
+
+  const ptable = document.getElementById("ptable");
+  ptable.innerHTML =
+    `<div class="ptable-head">
+      <div></div>
+      <div>${t("th.process")}</div>
+      <div>${t("th.phase")}</div>
+      <div>${t("th.units")}</div>
+      <div>${t("th.executors")}</div>
+      <div>${t("th.cost")}</div>
+      <div style="text-align:right">${t("th.hpermo")}</div>
+    </div>` +
+    procEntries.map(([name, proc]) => {
+      const cost  = processCost(proc);
+      const ratio = cost / allMaxCost;
+      const fillCls = ratio > 0.66 ? "high" : ratio > 0.33 ? "medium" : "low";
+      const phase   = (proc.stats.phases && proc.stats.phases[0]) || "";
+      const phaseCls = ["spec","dev","test","release","ops"].includes(phase) ? phase : "";
+      return `
+        <div class="ptable-row" data-proc="${name}">
+          <div><span class="ptable-dot"></span></div>
+          <div class="ptable-name">${proc.displayName || name}</div>
+          <div>${phase ? `<span class="pill pill-phase no-mono ${phaseCls}">${phase}</span>` : ""}</div>
+          <div class="ptable-count">${proc.stats.unit_count}</div>
+          <div class="ptable-pills">${pillsFor(proc.stats)}</div>
+          <div class="ptable-bar-wrap">
+            <div class="ptable-bar"><div class="ptable-bar-fill ${fillCls}" style="width:${Math.round(ratio * 100)}%"></div></div>
+          </div>
+          <div class="ptable-cost">${cost}</div>
+        </div>`;
+    }).join("");
+}
+renderOverviewBody();
+document.getElementById("ptable").addEventListener("click", e => {
   const row = e.target.closest(".ptable-row[data-proc]");
   if (row) showProcess(row.dataset.proc);
 });
@@ -5615,6 +6120,124 @@ requestAnimationFrame(() => renderOverviewEdges());
 window.addEventListener("resize", () => {
   if (overviewV.style.display !== "none") renderOverviewEdges();
 });
+
+// ── Lang toggle (i18n) ────────────────────────────────────
+function applyLangToStaticDom() {
+  // Topbar
+  const wsEl = document.querySelector("#topbar-crumb span:first-child + .tb-crumb-leaf, #topbar-crumb"); // placeholder
+  document.querySelector(".tb-search").textContent = t("topbar.search");
+  document.querySelector(".tb-status span:last-child").textContent = t("topbar.synced");
+  // Tabs
+  document.querySelectorAll("#tabs .tab").forEach(tab => {
+    const v = tab.dataset.view;
+    if (v) tab.textContent = t("tab." + v);
+  });
+  // Sidebar
+  document.querySelector(".sb-section").textContent = t("sidebar.processes");
+  // Overview
+  const ovTitle = document.getElementById("ov-title");
+  if (ovTitle) ovTitle.textContent = t("ov.title");
+  const ovSub = document.getElementById("ov-sub");
+  if (ovSub) ovSub.innerHTML = t("ov.summary", { p: totalProcs, u: totalUnits, c: totalCostNum }).replace(/(\d+h\/(?:mo|月))/, '<strong>$1</strong>');
+  // Mode toggle labels
+  const ovModeBtns = document.querySelectorAll(".ov-mode-btn");
+  if (ovModeBtns[0]) ovModeBtns[0].textContent = t("ov.modeInfo");
+  if (ovModeBtns[1]) ovModeBtns[1].textContent = t("ov.modeFlow");
+  // Back button
+  document.getElementById("back-btn").textContent = t("btn.backOverview");
+  // Filter labels
+  document.querySelectorAll(".filter-label").forEach(el => {
+    const txt = el.textContent.trim();
+    const map = { "Core": "filter.core", "Executor": "filter.executor", "Phase": "filter.phase", "Status": "filter.status", "Search": "filter.search",
+                  "実行主体": "filter.executor", "フェーズ": "filter.phase", "状態": "filter.status", "検索": "filter.search" };
+    if (map[txt]) el.textContent = t(map[txt]);
+  });
+  // "all" filter buttons
+  document.querySelectorAll(".filter-btn[data-val='all']").forEach(b => b.textContent = t("filter.all"));
+  // Search placeholder
+  const ss = document.getElementById("idx-filter-search");
+  if (ss) ss.placeholder = t("filter.search.ph");
+  // Detail empty state (only updates if currently empty)
+  const dp = document.getElementById("detail-panel");
+  const empty = dp && dp.querySelector(".detail-empty");
+  if (empty) empty.textContent = t("detail.empty");
+  // Update topbar title if showing the static labels
+  const topTitleEl = document.getElementById("topbar-title");
+  if (topTitleEl && currentProcessName == null) {
+    topTitleEl.textContent = heatmapV.classList.contains("active")
+      ? t("topbar.heatmap")
+      : t("topbar.allProc");
+  }
+  if (heatmapV.classList.contains("active")) {
+    document.getElementById("topbar-sub").textContent = t("topbar.scoreFormula");
+  }
+  // Heatmap static labels
+  const hmH1 = document.querySelector("#heatmap-view .hm-h1");
+  if (hmH1) hmH1.textContent = t("hm.title");
+  const hmSub = document.querySelector("#heatmap-view .hm-sub");
+  if (hmSub) hmSub.innerHTML = t("hm.subA") + "<strong>" + t("hm.subB") + "</strong>" + t("hm.subC");
+  const hmCardTitle = document.querySelector("#heatmap-view .hm-card-title");
+  if (hmCardTitle) hmCardTitle.textContent = t("hm.gridTitle");
+  const hmCardSub = document.querySelector("#heatmap-view .hm-card-subtitle");
+  if (hmCardSub) hmCardSub.textContent = t("hm.gridSub");
+  document.querySelectorAll("#heatmap-view .hm-legend-dot").forEach((el, i) => {
+    const keys = ["hm.legend.manual", "hm.legend.partial", "hm.legend.automated"];
+    const txt = el.querySelector(":not(.sw)") || el.lastChild;
+    if (keys[i]) {
+      // find the text node
+      el.childNodes.forEach(n => { if (n.nodeType === 3) n.textContent = ""; });
+      el.appendChild(document.createTextNode(t(keys[i])));
+    }
+  });
+  const hmAxis = document.querySelector("#heatmap-view .hm-axis-x");
+  if (hmAxis) hmAxis.textContent = t("hm.axisX");
+  const guides = document.querySelectorAll("#heatmap-view .hm-guide");
+  if (guides[0]) {
+    guides[0].querySelector(".hm-guide-title").textContent = t("hm.guide.qwTitle");
+    guides[0].querySelector(".hm-guide-body").textContent  = t("hm.guide.qwBody");
+  }
+  if (guides[1]) {
+    guides[1].querySelector(".hm-guide-title").textContent = t("hm.guide.strTitle");
+    guides[1].querySelector(".hm-guide-body").textContent  = t("hm.guide.strBody");
+  }
+  if (guides[2]) {
+    guides[2].querySelector(".hm-guide-title").textContent = t("hm.guide.skipTitle");
+    guides[2].querySelector(".hm-guide-body").textContent  = t("hm.guide.skipBody");
+  }
+  const hmSideH2 = document.querySelector("#heatmap-view .hm-side-h2");
+  if (hmSideH2) hmSideH2.textContent = t("hm.top10");
+  const hmSideTag = document.querySelector("#heatmap-view .hm-side-tag");
+  if (hmSideTag) hmSideTag.textContent = t("hm.top10Tag");
+  const hmSideDesc = document.querySelector("#heatmap-view .hm-side-desc");
+  if (hmSideDesc) hmSideDesc.textContent = t("hm.top10Desc");
+  const hmExpH = document.querySelector("#heatmap-view .hm-score-explainer-h");
+  if (hmExpH) hmExpH.textContent = t("hm.scoreHow");
+  const hmExpBody = document.querySelector("#heatmap-view .hm-score-explainer-body");
+  if (hmExpBody) {
+    hmExpBody.innerHTML =
+      `<div><span class="term">${t("hm.score.pain")}</span> ${t("hm.score.painDef")}</div>` +
+      `<div><span class="term">${t("hm.score.ease")}</span> ${t("hm.score.easeDef")}</div>` +
+      `<div><span class="term">${t("hm.score.gap")}</span>${t("hm.score.gapDef")}</div>`;
+  }
+  // Heatmap dynamic re-render if active
+  if (heatmapV.classList.contains("active")) renderHeatmap();
+  // KPI / ptable rebuild
+  if (typeof renderOverviewBody === "function") renderOverviewBody();
+}
+
+let __langInitialized = false;
+function setLang(lang) {
+  currentLang = lang;
+  try { localStorage.setItem("bizspec-lang", lang); } catch (_) {}
+  document.querySelectorAll("[data-lang-set]").forEach(b =>
+    b.classList.toggle("active", b.dataset.langSet === lang));
+  if (__langInitialized) applyLangToStaticDom();
+}
+(function initLang() {
+  let saved = null;
+  try { saved = localStorage.getItem("bizspec-lang"); } catch (_) {}
+  if (saved === "en" || saved === "ja") setLang(saved);
+})();
 
 // ── Theme toggle ──────────────────────────────────────────
 function applyTheme(theme) {
@@ -5651,20 +6274,231 @@ document.querySelectorAll(".tb-theme-btn").forEach(b => {
   b.addEventListener("click", () => applyTheme(b.dataset.themeSet));
 });
 
+document.querySelectorAll("[data-lang-set]").forEach(b => {
+  b.addEventListener("click", () => setLang(b.dataset.langSet));
+});
+__langInitialized = true;
+applyLangToStaticDom();
+
 const topSubSep = document.getElementById("topbar-sub-sep");
+const heatmapV  = document.getElementById("heatmap-view");
+
+// ── Leverage scoring ──────────────────────────────────────
+const EASE_MAP = { low: 3, medium: 2, high: 1 };
+const GAP_MAP  = { manual: 3, "partially-automated": 2, automated: 0 };
+
+function unitCost(u) {
+  const d = u.effort && u.effort.duration, f = u.effort && u.effort.frequency;
+  return (d != null && f != null) ? d * f : 0;
+}
+function unitDifficulty(u) {
+  return (u.automation && u.automation.difficulty) || null;
+}
+function unitStatus(u) {
+  return (u.automation && u.automation.status) || null;
+}
+function unitLeverage(u) {
+  const pain = unitCost(u);
+  const ease = EASE_MAP[unitDifficulty(u)] || 0;
+  const gap  = GAP_MAP[unitStatus(u)];
+  if (pain <= 0 || ease <= 0 || gap == null) return 0;
+  return pain * ease * gap;
+}
+function leverageBand(score, max) {
+  if (max <= 0) return "mild";
+  const r = score / max;
+  return r > 0.66 ? "hot" : r > 0.33 ? "warm" : "mild";
+}
+
+// Flatten units across processes for heatmap; skip units with no automation/effort data.
+function allUnitsForHeatmap() {
+  const out = [];
+  Object.entries(ALL_DATA).forEach(([procName, proc]) => {
+    Object.entries(proc.units).forEach(([uname, u]) => {
+      if (unitCost(u) <= 0)        return;  // no cost data — skip
+      if (!unitDifficulty(u))      return;  // need difficulty for Y axis
+      if (!unitStatus(u))          return;  // need status for color
+      out.push({
+        procName, procDisplayName: proc.displayName || procName,
+        unitName: uname, unit: u,
+      });
+    });
+  });
+  return out;
+}
+
+// ── Heatmap rendering ────────────────────────────────────
+function renderHeatmap() {
+  const all = allUnitsForHeatmap();
+  const grid = document.getElementById("hm-grid");
+  const top  = document.getElementById("hm-top");
+  const kpi  = document.getElementById("hm-kpi-grid");
+  if (!grid || !top || !kpi) return;
+
+  if (!all.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;padding:24px;text-align:center;color:var(--text-muted);font-size:11px">' + escapeHtml(t("hm.empty")) + '</div>';
+    top.innerHTML  = '';
+    kpi.innerHTML  = '';
+    return;
+  }
+
+  const maxCost = Math.max(...all.map(x => unitCost(x.unit))) || 1;
+
+  const DIFF_ROWS = ["low", "medium", "high"];
+  const ROW_LABEL = { low: t("hm.row.low"), medium: t("hm.row.medium"), high: t("hm.row.high") };
+  const ROW_HINT  = { low: t("hm.hint.low"), medium: t("hm.hint.medium"), high: t("hm.hint.high") };
+  // Cost columns reversed: highest on the LEFT so quick-wins land top-left.
+  const COL_LABEL = [t("hm.col.top25"), t("hm.col.le50"), t("hm.col.le75"), t("hm.col.le100")];
+  const colBoundaries = [0.0, 0.25, 0.5, 0.75, 1.0];
+  function colIndex(cost) {
+    const r = cost / maxCost;
+    if (r > colBoundaries[3]) return 0;
+    if (r > colBoundaries[2]) return 1;
+    if (r > colBoundaries[1]) return 2;
+    return 3;
+  }
+
+  // Bucket units into cells
+  const cells = {};
+  DIFF_ROWS.forEach(d => COL_LABEL.forEach((_, ci) => { cells[`${d}|${ci}`] = []; }));
+  all.forEach(item => {
+    const row = unitDifficulty(item.unit);
+    const col = colIndex(unitCost(item.unit));
+    if (cells[`${row}|${col}`]) cells[`${row}|${col}`].push(item);
+  });
+
+  // Render KPIs
+  const totalUnits  = all.length;
+  const manualUnits = all.filter(x => unitStatus(x.unit) === "manual").length;
+  const totalHours  = all.reduce((s, x) => s + unitCost(x.unit), 0);
+  const manualHours = all.filter(x => unitStatus(x.unit) === "manual").reduce((s, x) => s + unitCost(x.unit), 0);
+  const topItems = [...all]
+    .map(x => ({ ...x, score: unitLeverage(x.unit) }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+  const topScore = topItems[0]?.score ?? 0;
+  const topName  = topItems[0]?.unitName ?? "—";
+  const manualPct = Math.round(manualUnits / totalUnits * 100);
+
+  kpi.innerHTML = [
+    [t("hm.kpi.totalUnits"),  totalUnits,           ""],
+    [t("hm.kpi.manualUnits"), manualUnits,          t("hm.kpi.ofTotal", { pct: manualPct })],
+    [t("hm.kpi.manualHours"), `${manualHours}h`,    t("hm.kpi.ofMonthly", { total: totalHours })],
+    [t("hm.kpi.topScore"),    topScore,             topName],
+  ].map(([k, v, sub]) => `
+    <div class="hm-kpi">
+      <div class="hm-kpi-label">${k}</div>
+      <div class="hm-kpi-val">${v}</div>
+      ${sub ? `<div class="hm-kpi-sub">${escapeHtml(String(sub))}</div>` : ""}
+    </div>`).join("");
+
+  // Render grid
+  let html =
+    `<div class="hm-grid-corner">${t("hm.diff")}</div>` +
+    COL_LABEL.map((c, i) =>
+      `<div class="hm-grid-col-head"><span>${t("hm.costPrefix")} ${c}</span><span class="max">≤ ${Math.round(maxCost * colBoundaries[i + 1])}h</span></div>`
+    ).join("");
+  DIFF_ROWS.forEach(d => {
+    html += `<div class="hm-grid-row-head"><span class="hm-grid-row-name">${ROW_LABEL[d]}</span><span class="hm-grid-row-hint">${ROW_HINT[d]}</span></div>`;
+    COL_LABEL.forEach((_c, ci) => {
+      const items = cells[`${d}|${ci}`];
+      const isSweet = d === "low" && ci === 0;
+      html += `<div class="hm-cell${isSweet ? " sweet" : ""}">`;
+      if (isSweet) html += `<div class="hm-cell-quickwin">${t("hm.quickWin")}</div>`;
+      if (!items.length) {
+        html += `<span class="hm-cell-empty">—</span>`;
+      } else {
+        html += `<div class="hm-cell-list">` + items.map(it => {
+          const status = unitStatus(it.unit);
+          const cls = status === "manual" ? "manual" : status === "partially-automated" ? "partial" : "automated";
+          const cost  = unitCost(it.unit);
+          const score = unitLeverage(it.unit);
+          const tip = `${it.procDisplayName} · ${it.unitName}\nstatus: ${status}\ncost: ${cost}h/mo · score: ${score}`;
+          return `<div class="hm-chip ${cls}" title="${escapeHtml(tip)}" data-proc="${escapeAttr(it.procName)}" data-unit="${escapeAttr(it.unitName)}">${escapeHtml(it.unitName)}</div>`;
+        }).join("") + `</div>`;
+      }
+      html += `</div>`;
+    });
+  });
+  grid.innerHTML = html;
+
+  // Render Top 10
+  const maxScore = topItems[0]?.score || 1;
+  top.innerHTML = topItems.map((it, i) => {
+    const status = unitStatus(it.unit);
+    const statCls = status === "manual" ? "stat-manual" : status === "partially-automated" ? "stat-partial" : "stat-automated";
+    const statLabel = status === "partially-automated" ? "partial" : status;
+    const band = leverageBand(it.score, maxScore);
+    const barColor = band === "hot" ? "var(--danger)" : band === "warm" ? "var(--warn)" : "var(--accent)";
+    const ratio = it.score / maxScore;
+    return `
+      <div class="hm-top-row" data-proc="${escapeAttr(it.procName)}" data-unit="${escapeAttr(it.unitName)}">
+        <div class="hm-top-head">
+          <span class="hm-top-rank">${String(i + 1).padStart(2, "0")}</span>
+          <span class="hm-top-name">${escapeHtml(it.unitName)}</span>
+          <span class="hm-top-score" style="color:${barColor}">${it.score}</span>
+        </div>
+        <div class="hm-top-meta">
+          <span class="proc">${escapeHtml(it.procDisplayName)}</span>
+          <span class="sep">·</span>
+          <span>${unitCost(it.unit)}h/mo</span>
+          <span class="sep">·</span>
+          <span class="${statCls}">${statLabel}</span>
+          <span class="sep">·</span>
+          <span>diff: ${unitDifficulty(it.unit)}</span>
+        </div>
+        <div class="hm-top-bar"><div class="hm-top-bar-fill" style="width:${Math.round(ratio * 100)}%;background:${barColor}"></div></div>
+      </div>`;
+  }).join("");
+
+  // Wire chip / row clicks → jump to that unit's flow view
+  grid.querySelectorAll(".hm-chip[data-proc]").forEach(el => {
+    el.addEventListener("click", () => jumpToUnit(el.dataset.proc, el.dataset.unit));
+  });
+  top.querySelectorAll(".hm-top-row[data-proc]").forEach(el => {
+    el.addEventListener("click", () => jumpToUnit(el.dataset.proc, el.dataset.unit));
+  });
+}
+
+function escapeHtml(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function escapeAttr(s) { return escapeHtml(s).replace(/'/g, "&#39;"); }
+
+function jumpToUnit(procName, unitName) {
+  showProcess(procName);
+  // wait for flow render then select
+  requestAnimationFrame(() => requestAnimationFrame(() => jumpTo(unitName)));
+}
+
+// ── View switcher (Heatmap tab activation) ────────────────
+function showHeatmap() {
+  currentProcessName = null;
+  overviewV.style.display = "none";
+  flowV.style.display = "none";
+  heatmapV.classList.add("active");
+  backBtn.style.display = "flex";
+  topTitle.textContent = "Heatmap";
+  topSub.textContent = "leverage = cost × ease × gap";
+  topSubSep.style.display = "";
+  document.querySelectorAll(".sb-item").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll("#tabs .tab").forEach(t =>
+    t.classList.toggle("active", t.dataset.view === "heatmap"));
+  renderHeatmap();
+}
 
 // ── Navigation ────────────────────────────────────────────
 function showOverview() {
   currentProcessName = null;
   overviewV.style.display = "";
   flowV.style.display = "none";
+  heatmapV.classList.remove("active");
   backBtn.style.display = "none";
   topTitle.textContent = "All Processes";
   topSub.textContent = "";
   topSubSep.style.display = "none";
   document.querySelectorAll(".sb-item").forEach(el => el.classList.remove("active"));
   document.querySelectorAll("#tabs .tab").forEach(t =>
-    t.classList.toggle("active", t.textContent === "Overview"));
+    t.classList.toggle("active", t.dataset.view === "overview"));
   requestAnimationFrame(() => renderOverviewEdges());
 }
 
@@ -5674,6 +6508,7 @@ function showProcess(name) {
   currentProcessName = name;
   overviewV.style.display = "none";
   flowV.style.display = "flex";
+  heatmapV.classList.remove("active");
   backBtn.style.display = "flex";
   topTitle.textContent = proc.displayName || name;
   const subText = proc.displayName ? `${name} · ${proc.stats.unit_count} units` : `${proc.stats.unit_count} units`;
@@ -5681,7 +6516,7 @@ function showProcess(name) {
   topSubSep.style.display = subText ? "" : "none";
   // Tab "Graph" reflects we're now inside a process flow view
   document.querySelectorAll("#tabs .tab").forEach(t =>
-    t.classList.toggle("active", t.textContent === "Graph"));
+    t.classList.toggle("active", t.dataset.view === "graph"));
   document.querySelectorAll(".sb-item").forEach(el =>
     el.classList.toggle("active", el.dataset.proc === name));
   renderFlow(proc);
@@ -5950,6 +6785,16 @@ function jumpTo(name) {
   renderDetail(name);
   el.scrollIntoView({ behavior: "smooth", block: "center" });
 }
+
+// ── Tab navigation ───────────────────────────────────────
+document.querySelectorAll("#tabs .tab[data-view]").forEach(tab => {
+  tab.addEventListener("click", () => {
+    const v = tab.dataset.view;
+    if (v === "overview")      showOverview();
+    else if (v === "heatmap")  showHeatmap();
+    // graph / processes / yaml: no-op for now
+  });
+});
 
 // ── Filter ───────────────────────────────────────────────
 const filterState = { core: "all", executor: "all", phase: "all", status: "all", search: "" };
