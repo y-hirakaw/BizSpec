@@ -6,6 +6,29 @@ from pathlib import Path
 
 _SKILLS_SRC = Path(__file__).parent / "skills"
 
+_CONFIG_YAML_TEMPLATE = """\
+# BizSpec プロジェクト設定
+# 未指定キーは内部デフォルトが使われます。
+
+viz:
+  heatmap:
+    # cost X 軸のバケット方式
+    #   relative: 全 unit の cost を count-balanced quartile (= 25/50/75 パーセンタイル)
+    #   fixed:    cost_thresholds で固定閾値 (時系列比較が必要なときはこちら)
+    cost_mode: relative
+    # cost_mode: fixed のときに使う 3 個の境界 (h/月、昇順)
+    # 例: [1, 4, 20] → ≤1h / 1<x≤4 / 4<x≤20 / >20 の 4 列
+    cost_thresholds: [1, 4, 20]
+
+  flow:
+    # 1 プロセス DAG 内のノード heat (low/medium/high) のバケット方式
+    #   relative: プロセス内の cost を count-balanced で 3 等分
+    #   fixed:    cost_thresholds で固定閾値
+    cost_mode: relative
+    # cost_mode: fixed のときの 2 個の境界 (h/月、昇順)
+    cost_thresholds: [4, 20]
+"""
+
 
 def _local_dest() -> Path:
     return Path.cwd() / ".claude" / "skills"
@@ -63,5 +86,9 @@ def run_init(_args) -> int:
         if not bizspec_dir.exists():
             bizspec_dir.mkdir()
             print(f"  bizspec/ フォルダを作成しました")
+        config_path = bizspec_dir / "config.yaml"
+        if not config_path.exists():
+            config_path.write_text(_CONFIG_YAML_TEMPLATE, encoding="utf-8")
+            print(f"  bizspec/config.yaml を作成しました")
 
     return 0

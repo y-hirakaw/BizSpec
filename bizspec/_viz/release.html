@@ -1127,6 +1127,7 @@ const units     = {
 };
 const positions = {"リリースノート作成": {"left": 40, "top": 24}, "リリース判定": {"left": 40, "top": 134}, "リリースブランチ作成": {"left": 40, "top": 244}, "ステージング確認": {"left": 40, "top": 354}, "本番デプロイ": {"left": 40, "top": 464}, "動作確認": {"left": 40, "top": 574}};
 const edges     = [["ステージング確認", "本番デプロイ", "seq"], ["リリースノート作成", "リリース判定", "seq"], ["リリースブランチ作成", "ステージング確認", "seq"], ["リリース判定", "リリースブランチ作成", "seq"], ["本番デプロイ", "動作確認", "seq"]];
+const VIZ_CONFIG = {"viz": {"heatmap": {"cost_mode": "relative", "cost_thresholds": [1, 4, 20]}, "flow": {"cost_mode": "relative", "cost_thresholds": [4, 20]}}};
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
@@ -1240,12 +1241,20 @@ function computeHeat(unitMap) {
       return (d != null && f != null) ? {name: n, cost: d * f} : null;
     }).filter(Boolean);
   if (!costs.length) return {};
-  const sorted = [...costs].sort((a, b) => a.cost - b.cost);
-  const n = sorted.length;
+  const flowCfg = (VIZ_CONFIG.viz && VIZ_CONFIG.viz.flow) || {};
   const heat = {};
-  sorted.forEach(({name, cost}, i) => {
-    heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
-  });
+  if (flowCfg.cost_mode === "fixed" && Array.isArray(flowCfg.cost_thresholds) && flowCfg.cost_thresholds.length === 2) {
+    const [t1, t2] = flowCfg.cost_thresholds;
+    costs.forEach(({name, cost}) => {
+      heat[name] = cost <= t1 ? "low" : cost <= t2 ? "medium" : "high";
+    });
+  } else {
+    const sorted = [...costs].sort((a, b) => a.cost - b.cost);
+    const n = sorted.length;
+    sorted.forEach(({name}, i) => {
+      heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
+    });
+  }
   return heat;
 }
 const heatMap = computeHeat(units);

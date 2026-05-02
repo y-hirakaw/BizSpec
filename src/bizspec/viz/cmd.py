@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from ..core.config import load_config
 from ..core.loader import load_units, load_process_meta
 from .builder import _generate_html, _generate_index_html
 
@@ -31,6 +32,8 @@ def run_viz(args) -> int:
     out_dir = bizspec_dir / "_viz"
     out_dir.mkdir(exist_ok=True)
 
+    config = load_config(bizspec_dir)
+
     generated = 0
     all_units: dict[str, list[dict]] = {}
     all_display_names: dict[str, str] = {}
@@ -40,7 +43,7 @@ def run_viz(args) -> int:
             continue
         meta = load_process_meta(process_dir)
         display_name = meta.get("name") or None
-        html = _generate_html(process_dir.name, units, display_name=display_name)
+        html = _generate_html(process_dir.name, units, display_name=display_name, config=config)
         if not html:
             continue
         out_path = out_dir / f"{process_dir.name}.html"
@@ -57,7 +60,7 @@ def run_viz(args) -> int:
 
     # 引数なし（全プロセス対象）のときだけ index.html も生成する
     if not getattr(args, "process", None) and len(all_units) > 1:
-        index_html = _generate_index_html(all_units, display_names=all_display_names)
+        index_html = _generate_index_html(all_units, display_names=all_display_names, config=config)
         if index_html:
             index_path = out_dir / "index.html"
             index_path.write_text(index_html, encoding="utf-8")

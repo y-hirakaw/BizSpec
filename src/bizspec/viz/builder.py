@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from importlib.resources import files
 
+from ..core.config import DEFAULT_CONFIG
 from .layout import _topo_levels, _compute_layout, _build_edges
 
 
@@ -69,7 +70,12 @@ def _process_stats(units: list[dict]) -> dict:
     return {"unit_count": len(units), "phases": phases, "executor": exe, "core_count": core_count}
 
 
-def _generate_html(process_name: str, units: list[dict], display_name: str | None = None) -> str:
+def _generate_html(
+    process_name: str,
+    units: list[dict],
+    display_name: str | None = None,
+    config: dict | None = None,
+) -> str:
     if not units:
         return ""
 
@@ -87,9 +93,11 @@ def _generate_html(process_name: str, units: list[dict], display_name: str | Non
     else:
         subtitle = f"{len(units)} units{phase_str}"
 
+    cfg = config if config is not None else DEFAULT_CONFIG
     units_json     = json.dumps(units_js,   ensure_ascii=False, indent=2)
     positions_json = json.dumps(positions,  ensure_ascii=False)
     edges_json     = json.dumps(edges,      ensure_ascii=False)
+    config_json    = json.dumps(cfg,        ensure_ascii=False)
 
     html = _TEMPLATE_PROCESS
     html = html.replace("__PROCESS_NAME__", title)
@@ -99,12 +107,14 @@ def _generate_html(process_name: str, units: list[dict], display_name: str | Non
     html = html.replace("__UNITS_JSON__",   units_json)
     html = html.replace("__POSITIONS_JSON__", positions_json)
     html = html.replace("__EDGES_JSON__",   edges_json)
+    html = html.replace("__VIZ_CONFIG_JSON__", config_json)
     return html
 
 
 def _generate_index_html(
     processes: dict[str, list[dict]],
     display_names: dict[str, str] | None = None,
+    config: dict | None = None,
 ) -> str:
     all_data: dict[str, dict] = {}
     for name, units in processes.items():
@@ -144,8 +154,11 @@ def _generate_index_html(
                     seen_cross.add(key)
                     cross_edges.append({"from": from_proc, "to": to_proc})
 
+    cfg = config if config is not None else DEFAULT_CONFIG
     all_data_json = json.dumps(all_data, ensure_ascii=False, indent=2)
     cross_edges_json = json.dumps(cross_edges, ensure_ascii=False)
+    config_json = json.dumps(cfg, ensure_ascii=False)
     return (_TEMPLATE_INDEX
         .replace("__ALL_DATA_JSON__", all_data_json)
-        .replace("__CROSS_EDGES_JSON__", cross_edges_json))
+        .replace("__CROSS_EDGES_JSON__", cross_edges_json)
+        .replace("__VIZ_CONFIG_JSON__", config_json))

@@ -1123,6 +1123,7 @@ const units     = {
 };
 const positions = {"インシデント検知": {"left": 40, "top": 24}, "影響範囲調査": {"left": 40, "top": 134}, "一次対応": {"left": 40, "top": 244}, "根本原因分析": {"left": 40, "top": 354}, "恒久対策実装": {"left": 40, "top": 464}, "ポストモーテム作成": {"left": 40, "top": 574}};
 const edges     = [["インシデント検知", "影響範囲調査", "seq"], ["一次対応", "根本原因分析", "seq"], ["影響範囲調査", "一次対応", "seq"], ["恒久対策実装", "ポストモーテム作成", "seq"], ["根本原因分析", "恒久対策実装", "seq"]];
+const VIZ_CONFIG = {"viz": {"heatmap": {"cost_mode": "relative", "cost_thresholds": [1, 4, 20]}, "flow": {"cost_mode": "relative", "cost_thresholds": [4, 20]}}};
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
@@ -1236,12 +1237,20 @@ function computeHeat(unitMap) {
       return (d != null && f != null) ? {name: n, cost: d * f} : null;
     }).filter(Boolean);
   if (!costs.length) return {};
-  const sorted = [...costs].sort((a, b) => a.cost - b.cost);
-  const n = sorted.length;
+  const flowCfg = (VIZ_CONFIG.viz && VIZ_CONFIG.viz.flow) || {};
   const heat = {};
-  sorted.forEach(({name, cost}, i) => {
-    heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
-  });
+  if (flowCfg.cost_mode === "fixed" && Array.isArray(flowCfg.cost_thresholds) && flowCfg.cost_thresholds.length === 2) {
+    const [t1, t2] = flowCfg.cost_thresholds;
+    costs.forEach(({name, cost}) => {
+      heat[name] = cost <= t1 ? "low" : cost <= t2 ? "medium" : "high";
+    });
+  } else {
+    const sorted = [...costs].sort((a, b) => a.cost - b.cost);
+    const n = sorted.length;
+    sorted.forEach(({name}, i) => {
+      heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
+    });
+  }
   return heat;
 }
 const heatMap = computeHeat(units);

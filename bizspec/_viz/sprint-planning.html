@@ -1072,6 +1072,7 @@ const units     = {
 };
 const positions = {"バックログ優先順位確認": {"left": 0, "top": 24}, "ベロシティ確認": {"left": 220, "top": 24}, "スコープ決定": {"left": 110, "top": 134}, "タスク分解": {"left": 110, "top": 244}, "スプリントゴール設定": {"left": 110, "top": 354}};
 const edges     = [["スコープ決定", "タスク分解", "seq"], ["タスク分解", "スプリントゴール設定", "seq"], ["バックログ優先順位確認", "スコープ決定", "seq"], ["ベロシティ確認", "スコープ決定", "seq"]];
+const VIZ_CONFIG = {"viz": {"heatmap": {"cost_mode": "relative", "cost_thresholds": [1, 4, 20]}, "flow": {"cost_mode": "relative", "cost_thresholds": [4, 20]}}};
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
@@ -1185,12 +1186,20 @@ function computeHeat(unitMap) {
       return (d != null && f != null) ? {name: n, cost: d * f} : null;
     }).filter(Boolean);
   if (!costs.length) return {};
-  const sorted = [...costs].sort((a, b) => a.cost - b.cost);
-  const n = sorted.length;
+  const flowCfg = (VIZ_CONFIG.viz && VIZ_CONFIG.viz.flow) || {};
   const heat = {};
-  sorted.forEach(({name, cost}, i) => {
-    heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
-  });
+  if (flowCfg.cost_mode === "fixed" && Array.isArray(flowCfg.cost_thresholds) && flowCfg.cost_thresholds.length === 2) {
+    const [t1, t2] = flowCfg.cost_thresholds;
+    costs.forEach(({name, cost}) => {
+      heat[name] = cost <= t1 ? "low" : cost <= t2 ? "medium" : "high";
+    });
+  } else {
+    const sorted = [...costs].sort((a, b) => a.cost - b.cost);
+    const n = sorted.length;
+    sorted.forEach(({name}, i) => {
+      heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
+    });
+  }
   return heat;
 }
 const heatMap = computeHeat(units);

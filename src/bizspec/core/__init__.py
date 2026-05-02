@@ -7,6 +7,7 @@
 loader は使わず独自実装を保持している。
 """
 
+from .config import DEFAULT_CONFIG, load_config
 from .errors import VError
 from .loader import (
     iter_processes,
@@ -29,6 +30,9 @@ from .model import (
 )
 
 __all__ = [
+    # config
+    "DEFAULT_CONFIG",
+    "load_config",
     # errors
     "VError",
     # loader

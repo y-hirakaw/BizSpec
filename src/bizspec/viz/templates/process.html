@@ -824,6 +824,7 @@ svg.arrows-layer {
 const units     = __UNITS_JSON__;
 const positions = __POSITIONS_JSON__;
 const edges     = __EDGES_JSON__;
+const VIZ_CONFIG = __VIZ_CONFIG_JSON__;
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
@@ -937,12 +938,20 @@ function computeHeat(unitMap) {
       return (d != null && f != null) ? {name: n, cost: d * f} : null;
     }).filter(Boolean);
   if (!costs.length) return {};
-  const sorted = [...costs].sort((a, b) => a.cost - b.cost);
-  const n = sorted.length;
+  const flowCfg = (VIZ_CONFIG.viz && VIZ_CONFIG.viz.flow) || {};
   const heat = {};
-  sorted.forEach(({name, cost}, i) => {
-    heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
-  });
+  if (flowCfg.cost_mode === "fixed" && Array.isArray(flowCfg.cost_thresholds) && flowCfg.cost_thresholds.length === 2) {
+    const [t1, t2] = flowCfg.cost_thresholds;
+    costs.forEach(({name, cost}) => {
+      heat[name] = cost <= t1 ? "low" : cost <= t2 ? "medium" : "high";
+    });
+  } else {
+    const sorted = [...costs].sort((a, b) => a.cost - b.cost);
+    const n = sorted.length;
+    sorted.forEach(({name}, i) => {
+      heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
+    });
+  }
   return heat;
 }
 const heatMap = computeHeat(units);
