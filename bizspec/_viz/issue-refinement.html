@@ -1278,7 +1278,6 @@ const units     = {
 };
 const positions = {"PBI情報取得": {"left": 220, "top": 24}, "記載内容妥当性評価": {"left": 220, "top": 134}, "Ready判定": {"left": 220, "top": 244}, "ストーリーポイント算出": {"left": 220, "top": 354}, "技術PBI分解要否判断": {"left": 220, "top": 464}, "分解パターン選択": {"left": 220, "top": 574}, "スコープ別PBI分割": {"left": 0, "top": 684}, "スパイクPBI作成": {"left": 220, "top": 684}, "プラットフォーム別PBI分割": {"left": 440, "top": 684}};
 const edges     = [["PBI情報取得", "記載内容妥当性評価", "seq"], ["Ready判定", "ストーリーポイント算出", "seq"], ["スコープ別PBI分割", "スパイクPBI作成", "parallel"], ["ストーリーポイント算出", "技術PBI分解要否判断", "seq"], ["分解パターン選択", "プラットフォーム別PBI分割", "seq"], ["分解パターン選択", "スパイクPBI作成", "seq"], ["分解パターン選択", "スコープ別PBI分割", "seq"], ["技術PBI分解要否判断", "分解パターン選択", "seq"], ["記載内容妥当性評価", "Ready判定", "seq"], ["記載内容妥当性評価", "技術PBI分解要否判断", "seq"]];
-const VIZ_CONFIG = {"viz": {"heatmap": {"cost_mode": "relative", "cost_thresholds": [1, 4, 20]}, "flow": {"cost_mode": "relative", "cost_thresholds": [4, 20]}}};
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
@@ -1392,20 +1391,12 @@ function computeHeat(unitMap) {
       return (d != null && f != null) ? {name: n, cost: d * f} : null;
     }).filter(Boolean);
   if (!costs.length) return {};
-  const flowCfg = (VIZ_CONFIG.viz && VIZ_CONFIG.viz.flow) || {};
+  const sorted = [...costs].sort((a, b) => a.cost - b.cost);
+  const n = sorted.length;
   const heat = {};
-  if (flowCfg.cost_mode === "fixed" && Array.isArray(flowCfg.cost_thresholds) && flowCfg.cost_thresholds.length === 2) {
-    const [t1, t2] = flowCfg.cost_thresholds;
-    costs.forEach(({name, cost}) => {
-      heat[name] = cost <= t1 ? "low" : cost <= t2 ? "medium" : "high";
-    });
-  } else {
-    const sorted = [...costs].sort((a, b) => a.cost - b.cost);
-    const n = sorted.length;
-    sorted.forEach(({name}, i) => {
-      heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
-    });
-  }
+  sorted.forEach(({name, cost}, i) => {
+    heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
+  });
   return heat;
 }
 const heatMap = computeHeat(units);

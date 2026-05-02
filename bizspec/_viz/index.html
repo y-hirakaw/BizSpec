@@ -1281,9 +1281,41 @@ svg.arrows-layer {
   font-size: 11.5px;
   color: var(--text-muted);
 }
+.hm-card-controls {
+  display: flex; align-items: center; gap: 14px;
+}
 .hm-card-legend {
   display: flex; gap: 10px;
   font-size: 10.5px; color: var(--text-secondary);
+}
+.hm-mode-toggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--bg-elevated);
+}
+.hm-mode-btn {
+  padding: 4px 10px;
+  font-size: 10.5px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background .15s var(--ease), color .15s var(--ease);
+}
+.hm-mode-btn:not(:last-child) { border-right: 1px solid var(--border); }
+.hm-mode-btn.active {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.hm-mode-btn:hover:not(.active) { color: var(--text-primary); }
+.hm-mode-btn:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
 }
 .hm-legend-dot {
   display: inline-flex; align-items: center; gap: 4px;
@@ -1607,10 +1639,16 @@ svg.arrows-layer {
               <div class="hm-card-title">Effort × Difficulty</div>
               <div class="hm-card-subtitle">Y: 自動化の難易度 · X: 月間コスト · 色: status</div>
             </div>
-            <div class="hm-card-legend">
-              <span class="hm-legend-dot" style="color: var(--danger);"><span class="sw" style="background: rgba(220,38,38,0.10);"></span>manual</span>
-              <span class="hm-legend-dot" style="color: var(--warn);"><span class="sw" style="background: rgba(217,119,6,0.12);"></span>partial</span>
-              <span class="hm-legend-dot" style="color: var(--text-muted);"><span class="sw" style="background: rgba(163,163,163,0.18);"></span>automated</span>
+            <div class="hm-card-controls">
+              <div class="hm-mode-toggle" id="hm-mode-toggle" role="group" aria-label="bucket mode">
+                <button class="hm-mode-btn active" data-hm-mode="relative">Relative</button>
+                <button class="hm-mode-btn" data-hm-mode="fixed">Fixed</button>
+              </div>
+              <div class="hm-card-legend">
+                <span class="hm-legend-dot" style="color: var(--danger);"><span class="sw" style="background: rgba(220,38,38,0.10);"></span>manual</span>
+                <span class="hm-legend-dot" style="color: var(--warn);"><span class="sw" style="background: rgba(217,119,6,0.12);"></span>partial</span>
+                <span class="hm-legend-dot" style="color: var(--text-muted);"><span class="sw" style="background: rgba(163,163,163,0.18);"></span>automated</span>
+              </div>
             </div>
           </div>
           <div id="hm-grid" class="hm-grid"></div>
@@ -5638,7 +5676,7 @@ const ALL_DATA   = {
   }
 };
 const CROSS_EDGES = [{"from": "pr-review", "to": "bug-fix"}, {"from": "bug-fix", "to": "incident-response"}, {"from": "issue-refinement", "to": "pr-review"}, {"from": "implementation", "to": "pr-review"}, {"from": "pr-review", "to": "release"}, {"from": "testing", "to": "release"}, {"from": "issue-refinement", "to": "sprint-planning"}];
-const VIZ_CONFIG  = {"viz": {"heatmap": {"cost_mode": "relative", "cost_thresholds": [1, 4, 20]}, "flow": {"cost_mode": "relative", "cost_thresholds": [4, 20]}}};
+const VIZ_CONFIG  = {"viz": {"heatmap": {"cost_thresholds": [1, 4, 20]}}};
 
 /* ── i18n ──────────────────────────────────────────────── */
 const STRINGS = {
@@ -6241,6 +6279,40 @@ function setLang(lang) {
   if (saved === "en" || saved === "ja") setLang(saved);
 })();
 
+// ── Heatmap bucket-mode toggle (relative ↔ fixed) ────────
+let heatmapMode = "relative";
+(function initHeatmapMode() {
+  const ths = VIZ_CONFIG.viz && VIZ_CONFIG.viz.heatmap && VIZ_CONFIG.viz.heatmap.cost_thresholds;
+  const fixedAvailable = Array.isArray(ths) && ths.length === 3;
+  let saved = null;
+  try { saved = localStorage.getItem("bizspec-heatmap-mode"); } catch (_) {}
+  if ((saved === "fixed" && fixedAvailable) || saved === "relative") {
+    heatmapMode = saved;
+  }
+  if (!fixedAvailable) {
+    const fixedBtn = document.querySelector("[data-hm-mode='fixed']");
+    if (fixedBtn) {
+      fixedBtn.disabled = true;
+      fixedBtn.title = "set viz.heatmap.cost_thresholds in bizspec/config.yaml to enable";
+    }
+  }
+  document.querySelectorAll("[data-hm-mode]").forEach(b =>
+    b.classList.toggle("active", b.dataset.hmMode === heatmapMode));
+})();
+function setHeatmapMode(mode) {
+  heatmapMode = mode;
+  try { localStorage.setItem("bizspec-heatmap-mode", mode); } catch (_) {}
+  document.querySelectorAll("[data-hm-mode]").forEach(b =>
+    b.classList.toggle("active", b.dataset.hmMode === mode));
+  if (heatmapV.classList.contains("active")) renderHeatmap();
+}
+document.querySelectorAll("[data-hm-mode]").forEach(b => {
+  b.addEventListener("click", () => {
+    if (b.disabled) return;
+    setHeatmapMode(b.dataset.hmMode);
+  });
+});
+
 // ── Theme toggle ──────────────────────────────────────────
 function applyTheme(theme) {
   document.body.setAttribute("data-theme", theme);
@@ -6343,17 +6415,20 @@ function renderHeatmap() {
     return;
   }
 
-  // Bucket cost into 4 columns. Two modes (configurable in bizspec/config.yaml):
+  // Bucket cost into 4 columns. Mode is a UI toggle (state in heatmapMode).
   //   relative: count-balanced quartile of current data
   //              (handles right-skewed distributions; same data ⇒ similar shape)
-  //   fixed:    user-specified cost thresholds [t1, t2, t3] in h/月 (ascending)
+  //   fixed:    cost_thresholds from bizspec/config.yaml
   //              (stable across runs; comparable across snapshots)
   const hmCfg = (VIZ_CONFIG.viz && VIZ_CONFIG.viz.heatmap) || {};
   const sortedCosts = all.map(x => unitCost(x.unit)).sort((a, b) => a - b);
   const nCost = sortedCosts.length;
   const maxCost = sortedCosts[nCost - 1] || 1;
   let q1, q2, q3;
-  if (hmCfg.cost_mode === "fixed" && Array.isArray(hmCfg.cost_thresholds) && hmCfg.cost_thresholds.length === 3) {
+  const useFixed = heatmapMode === "fixed"
+    && Array.isArray(hmCfg.cost_thresholds)
+    && hmCfg.cost_thresholds.length === 3;
+  if (useFixed) {
     [q1, q2, q3] = hmCfg.cost_thresholds;
   } else {
     q1 = sortedCosts[Math.max(0, Math.floor(nCost * 0.25) - 1)];
@@ -6575,20 +6650,12 @@ function computeHeat(unitMap) {
       return (d != null && f != null) ? {name: n, cost: d * f} : null;
     }).filter(Boolean);
   if (!costs.length) return {};
-  const flowCfg = (VIZ_CONFIG.viz && VIZ_CONFIG.viz.flow) || {};
+  const sorted = [...costs].sort((a, b) => a.cost - b.cost);
+  const n = sorted.length;
   const heat = {};
-  if (flowCfg.cost_mode === "fixed" && Array.isArray(flowCfg.cost_thresholds) && flowCfg.cost_thresholds.length === 2) {
-    const [t1, t2] = flowCfg.cost_thresholds;
-    costs.forEach(({name, cost}) => {
-      heat[name] = cost <= t1 ? "low" : cost <= t2 ? "medium" : "high";
-    });
-  } else {
-    const sorted = [...costs].sort((a, b) => a.cost - b.cost);
-    const n = sorted.length;
-    sorted.forEach(({name}, i) => {
-      heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
-    });
-  }
+  sorted.forEach(({name}, i) => {
+    heat[name] = i < Math.ceil(n / 3) ? "low" : i < Math.ceil(2 * n / 3) ? "medium" : "high";
+  });
   return heat;
 }
 

@@ -15,19 +15,10 @@ import yaml
 DEFAULT_CONFIG: dict = {
     "viz": {
         "heatmap": {
-            # cost 列バケット方式
-            #   "relative": 全 unit の cost を count-balanced quartile (= 25/50/75 パーセンタイル)
-            #   "fixed":    cost_thresholds で固定閾値
-            "cost_mode": "relative",
-            # cost_mode == "fixed" のときに使う 3 個の境界 (h/月、昇順)
+            # heatmap の cost X 軸を fixed モードに切り替えたときに使う 3 個の境界
+            # (h/月、昇順)。relative/fixed のモード切替は HTML 上のトグルで行う。
             # 例: [1, 4, 20] → ≤1h / 1<x≤4 / 4<x≤20 / >20 の 4 列
             "cost_thresholds": [1, 4, 20],
-        },
-        "flow": {
-            # 1 プロセス DAG 内のノード heat (low/medium/high) のバケット方式
-            "cost_mode": "relative",
-            # cost_mode == "fixed" のときの 2 個の境界 (h/月、昇順)
-            "cost_thresholds": [4, 20],
         },
     },
 }

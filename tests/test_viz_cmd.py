@@ -620,32 +620,22 @@ class TestIndexHtmlStructure:
         m = re.search(r"const VIZ_CONFIG\s*=\s*({.*?});", html, re.DOTALL)
         assert m, "VIZ_CONFIG assignment missing"
         cfg = json.loads(m.group(1))
-        assert cfg["viz"]["heatmap"]["cost_mode"] == "relative"
         assert cfg["viz"]["heatmap"]["cost_thresholds"] == [1, 4, 20]
-        assert cfg["viz"]["flow"]["cost_mode"] == "relative"
 
     def test_viz_config_override_round_trips(self):
         import json, re
-        custom = {
-            "viz": {
-                "heatmap": {"cost_mode": "fixed", "cost_thresholds": [2, 8, 40]},
-                "flow":    {"cost_mode": "fixed", "cost_thresholds": [3, 12]},
-            },
-        }
+        custom = {"viz": {"heatmap": {"cost_thresholds": [2, 8, 40]}}}
         html = _generate_index_html(self._procs(), config=custom)
         m = re.search(r"const VIZ_CONFIG\s*=\s*({.*?});", html, re.DOTALL)
         cfg = json.loads(m.group(1))
-        assert cfg["viz"]["heatmap"]["cost_mode"] == "fixed"
         assert cfg["viz"]["heatmap"]["cost_thresholds"] == [2, 8, 40]
-        assert cfg["viz"]["flow"]["cost_thresholds"] == [3, 12]
 
-    def test_viz_config_embedded_in_process(self):
-        import json, re
-        html = _generate_html("proc", [make_unit("A")])
-        m = re.search(r"const VIZ_CONFIG\s*=\s*({.*?});", html, re.DOTALL)
-        assert m, "VIZ_CONFIG assignment missing in process.html"
-        cfg = json.loads(m.group(1))
-        assert cfg["viz"]["heatmap"]["cost_mode"] == "relative"
+    def test_heatmap_mode_toggle_present(self):
+        html = _generate_index_html(self._procs())
+        assert 'id="hm-mode-toggle"' in html
+        assert 'data-hm-mode="relative"' in html
+        assert 'data-hm-mode="fixed"' in html
+        assert "let heatmapMode" in html
 
     def test_node_color_logic_present(self):
         """ノード色分岐が SVG ミニフローと CSS の両方に残ること。

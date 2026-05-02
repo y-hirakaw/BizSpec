@@ -10,8 +10,8 @@ class TestLoadConfig:
         cfg = load_config(tmp_path)
         assert cfg == DEFAULT_CONFIG
         # safety: must be an independent copy, not a shared reference
-        cfg["viz"]["heatmap"]["cost_mode"] = "fixed"
-        assert DEFAULT_CONFIG["viz"]["heatmap"]["cost_mode"] == "relative"
+        cfg["viz"]["heatmap"]["cost_thresholds"] = [99, 100, 101]
+        assert DEFAULT_CONFIG["viz"]["heatmap"]["cost_thresholds"] == [1, 4, 20]
 
     def test_returns_defaults_on_invalid_yaml(self, tmp_path: Path):
         (tmp_path / "config.yaml").write_text(": invalid: yaml :", encoding="utf-8")
@@ -23,17 +23,6 @@ class TestLoadConfig:
         cfg = load_config(tmp_path)
         assert cfg == DEFAULT_CONFIG
 
-    def test_deep_merge_overrides_only_specified_keys(self, tmp_path: Path):
-        (tmp_path / "config.yaml").write_text(
-            "viz:\n  heatmap:\n    cost_mode: fixed\n",
-            encoding="utf-8",
-        )
-        cfg = load_config(tmp_path)
-        assert cfg["viz"]["heatmap"]["cost_mode"] == "fixed"
-        # Other keys preserved from defaults
-        assert cfg["viz"]["heatmap"]["cost_thresholds"] == [1, 4, 20]
-        assert cfg["viz"]["flow"]["cost_mode"] == "relative"
-
     def test_user_thresholds_replace_defaults(self, tmp_path: Path):
         (tmp_path / "config.yaml").write_text(
             "viz:\n  heatmap:\n    cost_thresholds: [2, 8, 40]\n",
@@ -44,7 +33,7 @@ class TestLoadConfig:
 
     def test_unknown_keys_pass_through(self, tmp_path: Path):
         (tmp_path / "config.yaml").write_text(
-            "viz:\n  heatmap:\n    cost_mode: relative\n  future_feature: \"yes\"\n",
+            "viz:\n  heatmap:\n    cost_thresholds: [1, 4, 20]\n  future_feature: \"yes\"\n",
             encoding="utf-8",
         )
         cfg = load_config(tmp_path)

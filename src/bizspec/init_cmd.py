@@ -12,21 +12,10 @@ _CONFIG_YAML_TEMPLATE = """\
 
 viz:
   heatmap:
-    # cost X 軸のバケット方式
-    #   relative: 全 unit の cost を count-balanced quartile (= 25/50/75 パーセンタイル)
-    #   fixed:    cost_thresholds で固定閾値 (時系列比較が必要なときはこちら)
-    cost_mode: relative
-    # cost_mode: fixed のときに使う 3 個の境界 (h/月、昇順)
+    # heatmap の cost X 軸を fixed モードに切り替えたときの境界 (h/月、昇順 3 個)
     # 例: [1, 4, 20] → ≤1h / 1<x≤4 / 4<x≤20 / >20 の 4 列
+    # relative/fixed の切替は HTML 上のトグルで行います。
     cost_thresholds: [1, 4, 20]
-
-  flow:
-    # 1 プロセス DAG 内のノード heat (low/medium/high) のバケット方式
-    #   relative: プロセス内の cost を count-balanced で 3 等分
-    #   fixed:    cost_thresholds で固定閾値
-    cost_mode: relative
-    # cost_mode: fixed のときの 2 個の境界 (h/月、昇順)
-    cost_thresholds: [4, 20]
 """
 
 
