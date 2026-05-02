@@ -6342,19 +6342,27 @@ function renderHeatmap() {
     return;
   }
 
-  const maxCost = Math.max(...all.map(x => unitCost(x.unit))) || 1;
+  // Count-balanced quartile: split units into 4 ~equal-count buckets so the
+  // heatmap stays informative on right-skewed cost distributions (typical:
+  // many small + a few large). Ties land in the lower (rightward) bucket.
+  const sortedCosts = all.map(x => unitCost(x.unit)).sort((a, b) => a - b);
+  const n = sortedCosts.length;
+  const maxCost = sortedCosts[n - 1] || 1;
+  const q1 = sortedCosts[Math.max(0, Math.floor(n * 0.25) - 1)];
+  const q2 = sortedCosts[Math.max(0, Math.floor(n * 0.50) - 1)];
+  const q3 = sortedCosts[Math.max(0, Math.floor(n * 0.75) - 1)];
+  // Bucket upper bounds (inclusive on the right): col 3 ≤ q1, col 2 ≤ q2, col 1 ≤ q3, col 0 ≤ maxCost
+  const COL_UPPER = [maxCost, q3, q2, q1];
 
   const DIFF_ROWS = ["low", "medium", "high"];
   const ROW_LABEL = { low: t("hm.row.low"), medium: t("hm.row.medium"), high: t("hm.row.high") };
   const ROW_HINT  = { low: t("hm.hint.low"), medium: t("hm.hint.medium"), high: t("hm.hint.high") };
   // Cost columns reversed: highest on the LEFT so quick-wins land top-left.
   const COL_LABEL = [t("hm.col.top25"), t("hm.col.le50"), t("hm.col.le75"), t("hm.col.le100")];
-  const colBoundaries = [0.0, 0.25, 0.5, 0.75, 1.0];
   function colIndex(cost) {
-    const r = cost / maxCost;
-    if (r > colBoundaries[3]) return 0;
-    if (r > colBoundaries[2]) return 1;
-    if (r > colBoundaries[1]) return 2;
+    if (cost > q3) return 0;
+    if (cost > q2) return 1;
+    if (cost > q1) return 2;
     return 3;
   }
 
@@ -6397,7 +6405,7 @@ function renderHeatmap() {
   let html =
     `<div class="hm-grid-corner">${t("hm.diff")}</div>` +
     COL_LABEL.map((c, i) =>
-      `<div class="hm-grid-col-head"><span>${t("hm.costPrefix")} ${c}</span><span class="max">≤ ${Math.round(maxCost * colBoundaries[i + 1])}h</span></div>`
+      `<div class="hm-grid-col-head"><span>${t("hm.costPrefix")} ${c}</span><span class="max">≤ ${Math.round(COL_UPPER[i])}h</span></div>`
     ).join("");
   DIFF_ROWS.forEach(d => {
     html += `<div class="hm-grid-row-head"><span class="hm-grid-row-name">${ROW_LABEL[d]}</span><span class="hm-grid-row-hint">${ROW_HINT[d]}</span></div>`;
