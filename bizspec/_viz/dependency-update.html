@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRレビュー — BizSpec</title>
+<title>dependency-update — BizSpec</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -736,7 +736,7 @@ svg.arrows-layer {
   <div class="tb-divider"></div>
   <div class="tb-crumb">
     <span class="tb-crumb-sep">/</span>
-    <span class="tb-crumb-leaf">PRレビュー</span>
+    <span class="tb-crumb-leaf">dependency-update</span>
   </div>
   <div class="tb-spacer"></div>
   <div class="tb-theme" role="group" aria-label="theme">
@@ -746,8 +746,8 @@ svg.arrows-layer {
 </div>
 
 <header class="proc-head">
-  <h1>PRレビュー</h1>
-  <span class="subtitle">pr-review &nbsp;·&nbsp; 4 units &nbsp;·&nbsp; phase: dev</span>
+  <h1>dependency-update</h1>
+  <span class="subtitle">4 units &nbsp;·&nbsp; phase: ops</span>
 </header>
 
 <div class="legend-bar">
@@ -822,213 +822,202 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "テストレビュー": {
-    "aim": "テストコードの網羅性と品質を評価する",
-    "phase": "dev",
+  "アップデート実施": {
+    "aim": "対象ライブラリを指定バージョンに更新し、ロックファイルを更新する",
+    "phase": "ops",
     "core": true,
     "scope": [
-      "テストの網羅性（正常系・異常系・境界値）の評価",
-      "壊れやすい実装パターン（モック過多・実装依存）の検出"
+      "対象ライブラリの指定バージョンへの更新",
+      "ロックファイル更新とコミットの確定"
     ],
     "rule": [
-      "ハッピーパスのみのテストは必ず異常系の追加を求める",
-      "テスト対象コードに変更があってテストが 0 件の場合はブロック扱いにする"
+      "一度に更新するパッケージは関連するものをまとめ、無関係なものは別 PR にする",
+      "自動化ツール（Dependabot 等）の PR を活用する"
     ],
     "io": {
       "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
+        "対応方針決定済みリスト"
       ],
       "process": [
-        "テストファイルの diff を重点的に確認する",
-        "カバレッジの抜けを指摘する"
+        "パッケージマネージャーでバージョンを更新",
+        "ロックファイルを更新・コミット"
       ],
       "out": [
-        "テストレビューコメント一覧（指摘レベル・箇所・内容）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "テストの意図・網羅性の判断に推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "差分取得"
-      ],
-      "down": [
-        "承認判定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 40
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": [
-      "ロジックレビュー"
-    ]
-  },
-  "ロジックレビュー": {
-    "aim": "実装ロジックの正しさと設計の妥当性を評価する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "実装ロジックの正しさとリスク（バグ・境界値漏れ・副作用）の指摘",
-      "命名・責務分割の妥当性評価"
-    ],
-    "rule": [
-      "指摘は「問題点・理由・改善案」の 3 点セットで記述する",
-      "{'軽微なスタイル指摘は nit': 'プレフィックスをつける'}"
-    ],
-    "io": {
-      "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
-      ],
-      "process": [
-        "差分を読みロジック上の問題点を列挙する",
-        "設計・責務・命名の観点でフィードバックを作成する"
-      ],
-      "out": [
-        "ロジックレビューコメント一覧（指摘レベル・箇所・内容）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "コードの意図理解と設計判断に自然言語推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "差分取得"
-      ],
-      "down": [
-        "承認判定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 2,
-      "frequency": 40
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "差分取得": {
-    "aim": "レビュー対象の変更内容を取得する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "PR 差分テキストの取得",
-      "変更ファイル一覧と増減行数のまとめ"
-    ],
-    "rule": [
-      "差分が 500 行を超える場合はレビュー依頼前に分割を促す"
-    ],
-    "io": {
-      "in": [
-        "PR番号"
-      ],
-      "process": [
-        "GitHub API (GET /pulls/{number}/files) を呼び出す",
-        "ファイルパス・patch・変更行数を抽出する"
-      ],
-      "out": [
-        "変更ファイル一覧（ファイルパス・追加行数・削除行数）",
-        "差分テキスト"
+        "更新済みロックファイル・依存定義"
       ]
     },
     "executor": {
       "type": "script",
-      "reason": "GitHub API の定型呼び出しで完結するため"
+      "reason": "パッケージの更新・ロックファイルの生成は自動化できるため"
     },
     "link": {
-      "up": [],
+      "up": [
+        "セキュリティ影響確認"
+      ],
       "down": [
-        "ロジックレビュー",
-        "テストレビュー"
+        "テスト実行"
       ]
     },
-    "depends_on": [
-      "issue-refinement:Ready判定",
-      "implementation:PR作成"
-    ],
+    "depends_on": [],
     "effort": {
       "duration": 0.5,
-      "frequency": 40
+      "frequency": 2
     },
     "automation": {
       "difficulty": "low",
       "status": "automated"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "承認判定": {
-    "aim": "レビュー結果を総合してマージ可否を判定する",
-    "phase": "dev",
+  "セキュリティ影響確認": {
+    "aim": "更新対象の CVE・破壊的変更・互換性を確認し、対応方針を決定する",
+    "phase": "ops",
     "core": true,
     "scope": [
-      "レビュー結果の集約と Approve / Request Changes の判定",
-      "GitHub PR への判定・サマリー・コメントの投稿"
+      "CVE 影響度と破壊的変更の評価",
+      "対応方針（即時適用 / 計画適用 / 見送り）の決定と根拠の記録"
     ],
     "rule": [
-      "ブロック指摘が 1 件でもあれば Request Changes にする",
-      "nit のみであれば Approve してコメントを残す",
-      "指摘件数・ブロック有無・判定結果をサマリーに含める"
+      "CVSS 7.0 以上は即時適用を原則とする",
+      "影響なしと判断した場合はその根拠を記録する"
     ],
     "io": {
       "in": [
-        "ロジックレビューコメント一覧",
-        "テストレビューコメント一覧"
+        "更新対象リスト（CVE・優先度付き）",
+        "ライブラリの CHANGELOG・リリースノート"
       ],
       "process": [
-        "ブロック指摘を抽出する",
-        "Approve / Request Changes を決定する",
-        "GitHub API (POST /pulls/{number}/reviews) でレビューを投稿する"
+        "CVE の影響・破壊的変更を確認",
+        "対応方針を決定・記録"
       ],
       "out": [
-        "PRへの投稿済みレビュー（判定・サマリー・コメント一覧）"
+        "対応方針決定済みリスト"
       ]
     },
     "executor": {
       "type": "ai_agent",
-      "reason": "複数レビュー結果の統合判断と自然言語サマリー生成が必要なため"
+      "reason": "CVE の内容とコードへの影響を評価する推論が必要なため"
     },
     "link": {
       "up": [
-        "ロジックレビュー",
-        "テストレビュー"
+        "更新対象抽出"
+      ],
+      "down": [
+        "アップデート実施"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "medium",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "review",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "テスト実行": {
+    "aim": "アップデート後に全テストが通過することを確認する",
+    "phase": "ops",
+    "core": true,
+    "scope": [
+      "更新後の自動テスト全件 PASS の保証",
+      "FAIL 時の破壊的変更影響の特定と対処"
+    ],
+    "rule": [
+      "テストが FAIL したまま PR をマージしない",
+      "既存テストを弱めてパスさせることは禁止"
+    ],
+    "io": {
+      "in": [
+        "更新済みロックファイル・依存定義"
+      ],
+      "process": [
+        "テストスイートを実行",
+        "FAIL があれば原因を特定して修正"
+      ],
+      "out": [
+        "テスト結果（全 PASS）"
+      ]
+    },
+    "executor": {
+      "type": "script",
+      "reason": "テストスイートの実行は CI で完全自動化できるため"
+    },
+    "link": {
+      "up": [
+        "アップデート実施"
       ],
       "down": []
     },
     "depends_on": [],
     "effort": {
       "duration": 0.5,
-      "frequency": 40
+      "frequency": 2
     },
     "automation": {
-      "difficulty": "medium",
-      "status": "manual"
+      "difficulty": "low",
+      "status": "automated"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "更新対象抽出": {
+    "aim": "依存ライブラリのうち更新が必要なものを洗い出す",
+    "phase": "ops",
+    "core": true,
+    "scope": [
+      "古いパッケージ・CVE の網羅的な一覧化",
+      "優先順位付き更新対象リストの整備"
+    ],
+    "rule": [
+      "Critical・High の CVE は発見から 7 日以内に対応する",
+      "メジャーアップデートは破壊的変更のリリースノートを確認してから進める"
+    ],
+    "io": {
+      "in": [
+        "依存関係ロックファイル（package.json / pyproject.toml 等）"
+      ],
+      "process": [
+        "依存チェックツールを実行",
+        "CVE・バージョン遅延を一覧化・優先度付与"
+      ],
+      "out": [
+        "更新対象リスト（CVE・優先度付き）"
+      ]
+    },
+    "executor": {
+      "type": "script",
+      "reason": "依存バージョンと CVE の照合はツールで自動化できるため"
+    },
+    "link": {
+      "up": [],
+      "down": [
+        "セキュリティ影響確認"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "low",
+      "status": "automated"
+    },
+    "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   }
 };
-const positions = {"差分取得": {"left": 110, "top": 24}, "テストレビュー": {"left": 0, "top": 134}, "ロジックレビュー": {"left": 220, "top": 134}, "承認判定": {"left": 110, "top": 244}};
-const edges     = [["テストレビュー", "承認判定", "seq"], ["テストレビュー", "ロジックレビュー", "parallel"], ["ロジックレビュー", "承認判定", "seq"], ["差分取得", "ロジックレビュー", "seq"], ["差分取得", "テストレビュー", "seq"]];
+const positions = {"更新対象抽出": {"left": 40, "top": 24}, "セキュリティ影響確認": {"left": 40, "top": 134}, "アップデート実施": {"left": 40, "top": 244}, "テスト実行": {"left": 40, "top": 354}};
+const edges     = [["アップデート実施", "テスト実行", "seq"], ["セキュリティ影響確認", "アップデート実施", "seq"], ["更新対象抽出", "セキュリティ影響確認", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
@@ -1055,7 +1044,7 @@ const COLOR = new Proxy({}, {
 const NS  = "http://www.w3.org/2000/svg";
 const svg = document.createElementNS(NS, "svg");
 svg.classList.add("arrows-layer");
-svg.setAttribute("viewBox", "0 0 420 322");
+svg.setAttribute("viewBox", "0 0 280 432");
 
 const defs = document.createElementNS(NS, "defs");
 [["arrowhead", COLOR.EDGE_SEQ], ["arrowhead-skip", COLOR.EDGE_SKIP], ["arrowhead-hl", COLOR.EDGE_HIGHLIGHT]].forEach(([id, color]) => {

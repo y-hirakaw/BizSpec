@@ -1543,8 +1543,8 @@ svg.arrows-layer {
     <span>synced</span>
   </div>
   <div class="tb-theme" role="group" aria-label="lang">
-    <button class="tb-theme-btn active" data-lang-set="ja">JA</button>
-    <button class="tb-theme-btn" data-lang-set="en">EN</button>
+    <button class="tb-theme-btn" data-lang-set="ja">JA</button>
+    <button class="tb-theme-btn active" data-lang-set="en">EN</button>
   </div>
   <div class="tb-theme" role="group" aria-label="theme">
     <button class="tb-theme-btn active" data-theme-set="light" title="Light">Light</button>
@@ -1816,7 +1816,7 @@ const STRINGS = {
   "back.btn":           { ja: "← 概要へ",      en: "← Overview" },
 };
 
-let currentLang = "ja";
+let currentLang = "en";
 function t(key, vars) {
   const e = STRINGS[key];
   if (!e) return key;
@@ -2009,6 +2009,7 @@ function renderOverviewEdges() {
 const procNav    = document.getElementById("proc-nav");
 const overviewV  = document.getElementById("overview-view");
 const flowV      = document.getElementById("flow-view");
+const heatmapV   = document.getElementById("heatmap-view");
 const topTitle   = document.getElementById("topbar-title");
 const topSub     = document.getElementById("topbar-sub");
 const backBtn    = document.getElementById("back-btn");
@@ -2306,7 +2307,7 @@ function setLang(lang) {
 // ── Theme toggle ──────────────────────────────────────────
 function applyTheme(theme) {
   document.body.setAttribute("data-theme", theme);
-  document.querySelectorAll(".tb-theme-btn").forEach(b =>
+  document.querySelectorAll("[data-theme-set]").forEach(b =>
     b.classList.toggle("active", b.dataset.themeSet === theme));
   try { localStorage.setItem("bizspec-theme", theme); } catch (_) {}
   requestAnimationFrame(() => {
@@ -2345,7 +2346,6 @@ __langInitialized = true;
 applyLangToStaticDom();
 
 const topSubSep = document.getElementById("topbar-sub-sep");
-const heatmapV  = document.getElementById("heatmap-view");
 
 // ── Leverage scoring ──────────────────────────────────────
 const EASE_MAP = { low: 3, medium: 2, high: 1 };

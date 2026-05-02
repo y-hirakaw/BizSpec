@@ -1628,7 +1628,7 @@ function retintEdges() {
 }
 function applyTheme(theme) {
   document.body.setAttribute("data-theme", theme);
-  document.querySelectorAll(".tb-theme-btn").forEach(b =>
+  document.querySelectorAll("[data-theme-set]").forEach(b =>
     b.classList.toggle("active", b.dataset.themeSet === theme));
   try { localStorage.setItem("bizspec-theme", theme); } catch (_) {}
   requestAnimationFrame(retintEdges);
@@ -1639,7 +1639,7 @@ function applyTheme(theme) {
   const initial = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
   applyTheme(initial);
 })();
-document.querySelectorAll(".tb-theme-btn").forEach(b => {
+document.querySelectorAll("[data-theme-set]").forEach(b => {
   b.addEventListener("click", () => applyTheme(b.dataset.themeSet));
 });
 </script>

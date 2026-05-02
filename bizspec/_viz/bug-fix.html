@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRレビュー — BizSpec</title>
+<title>bug-fix — BizSpec</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -736,7 +736,7 @@ svg.arrows-layer {
   <div class="tb-divider"></div>
   <div class="tb-crumb">
     <span class="tb-crumb-sep">/</span>
-    <span class="tb-crumb-leaf">PRレビュー</span>
+    <span class="tb-crumb-leaf">bug-fix</span>
   </div>
   <div class="tb-spacer"></div>
   <div class="tb-theme" role="group" aria-label="theme">
@@ -746,8 +746,8 @@ svg.arrows-layer {
 </div>
 
 <header class="proc-head">
-  <h1>PRレビュー</h1>
-  <span class="subtitle">pr-review &nbsp;·&nbsp; 4 units &nbsp;·&nbsp; phase: dev</span>
+  <h1>bug-fix</h1>
+  <span class="subtitle">5 units &nbsp;·&nbsp; phase: dev</span>
 </header>
 
 <div class="legend-bar">
@@ -822,213 +822,253 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "テストレビュー": {
-    "aim": "テストコードの網羅性と品質を評価する",
+  "デプロイ": {
+    "aim": "バグ修正を本番環境に適用する",
     "phase": "dev",
     "core": true,
     "scope": [
-      "テストの網羅性（正常系・異常系・境界値）の評価",
-      "壊れやすい実装パターン（モック過多・実装依存）の検出"
+      "本番環境への修正反映と反映確認",
+      "issue クローズと報告者への通知"
     ],
     "rule": [
-      "ハッピーパスのみのテストは必ず異常系の追加を求める",
-      "テスト対象コードに変更があってテストが 0 件の場合はブロック扱いにする"
+      "Hot-fix の場合は緊急デプロイ手順に従う",
+      "デプロイ後 15 分はエラーレートを監視する"
     ],
     "io": {
       "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
+        "回帰テスト結果（全 PASS）"
       ],
       "process": [
-        "テストファイルの diff を重点的に確認する",
-        "カバレッジの抜けを指摘する"
+        "PR をマージ・パイプラインを実行",
+        "本番反映を確認・issue クローズ"
       ],
       "out": [
-        "テストレビューコメント一覧（指摘レベル・箇所・内容）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "テストの意図・網羅性の判断に推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "差分取得"
-      ],
-      "down": [
-        "承認判定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 40
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": [
-      "ロジックレビュー"
-    ]
-  },
-  "ロジックレビュー": {
-    "aim": "実装ロジックの正しさと設計の妥当性を評価する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "実装ロジックの正しさとリスク（バグ・境界値漏れ・副作用）の指摘",
-      "命名・責務分割の妥当性評価"
-    ],
-    "rule": [
-      "指摘は「問題点・理由・改善案」の 3 点セットで記述する",
-      "{'軽微なスタイル指摘は nit': 'プレフィックスをつける'}"
-    ],
-    "io": {
-      "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
-      ],
-      "process": [
-        "差分を読みロジック上の問題点を列挙する",
-        "設計・責務・命名の観点でフィードバックを作成する"
-      ],
-      "out": [
-        "ロジックレビューコメント一覧（指摘レベル・箇所・内容）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "コードの意図理解と設計判断に自然言語推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "差分取得"
-      ],
-      "down": [
-        "承認判定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 2,
-      "frequency": 40
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "差分取得": {
-    "aim": "レビュー対象の変更内容を取得する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "PR 差分テキストの取得",
-      "変更ファイル一覧と増減行数のまとめ"
-    ],
-    "rule": [
-      "差分が 500 行を超える場合はレビュー依頼前に分割を促す"
-    ],
-    "io": {
-      "in": [
-        "PR番号"
-      ],
-      "process": [
-        "GitHub API (GET /pulls/{number}/files) を呼び出す",
-        "ファイルパス・patch・変更行数を抽出する"
-      ],
-      "out": [
-        "変更ファイル一覧（ファイルパス・追加行数・削除行数）",
-        "差分テキスト"
+        "デプロイ完了・issue クローズ"
       ]
     },
     "executor": {
       "type": "script",
-      "reason": "GitHub API の定型呼び出しで完結するため"
+      "reason": "CI/CD パイプラインで自動デプロイできるため"
     },
     "link": {
-      "up": [],
-      "down": [
-        "ロジックレビュー",
-        "テストレビュー"
-      ]
+      "up": [
+        "回帰テスト"
+      ],
+      "down": []
     },
     "depends_on": [
-      "issue-refinement:Ready判定",
-      "implementation:PR作成"
+      "pr-review:承認判定"
     ],
     "effort": {
       "duration": 0.5,
-      "frequency": 40
+      "frequency": 8
     },
     "automation": {
       "difficulty": "low",
       "status": "automated"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "承認判定": {
-    "aim": "レビュー結果を総合してマージ可否を判定する",
+  "バグ再現確認": {
+    "aim": "報告されたバグが再現することを確認し、再現手順を明確化する",
     "phase": "dev",
     "core": true,
     "scope": [
-      "レビュー結果の集約と Approve / Request Changes の判定",
-      "GitHub PR への判定・サマリー・コメントの投稿"
+      "バグ再現の確認と再現条件の特定",
+      "再現手順・環境情報の issue への明文化"
     ],
     "rule": [
-      "ブロック指摘が 1 件でもあれば Request Changes にする",
-      "nit のみであれば Approve してコメントを残す",
-      "指摘件数・ブロック有無・判定結果をサマリーに含める"
+      "再現できない場合は「再現不可」としてクローズするか、追加情報を報告者に依頼する",
+      "再現手順は第三者が実行できるレベルで記述する"
     ],
     "io": {
       "in": [
-        "ロジックレビューコメント一覧",
-        "テストレビューコメント一覧"
+        "バグ issue（再現手順・環境情報）"
       ],
       "process": [
-        "ブロック指摘を抽出する",
-        "Approve / Request Changes を決定する",
-        "GitHub API (POST /pulls/{number}/reviews) でレビューを投稿する"
+        "指定の手順・環境でバグを再現",
+        "再現条件を明確化して記録"
       ],
       "out": [
-        "PRへの投稿済みレビュー（判定・サマリー・コメント一覧）"
+        "再現確認済みバグ issue（再現手順確定）"
       ]
     },
     "executor": {
-      "type": "ai_agent",
-      "reason": "複数レビュー結果の統合判断と自然言語サマリー生成が必要なため"
+      "type": "manual",
+      "reason": "実際の操作・目視確認で再現を確かめる必要があるため"
     },
     "link": {
-      "up": [
-        "ロジックレビュー",
-        "テストレビュー"
-      ],
-      "down": []
+      "up": [],
+      "down": [
+        "原因特定"
+      ]
     },
     "depends_on": [],
     "effort": {
       "duration": 0.5,
-      "frequency": 40
+      "frequency": 8
     },
     "automation": {
-      "difficulty": "medium",
+      "difficulty": "high",
       "status": "manual"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "修正実装": {
+    "aim": "特定した原因を解消するコードを実装する",
+    "phase": "dev",
+    "core": true,
+    "scope": [
+      "最小限の修正コードと再発防止テストの実装",
+      "修正範囲の限定（無関係な変更の排除）"
+    ],
+    "rule": [
+      "修正範囲は最小限にとどめる（バグ修正に無関係なリファクタを混入しない）",
+      "修正を確認するテストを必ず追加する（再発防止）"
+    ],
+    "io": {
+      "in": [
+        "原因特定結果"
+      ],
+      "process": [
+        "最小限の修正を実装",
+        "バグ再現テストを追加"
+      ],
+      "out": [
+        "修正済みコード（テスト付き）"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "修正範囲の判断と実装はエンジニアの専門的判断が必要なため"
+    },
+    "link": {
+      "up": [
+        "原因特定"
+      ],
+      "down": [
+        "回帰テスト"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 8
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "draft",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "原因特定": {
+    "aim": "バグの原因となるコードや設定を特定する",
+    "phase": "dev",
+    "core": true,
+    "scope": [
+      "根本原因（コード・設定・データ）の特定",
+      "原因箇所と再現条件の issue への記録"
+    ],
+    "rule": [
+      "症状だけでなく「なぜ起きているか」の根本を特定する",
+      "修正しながら原因調査しない（調査と修正は分ける）"
+    ],
+    "io": {
+      "in": [
+        "再現確認済みバグ issue",
+        "ログ・スタックトレース・コード"
+      ],
+      "process": [
+        "ログ・トレースを解析して原因箇所を絞り込む",
+        "原因コード・設定を特定して記録"
+      ],
+      "out": [
+        "原因特定結果（原因箇所・再現条件）"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "ログ・コードから原因を推論・絞り込む分析に推論能力が必要なため"
+    },
+    "link": {
+      "up": [
+        "バグ再現確認"
+      ],
+      "down": [
+        "修正実装"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 8
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "回帰テスト": {
+    "aim": "修正により既存機能が壊れていないことを確認する",
+    "phase": "dev",
+    "core": true,
+    "scope": [
+      "自動テストスイートの全件 PASS 確認",
+      "修正関連機能の手動動作確認"
+    ],
+    "rule": [
+      "全テストが PASS してからデプロイを進める",
+      "修正で既存テストが FAIL した場合は修正を見直す（テストを弱めない）"
+    ],
+    "io": {
+      "in": [
+        "修正済みコード（テスト付き）"
+      ],
+      "process": [
+        "自動テストスイートを実行",
+        "関連機能を手動確認"
+      ],
+      "out": [
+        "回帰テスト結果（全 PASS）"
+      ]
+    },
+    "executor": {
+      "type": "script",
+      "reason": "テストスイートの実行は CI で自動化できるため"
+    },
+    "link": {
+      "up": [
+        "修正実装"
+      ],
+      "down": [
+        "デプロイ"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 8
+    },
+    "automation": {
+      "difficulty": "low",
+      "status": "automated"
+    },
+    "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   }
 };
-const positions = {"差分取得": {"left": 110, "top": 24}, "テストレビュー": {"left": 0, "top": 134}, "ロジックレビュー": {"left": 220, "top": 134}, "承認判定": {"left": 110, "top": 244}};
-const edges     = [["テストレビュー", "承認判定", "seq"], ["テストレビュー", "ロジックレビュー", "parallel"], ["ロジックレビュー", "承認判定", "seq"], ["差分取得", "ロジックレビュー", "seq"], ["差分取得", "テストレビュー", "seq"]];
+const positions = {"バグ再現確認": {"left": 40, "top": 24}, "原因特定": {"left": 40, "top": 134}, "修正実装": {"left": 40, "top": 244}, "回帰テスト": {"left": 40, "top": 354}, "デプロイ": {"left": 40, "top": 464}};
+const edges     = [["バグ再現確認", "原因特定", "seq"], ["修正実装", "回帰テスト", "seq"], ["原因特定", "修正実装", "seq"], ["回帰テスト", "デプロイ", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
@@ -1055,7 +1095,7 @@ const COLOR = new Proxy({}, {
 const NS  = "http://www.w3.org/2000/svg";
 const svg = document.createElementNS(NS, "svg");
 svg.classList.add("arrows-layer");
-svg.setAttribute("viewBox", "0 0 420 322");
+svg.setAttribute("viewBox", "0 0 280 542");
 
 const defs = document.createElementNS(NS, "defs");
 [["arrowhead", COLOR.EDGE_SEQ], ["arrowhead-skip", COLOR.EDGE_SKIP], ["arrowhead-hl", COLOR.EDGE_HIGHLIGHT]].forEach(([id, color]) => {

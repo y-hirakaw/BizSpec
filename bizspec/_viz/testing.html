@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRレビュー — BizSpec</title>
+<title>testing — BizSpec</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -736,7 +736,7 @@ svg.arrows-layer {
   <div class="tb-divider"></div>
   <div class="tb-crumb">
     <span class="tb-crumb-sep">/</span>
-    <span class="tb-crumb-leaf">PRレビュー</span>
+    <span class="tb-crumb-leaf">testing</span>
   </div>
   <div class="tb-spacer"></div>
   <div class="tb-theme" role="group" aria-label="theme">
@@ -746,8 +746,8 @@ svg.arrows-layer {
 </div>
 
 <header class="proc-head">
-  <h1>PRレビュー</h1>
-  <span class="subtitle">pr-review &nbsp;·&nbsp; 4 units &nbsp;·&nbsp; phase: dev</span>
+  <h1>testing</h1>
+  <span class="subtitle">5 units &nbsp;·&nbsp; phase: test</span>
 </header>
 
 <div class="legend-bar">
@@ -822,213 +822,259 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "テストレビュー": {
-    "aim": "テストコードの網羅性と品質を評価する",
-    "phase": "dev",
+  "テストケース作成": {
+    "aim": "テスト計画に基づいてテストケースを作成する",
+    "phase": "test",
     "core": true,
     "scope": [
-      "テストの網羅性（正常系・異常系・境界値）の評価",
-      "壊れやすい実装パターン（モック過多・実装依存）の検出"
+      "テストケース一覧の作成と網羅性の担保",
+      "テストデータの整備"
     ],
     "rule": [
-      "ハッピーパスのみのテストは必ず異常系の追加を求める",
-      "テスト対象コードに変更があってテストが 0 件の場合はブロック扱いにする"
+      "テストケースは再現可能で独立していること",
+      "期待結果を事前に明記する（テスト後に決めない）"
     ],
     "io": {
       "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
+        "テスト計画書",
+        "仕様書・受け入れ条件"
       ],
       "process": [
-        "テストファイルの diff を重点的に確認する",
-        "カバレッジの抜けを指摘する"
+        "機能ごとにテスト観点を洗い出し",
+        "テストケース・テストデータを作成"
       ],
       "out": [
-        "テストレビューコメント一覧（指摘レベル・箇所・内容）"
+        "テストケース一覧",
+        "テストデータ"
       ]
     },
     "executor": {
       "type": "ai_agent",
-      "reason": "テストの意図・網羅性の判断に推論が必要なため"
+      "reason": "仕様から網羅的なテスト観点を導出する推論が必要なため"
     },
     "link": {
       "up": [
-        "差分取得"
+        "テスト計画作成"
       ],
       "down": [
-        "承認判定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 40
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": [
-      "ロジックレビュー"
-    ]
-  },
-  "ロジックレビュー": {
-    "aim": "実装ロジックの正しさと設計の妥当性を評価する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "実装ロジックの正しさとリスク（バグ・境界値漏れ・副作用）の指摘",
-      "命名・責務分割の妥当性評価"
-    ],
-    "rule": [
-      "指摘は「問題点・理由・改善案」の 3 点セットで記述する",
-      "{'軽微なスタイル指摘は nit': 'プレフィックスをつける'}"
-    ],
-    "io": {
-      "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
-      ],
-      "process": [
-        "差分を読みロジック上の問題点を列挙する",
-        "設計・責務・命名の観点でフィードバックを作成する"
-      ],
-      "out": [
-        "ロジックレビューコメント一覧（指摘レベル・箇所・内容）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "コードの意図理解と設計判断に自然言語推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "差分取得"
-      ],
-      "down": [
-        "承認判定"
+        "テスト実施"
       ]
     },
     "depends_on": [],
     "effort": {
       "duration": 2,
-      "frequency": 40
+      "frequency": 2
     },
     "automation": {
       "difficulty": "medium",
       "status": "partially-automated"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "draft",
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "差分取得": {
-    "aim": "レビュー対象の変更内容を取得する",
-    "phase": "dev",
+  "テスト実施": {
+    "aim": "テストケースに従って動作確認を行い、結果を記録する",
+    "phase": "test",
     "core": true,
     "scope": [
-      "PR 差分テキストの取得",
-      "変更ファイル一覧と増減行数のまとめ"
+      "テストケース実行と PASS/FAIL の記録",
+      "FAIL 時の再現手順・実際結果・期待結果の記録"
     ],
     "rule": [
-      "差分が 500 行を超える場合はレビュー依頼前に分割を促す"
+      "テスト環境はテスト計画書で指定した環境を使う",
+      "FAIL は握りつぶさずすべて記録する"
     ],
     "io": {
       "in": [
-        "PR番号"
+        "テストケース一覧",
+        "テストデータ"
       ],
       "process": [
-        "GitHub API (GET /pulls/{number}/files) を呼び出す",
-        "ファイルパス・patch・変更行数を抽出する"
+        "テスト環境を準備",
+        "テストケースを実行・結果を記録"
       ],
       "out": [
-        "変更ファイル一覧（ファイルパス・追加行数・削除行数）",
-        "差分テキスト"
+        "テスト結果（PASS/FAIL リスト）",
+        "バグ候補リスト"
       ]
     },
     "executor": {
-      "type": "script",
-      "reason": "GitHub API の定型呼び出しで完結するため"
+      "type": "manual",
+      "reason": "実際の操作・目視確認・判断が必要なテストケースが含まれるため"
     },
     "link": {
-      "up": [],
+      "up": [
+        "テストケース作成"
+      ],
       "down": [
-        "ロジックレビュー",
-        "テストレビュー"
+        "バグ起票",
+        "テスト結果報告"
       ]
     },
-    "depends_on": [
-      "issue-refinement:Ready判定",
-      "implementation:PR作成"
-    ],
+    "depends_on": [],
     "effort": {
-      "duration": 0.5,
-      "frequency": 40
+      "duration": 3,
+      "frequency": 2
     },
     "automation": {
-      "difficulty": "low",
-      "status": "automated"
+      "difficulty": "medium",
+      "status": "partially-automated"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "承認判定": {
-    "aim": "レビュー結果を総合してマージ可否を判定する",
-    "phase": "dev",
+  "テスト結果報告": {
+    "aim": "テスト完了後に結果サマリーをステークホルダーに報告する",
+    "phase": "test",
     "core": true,
     "scope": [
-      "レビュー結果の集約と Approve / Request Changes の判定",
-      "GitHub PR への判定・サマリー・コメントの投稿"
+      "PASS/FAIL・カバレッジ・未解決バグを含むサマリーの作成",
+      "リリース判定に必要な情報の明示と報告"
     ],
     "rule": [
-      "ブロック指摘が 1 件でもあれば Request Changes にする",
-      "nit のみであれば Approve してコメントを残す",
-      "指摘件数・ブロック有無・判定結果をサマリーに含める"
+      "Critical・High の未解決バグがある場合はリリース保留を推奨する",
+      "数値は客観的に記録し、意見は別セクションに分ける"
     ],
     "io": {
       "in": [
-        "ロジックレビューコメント一覧",
-        "テストレビューコメント一覧"
+        "テスト結果（PASS/FAIL リスト）",
+        "バグ issue（優先度付き）"
       ],
       "process": [
-        "ブロック指摘を抽出する",
-        "Approve / Request Changes を決定する",
-        "GitHub API (POST /pulls/{number}/reviews) でレビューを投稿する"
+        "結果を集計・サマリー作成",
+        "リリース推奨可否を判断"
       ],
       "out": [
-        "PRへの投稿済みレビュー（判定・サマリー・コメント一覧）"
+        "テスト結果レポート"
       ]
     },
     "executor": {
       "type": "ai_agent",
-      "reason": "複数レビュー結果の統合判断と自然言語サマリー生成が必要なため"
+      "reason": "結果の集計と文書化は定型的だが、リリース判断の推奨には評価が必要なため"
     },
     "link": {
       "up": [
-        "ロジックレビュー",
-        "テストレビュー"
+        "テスト実施"
       ],
       "down": []
     },
     "depends_on": [],
     "effort": {
-      "duration": 0.5,
-      "frequency": 40
+      "duration": 1,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "low",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": [
+      "バグ起票"
+    ]
+  },
+  "テスト計画作成": {
+    "aim": "リリース対象の機能に対するテスト方針・スコープ・スケジュールを決定する",
+    "phase": "test",
+    "core": true,
+    "scope": [
+      "リスクエリアに基づくテスト対象・レベル・スコープの定義",
+      "スケジュールと担当の割り当て"
+    ],
+    "rule": [
+      "リスクの高い機能（新規・変更箇所・外部連携）を優先的にカバーする",
+      "スケジュールにバッファを 20% 設ける"
+    ],
+    "io": {
+      "in": [
+        "リリース対象機能一覧",
+        "変更差分"
+      ],
+      "process": [
+        "テスト対象・リスクエリアを特定",
+        "テストレベル・スコープ・スケジュールを定義"
+      ],
+      "out": [
+        "テスト計画書"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "テストスコープの優先判断はリスク評価と経験が必要なため"
+    },
+    "link": {
+      "up": [],
+      "down": [
+        "テストケース作成"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 2
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "バグ起票": {
+    "aim": "テスト中に発見した不具合を issue として起票する",
+    "phase": "test",
+    "core": false,
+    "scope": [
+      "再現手順・結果・環境情報を含むバグ issue の起票",
+      "優先度・重要度の付与とトリアージ"
+    ],
+    "rule": [
+      "再現手順は第三者が追えるレベルで記述する",
+      "スクリーンショット・ログを添付する",
+      "重複バグは新規起票せず既存 issue にコメントする"
+    ],
+    "io": {
+      "in": [
+        "テスト結果（FAIL）",
+        "バグ候補リスト"
+      ],
+      "process": [
+        "バグを整理・重複排除",
+        "issue を起票・優先度付与"
+      ],
+      "out": [
+        "バグ issue（優先度付き）"
+      ]
+    },
+    "executor": {
+      "type": "ai_agent",
+      "reason": "バグ情報の整理・重複判定・優先度評価に推論が必要なため"
+    },
+    "link": {
+      "up": [
+        "テスト実施"
+      ],
+      "down": []
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 2
     },
     "automation": {
       "difficulty": "medium",
-      "status": "manual"
+      "status": "partially-automated"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   }
 };
-const positions = {"差分取得": {"left": 110, "top": 24}, "テストレビュー": {"left": 0, "top": 134}, "ロジックレビュー": {"left": 220, "top": 134}, "承認判定": {"left": 110, "top": 244}};
-const edges     = [["テストレビュー", "承認判定", "seq"], ["テストレビュー", "ロジックレビュー", "parallel"], ["ロジックレビュー", "承認判定", "seq"], ["差分取得", "ロジックレビュー", "seq"], ["差分取得", "テストレビュー", "seq"]];
+const positions = {"テスト計画作成": {"left": 110, "top": 24}, "テストケース作成": {"left": 110, "top": 134}, "テスト実施": {"left": 110, "top": 244}, "テスト結果報告": {"left": 0, "top": 354}, "バグ起票": {"left": 220, "top": 354}};
+const edges     = [["テストケース作成", "テスト実施", "seq"], ["テスト実施", "バグ起票", "seq"], ["テスト実施", "テスト結果報告", "seq"], ["テスト結果報告", "バグ起票", "parallel"], ["テスト計画作成", "テストケース作成", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
@@ -1055,7 +1101,7 @@ const COLOR = new Proxy({}, {
 const NS  = "http://www.w3.org/2000/svg";
 const svg = document.createElementNS(NS, "svg");
 svg.classList.add("arrows-layer");
-svg.setAttribute("viewBox", "0 0 420 322");
+svg.setAttribute("viewBox", "0 0 420 432");
 
 const defs = document.createElementNS(NS, "defs");
 [["arrowhead", COLOR.EDGE_SEQ], ["arrowhead-skip", COLOR.EDGE_SKIP], ["arrowhead-hl", COLOR.EDGE_HIGHLIGHT]].forEach(([id, color]) => {

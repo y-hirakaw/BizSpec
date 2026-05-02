@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRレビュー — BizSpec</title>
+<title>retrospective — BizSpec</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -736,7 +736,7 @@ svg.arrows-layer {
   <div class="tb-divider"></div>
   <div class="tb-crumb">
     <span class="tb-crumb-sep">/</span>
-    <span class="tb-crumb-leaf">PRレビュー</span>
+    <span class="tb-crumb-leaf">retrospective</span>
   </div>
   <div class="tb-spacer"></div>
   <div class="tb-theme" role="group" aria-label="theme">
@@ -746,8 +746,8 @@ svg.arrows-layer {
 </div>
 
 <header class="proc-head">
-  <h1>PRレビュー</h1>
-  <span class="subtitle">pr-review &nbsp;·&nbsp; 4 units &nbsp;·&nbsp; phase: dev</span>
+  <h1>retrospective</h1>
+  <span class="subtitle">4 units &nbsp;·&nbsp; phase: spec</span>
 </header>
 
 <div class="legend-bar">
@@ -822,213 +822,203 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "テストレビュー": {
-    "aim": "テストコードの網羅性と品質を評価する",
-    "phase": "dev",
+  "KPT整理": {
+    "aim": "チームで Keep・Problem・Try を洗い出し、議論を構造化する",
+    "phase": "spec",
     "core": true,
     "scope": [
-      "テストの網羅性（正常系・異常系・境界値）の評価",
-      "壊れやすい実装パターン（モック過多・実装依存）の検出"
+      "チームによる Keep・Problem・Try の発散",
+      "グルーピングと優先度付きテーマへの収束"
     ],
     "rule": [
-      "ハッピーパスのみのテストは必ず異常系の追加を求める",
-      "テスト対象コードに変更があってテストが 0 件の場合はブロック扱いにする"
+      "発言は非難なし・特定個人への言及を避ける",
+      "Keep は次もやるべきことの確認として必ず行う（Problem だけに終わらない）",
+      "Try は Problem の原因解消につながるものを優先する"
     ],
     "io": {
       "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
+        "スプリント実績サマリー"
       ],
       "process": [
-        "テストファイルの diff を重点的に確認する",
-        "カバレッジの抜けを指摘する"
+        "KPT を全員で発散・収束",
+        "重要なテーマを絞り込む"
       ],
       "out": [
-        "テストレビューコメント一覧（指摘レベル・箇所・内容）"
+        "KPT まとめ（グルーピング・優先度付き）"
       ]
     },
     "executor": {
-      "type": "ai_agent",
-      "reason": "テストの意図・網羅性の判断に推論が必要なため"
+      "type": "manual",
+      "reason": "チームの対話と合意形成はファシリテーターと全員参加が必要なため"
     },
     "link": {
       "up": [
-        "差分取得"
+        "メトリクス収集"
       ],
       "down": [
-        "承認判定"
+        "アクションアイテム決定"
       ]
     },
     "depends_on": [],
     "effort": {
       "duration": 1,
-      "frequency": 40
+      "frequency": 2
     },
     "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
+      "difficulty": "high",
+      "status": "manual"
     },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": [
-      "ロジックレビュー"
-    ]
+    "lifecycle_status": "deprecated",
+    "deprecated_reason": "チームの規模拡大に伴い KPT の発散時間が肥大化したため、Lean Coffee 形式に移行予定",
+    "parallel_with": []
   },
-  "ロジックレビュー": {
-    "aim": "実装ロジックの正しさと設計の妥当性を評価する",
-    "phase": "dev",
+  "アクションアイテム決定": {
+    "aim": "Try の中から次スプリントで実行するアクションを絞り込み、担当者を決める",
+    "phase": "spec",
     "core": true,
     "scope": [
-      "実装ロジックの正しさとリスク（バグ・境界値漏れ・副作用）の指摘",
-      "命名・責務分割の妥当性評価"
+      "次スプリントで実行する具体的アクションの絞り込み",
+      "各アクションへの担当者・完了基準・期限の設定"
     ],
     "rule": [
-      "指摘は「問題点・理由・改善案」の 3 点セットで記述する",
-      "{'軽微なスタイル指摘は nit': 'プレフィックスをつける'}"
+      "アクションは「〇〇する」という具体的な動詞で表現する（「〇〇を意識する」は NG）",
+      "1 スプリントに取り込むアクションは 3 件以下にする（多すぎると何もできない）",
+      "完了基準が曖昧なアクションは採用しない"
     ],
     "io": {
       "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
+        "KPT まとめ（優先度付き）"
       ],
       "process": [
-        "差分を読みロジック上の問題点を列挙する",
-        "設計・責務・命名の観点でフィードバックを作成する"
+        "Try から実行可能なアクションを選定",
+        "担当者・完了基準・期限を設定"
       ],
       "out": [
-        "ロジックレビューコメント一覧（指摘レベル・箇所・内容）"
+        "アクションアイテム一覧（担当・期限・完了基準付き）"
       ]
     },
     "executor": {
-      "type": "ai_agent",
-      "reason": "コードの意図理解と設計判断に自然言語推論が必要なため"
+      "type": "manual",
+      "reason": "チームの意思決定と担当者の合意が必要なため"
     },
     "link": {
       "up": [
-        "差分取得"
+        "KPT整理"
       ],
       "down": [
-        "承認判定"
+        "次スプリント反映"
       ]
     },
     "depends_on": [],
     "effort": {
-      "duration": 2,
-      "frequency": 40
+      "duration": 0.5,
+      "frequency": 2
     },
     "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
+      "difficulty": "high",
+      "status": "manual"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "差分取得": {
-    "aim": "レビュー対象の変更内容を取得する",
-    "phase": "dev",
+  "メトリクス収集": {
+    "aim": "スプリントの実績データを収集し、議論の客観的な基盤を作る",
+    "phase": "spec",
     "core": true,
     "scope": [
-      "PR 差分テキストの取得",
-      "変更ファイル一覧と増減行数のまとめ"
+      "スプリント実績データ（SP・ベロシティ・バグ数・サイクルタイム）の集計",
+      "前スプリントとの比較値の算出"
     ],
     "rule": [
-      "差分が 500 行を超える場合はレビュー依頼前に分割を促す"
+      "データは主観を排除して客観的な数値のみを収集する",
+      "集計範囲はスプリント開始から終了まで（前後のデータを混入しない）"
     ],
     "io": {
       "in": [
-        "PR番号"
+        "スプリントボード・issue トラッカー・CI ログ"
       ],
       "process": [
-        "GitHub API (GET /pulls/{number}/files) を呼び出す",
-        "ファイルパス・patch・変更行数を抽出する"
+        "ツールから実績データを抽出・集計",
+        "前スプリントとの比較を算出"
       ],
       "out": [
-        "変更ファイル一覧（ファイルパス・追加行数・削除行数）",
-        "差分テキスト"
+        "スプリント実績サマリー（定量データ）"
       ]
     },
     "executor": {
       "type": "script",
-      "reason": "GitHub API の定型呼び出しで完結するため"
+      "reason": "issue トラッカー・CI ツールからのデータ集計は自動化できるため"
     },
     "link": {
       "up": [],
       "down": [
-        "ロジックレビュー",
-        "テストレビュー"
+        "KPT整理"
       ]
     },
-    "depends_on": [
-      "issue-refinement:Ready判定",
-      "implementation:PR作成"
-    ],
+    "depends_on": [],
     "effort": {
       "duration": 0.5,
-      "frequency": 40
+      "frequency": 2
     },
     "automation": {
       "difficulty": "low",
-      "status": "automated"
+      "status": "partially-automated"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "承認判定": {
-    "aim": "レビュー結果を総合してマージ可否を判定する",
-    "phase": "dev",
+  "次スプリント反映": {
+    "aim": "決定したアクションアイテムをバックログまたはタスクとして登録する",
+    "phase": "spec",
     "core": true,
     "scope": [
-      "レビュー結果の集約と Approve / Request Changes の判定",
-      "GitHub PR への判定・サマリー・コメントの投稿"
+      "アクションアイテムの issue トラッカーへの登録",
+      "次スプリントプランニングでの取り込み確認"
     ],
     "rule": [
-      "ブロック指摘が 1 件でもあれば Request Changes にする",
-      "nit のみであれば Approve してコメントを残す",
-      "指摘件数・ブロック有無・判定結果をサマリーに含める"
+      "登録しただけで満足しない。次のスプリントレトロで実施状況を振り返る",
+      "前スプリントのアクションアイテム達成状況を必ず確認してから新しいアクションを決める"
     ],
     "io": {
       "in": [
-        "ロジックレビューコメント一覧",
-        "テストレビューコメント一覧"
+        "アクションアイテム一覧（担当・期限・完了基準付き）"
       ],
       "process": [
-        "ブロック指摘を抽出する",
-        "Approve / Request Changes を決定する",
-        "GitHub API (POST /pulls/{number}/reviews) でレビューを投稿する"
+        "issue トラッカーにタスクを登録",
+        "次スプリントプランニングで取り込みを確認"
       ],
       "out": [
-        "PRへの投稿済みレビュー（判定・サマリー・コメント一覧）"
+        "登録済みアクションアイテム issue"
       ]
     },
     "executor": {
-      "type": "ai_agent",
-      "reason": "複数レビュー結果の統合判断と自然言語サマリー生成が必要なため"
+      "type": "script",
+      "reason": "issue 登録はテンプレートと API で自動化できるため"
     },
     "link": {
       "up": [
-        "ロジックレビュー",
-        "テストレビュー"
+        "アクションアイテム決定"
       ],
       "down": []
     },
     "depends_on": [],
     "effort": {
       "duration": 0.5,
-      "frequency": 40
+      "frequency": 2
     },
     "automation": {
-      "difficulty": "medium",
-      "status": "manual"
+      "difficulty": "low",
+      "status": "partially-automated"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   }
 };
-const positions = {"差分取得": {"left": 110, "top": 24}, "テストレビュー": {"left": 0, "top": 134}, "ロジックレビュー": {"left": 220, "top": 134}, "承認判定": {"left": 110, "top": 244}};
-const edges     = [["テストレビュー", "承認判定", "seq"], ["テストレビュー", "ロジックレビュー", "parallel"], ["ロジックレビュー", "承認判定", "seq"], ["差分取得", "ロジックレビュー", "seq"], ["差分取得", "テストレビュー", "seq"]];
+const positions = {"メトリクス収集": {"left": 40, "top": 24}, "KPT整理": {"left": 40, "top": 134}, "アクションアイテム決定": {"left": 40, "top": 244}, "次スプリント反映": {"left": 40, "top": 354}};
+const edges     = [["KPT整理", "アクションアイテム決定", "seq"], ["アクションアイテム決定", "次スプリント反映", "seq"], ["メトリクス収集", "KPT整理", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
@@ -1055,7 +1045,7 @@ const COLOR = new Proxy({}, {
 const NS  = "http://www.w3.org/2000/svg";
 const svg = document.createElementNS(NS, "svg");
 svg.classList.add("arrows-layer");
-svg.setAttribute("viewBox", "0 0 420 322");
+svg.setAttribute("viewBox", "0 0 280 432");
 
 const defs = document.createElementNS(NS, "defs");
 [["arrowhead", COLOR.EDGE_SEQ], ["arrowhead-skip", COLOR.EDGE_SKIP], ["arrowhead-hl", COLOR.EDGE_HIGHLIGHT]].forEach(([id, color]) => {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRレビュー — BizSpec</title>
+<title>onboarding — BizSpec</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -736,7 +736,7 @@ svg.arrows-layer {
   <div class="tb-divider"></div>
   <div class="tb-crumb">
     <span class="tb-crumb-sep">/</span>
-    <span class="tb-crumb-leaf">PRレビュー</span>
+    <span class="tb-crumb-leaf">onboarding</span>
   </div>
   <div class="tb-spacer"></div>
   <div class="tb-theme" role="group" aria-label="theme">
@@ -746,8 +746,8 @@ svg.arrows-layer {
 </div>
 
 <header class="proc-head">
-  <h1>PRレビュー</h1>
-  <span class="subtitle">pr-review &nbsp;·&nbsp; 4 units &nbsp;·&nbsp; phase: dev</span>
+  <h1>onboarding</h1>
+  <span class="subtitle">5 units &nbsp;·&nbsp; phase: spec</span>
 </header>
 
 <div class="legend-bar">
@@ -822,213 +822,258 @@ svg.arrows-layer {
 
 <script>
 const units     = {
-  "テストレビュー": {
-    "aim": "テストコードの網羅性と品質を評価する",
-    "phase": "dev",
+  "コードベース説明": {
+    "aim": "アーキテクチャ・主要コンポーネント・開発フローを新メンバーに説明する",
+    "phase": "spec",
     "core": true,
     "scope": [
-      "テストの網羅性（正常系・異常系・境界値）の評価",
-      "壊れやすい実装パターン（モック過多・実装依存）の検出"
+      "アーキテクチャと主要コンポーネントの理解促進",
+      "開発フロー・ブランチ戦略・規約の共有"
     ],
     "rule": [
-      "ハッピーパスのみのテストは必ず異常系の追加を求める",
-      "テスト対象コードに変更があってテストが 0 件の場合はブロック扱いにする"
+      "一度に詰め込みすぎず、重要なものから優先的に説明する",
+      "説明後に質問時間を設ける"
     ],
     "io": {
       "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
+        "セットアップ済み開発環境",
+        "アーキテクチャ図・コーディング規約"
       ],
       "process": [
-        "テストファイルの diff を重点的に確認する",
-        "カバレッジの抜けを指摘する"
+        "アーキテクチャ・コンポーネントを説明",
+        "開発フロー・規約を説明"
       ],
       "out": [
-        "テストレビューコメント一覧（指摘レベル・箇所・内容）"
+        "新メンバーのコードベース理解（確認済み）"
       ]
     },
     "executor": {
-      "type": "ai_agent",
-      "reason": "テストの意図・網羅性の判断に推論が必要なため"
+      "type": "manual",
+      "reason": "質疑応答を通じた理解確認と補足説明に人手が必要なため"
     },
     "link": {
       "up": [
-        "差分取得"
+        "環境構築支援"
       ],
       "down": [
-        "承認判定"
-      ]
-    },
-    "depends_on": [],
-    "effort": {
-      "duration": 1,
-      "frequency": 40
-    },
-    "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": [
-      "ロジックレビュー"
-    ]
-  },
-  "ロジックレビュー": {
-    "aim": "実装ロジックの正しさと設計の妥当性を評価する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "実装ロジックの正しさとリスク（バグ・境界値漏れ・副作用）の指摘",
-      "命名・責務分割の妥当性評価"
-    ],
-    "rule": [
-      "指摘は「問題点・理由・改善案」の 3 点セットで記述する",
-      "{'軽微なスタイル指摘は nit': 'プレフィックスをつける'}"
-    ],
-    "io": {
-      "in": [
-        "変更ファイル一覧",
-        "差分テキスト"
-      ],
-      "process": [
-        "差分を読みロジック上の問題点を列挙する",
-        "設計・責務・命名の観点でフィードバックを作成する"
-      ],
-      "out": [
-        "ロジックレビューコメント一覧（指摘レベル・箇所・内容）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "コードの意図理解と設計判断に自然言語推論が必要なため"
-    },
-    "link": {
-      "up": [
-        "差分取得"
-      ],
-      "down": [
-        "承認判定"
+        "初タスクアサイン"
       ]
     },
     "depends_on": [],
     "effort": {
       "duration": 2,
-      "frequency": 40
+      "frequency": 1
     },
     "automation": {
-      "difficulty": "medium",
-      "status": "partially-automated"
+      "difficulty": "high",
+      "status": "manual"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   },
-  "差分取得": {
-    "aim": "レビュー対象の変更内容を取得する",
-    "phase": "dev",
-    "core": true,
+  "フィードバック": {
+    "aim": "初タスク完了後に新メンバーへフィードバックを行い、次のステップを示す",
+    "phase": "spec",
+    "core": false,
     "scope": [
-      "PR 差分テキストの取得",
-      "変更ファイル一覧と増減行数のまとめ"
+      "成果物に基づく具体的フィードバックの提供",
+      "次のタスク・成長目標の合意"
     ],
     "rule": [
-      "差分が 500 行を超える場合はレビュー依頼前に分割を促す"
+      "フィードバックは具体的な事実に基づいて行う（「なんとなく」はNG）",
+      "批判でなく成長を促す言い方にする"
     ],
     "io": {
       "in": [
-        "PR番号"
+        "進捗状況・課題メモ",
+        "完了した初タスクの成果物"
       ],
       "process": [
-        "GitHub API (GET /pulls/{number}/files) を呼び出す",
-        "ファイルパス・patch・変更行数を抽出する"
+        "成果物をレビューしてフィードバックを整理",
+        "対話でフィードバック・次ステップを設定"
       ],
       "out": [
-        "変更ファイル一覧（ファイルパス・追加行数・削除行数）",
-        "差分テキスト"
+        "フィードバック記録",
+        "次タスク・成長目標"
       ]
     },
     "executor": {
-      "type": "script",
-      "reason": "GitHub API の定型呼び出しで完結するため"
-    },
-    "link": {
-      "up": [],
-      "down": [
-        "ロジックレビュー",
-        "テストレビュー"
-      ]
-    },
-    "depends_on": [
-      "issue-refinement:Ready判定",
-      "implementation:PR作成"
-    ],
-    "effort": {
-      "duration": 0.5,
-      "frequency": 40
-    },
-    "automation": {
-      "difficulty": "low",
-      "status": "automated"
-    },
-    "lifecycle_status": null,
-    "deprecated_reason": null,
-    "parallel_with": []
-  },
-  "承認判定": {
-    "aim": "レビュー結果を総合してマージ可否を判定する",
-    "phase": "dev",
-    "core": true,
-    "scope": [
-      "レビュー結果の集約と Approve / Request Changes の判定",
-      "GitHub PR への判定・サマリー・コメントの投稿"
-    ],
-    "rule": [
-      "ブロック指摘が 1 件でもあれば Request Changes にする",
-      "nit のみであれば Approve してコメントを残す",
-      "指摘件数・ブロック有無・判定結果をサマリーに含める"
-    ],
-    "io": {
-      "in": [
-        "ロジックレビューコメント一覧",
-        "テストレビューコメント一覧"
-      ],
-      "process": [
-        "ブロック指摘を抽出する",
-        "Approve / Request Changes を決定する",
-        "GitHub API (POST /pulls/{number}/reviews) でレビューを投稿する"
-      ],
-      "out": [
-        "PRへの投稿済みレビュー（判定・サマリー・コメント一覧）"
-      ]
-    },
-    "executor": {
-      "type": "ai_agent",
-      "reason": "複数レビュー結果の統合判断と自然言語サマリー生成が必要なため"
+      "type": "manual",
+      "reason": "成長を促すフィードバックには対話と状況判断が必要なため"
     },
     "link": {
       "up": [
-        "ロジックレビュー",
-        "テストレビュー"
+        "進捗確認"
       ],
       "down": []
     },
     "depends_on": [],
     "effort": {
-      "duration": 0.5,
-      "frequency": 40
+      "duration": 1,
+      "frequency": 1
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "初タスクアサイン": {
+    "aim": "新メンバーが独力でほぼ完結できる規模の初タスクを選定してアサインする",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "新メンバーのスキルに合った初タスクの選定とアサイン",
+      "背景・期待成果・参考情報の伝達"
+    ],
+    "rule": [
+      "初タスクは 1〜2 日で完結できる規模にする",
+      "コードベースの全体像が把握できる箇所（既存機能の小改善等）を選ぶ",
+      "いきなり重要な本番機能は割り当てない"
+    ],
+    "io": {
+      "in": [
+        "新メンバーのスキル情報",
+        "バックログ（初タスク候補）"
+      ],
+      "process": [
+        "難易度・学習効果を考慮してタスクを選定",
+        "タスクの背景・期待成果を説明してアサイン"
+      ],
+      "out": [
+        "アサイン済み初タスク"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "新メンバーのスキルと成長を考慮したタスク選定は人間の判断が必要なため"
+    },
+    "link": {
+      "up": [
+        "コードベース説明"
+      ],
+      "down": [
+        "進捗確認"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 1,
+      "frequency": 1
+    },
+    "automation": {
+      "difficulty": "high",
+      "status": "manual"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "環境構築支援": {
+    "aim": "新メンバーの開発環境・アクセス権・ツールをセットアップする",
+    "phase": "spec",
+    "core": true,
+    "scope": [
+      "開発環境の構築完了の保証",
+      "必要システム・ツールへのアクセス権付与"
+    ],
+    "rule": [
+      "セットアップに詰まった箇所は手順書の改善点としてフィードバックする",
+      "アクセス権は最小権限の原則に従う"
+    ],
+    "io": {
+      "in": [
+        "セットアップ手順書",
+        "入社メンバー情報"
+      ],
+      "process": [
+        "手順書に従って環境構築",
+        "アクセス権を申請・付与",
+        "動作確認"
+      ],
+      "out": [
+        "セットアップ済み開発環境",
+        "アクセス権付与完了"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "環境への対話的な操作・権限申請プロセスに人手が必要なため"
+    },
+    "link": {
+      "up": [],
+      "down": [
+        "コードベース説明"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 3,
+      "frequency": 1
     },
     "automation": {
       "difficulty": "medium",
+      "status": "partially-automated"
+    },
+    "lifecycle_status": "stable",
+    "deprecated_reason": null,
+    "parallel_with": []
+  },
+  "進捗確認": {
+    "aim": "初タスクの進捗をメンターが確認し、詰まりポイントを早期発見する",
+    "phase": "spec",
+    "core": false,
+    "scope": [
+      "定期的な進捗チェックと詰まりポイントの早期発見",
+      "自走を促すヒント提供とサポート"
+    ],
+    "rule": [
+      "解法を即答せず、まず新メンバーが自分で考える時間を与える",
+      "詰まりが 2 時間以上続く場合はメンターに声をかけるよう伝えておく"
+    ],
+    "io": {
+      "in": [
+        "アサイン済み初タスク"
+      ],
+      "process": [
+        "定期的に進捗をヒアリング",
+        "詰まりポイントに対してヒント・サポート"
+      ],
+      "out": [
+        "進捗状況・課題メモ"
+      ]
+    },
+    "executor": {
+      "type": "manual",
+      "reason": "新メンバーの理解度を対話で確認しサポートする必要があるため"
+    },
+    "link": {
+      "up": [
+        "初タスクアサイン"
+      ],
+      "down": [
+        "フィードバック"
+      ]
+    },
+    "depends_on": [],
+    "effort": {
+      "duration": 0.5,
+      "frequency": 1
+    },
+    "automation": {
+      "difficulty": "high",
       "status": "manual"
     },
-    "lifecycle_status": null,
+    "lifecycle_status": "stable",
     "deprecated_reason": null,
     "parallel_with": []
   }
 };
-const positions = {"差分取得": {"left": 110, "top": 24}, "テストレビュー": {"left": 0, "top": 134}, "ロジックレビュー": {"left": 220, "top": 134}, "承認判定": {"left": 110, "top": 244}};
-const edges     = [["テストレビュー", "承認判定", "seq"], ["テストレビュー", "ロジックレビュー", "parallel"], ["ロジックレビュー", "承認判定", "seq"], ["差分取得", "ロジックレビュー", "seq"], ["差分取得", "テストレビュー", "seq"]];
+const positions = {"環境構築支援": {"left": 40, "top": 24}, "コードベース説明": {"left": 40, "top": 134}, "初タスクアサイン": {"left": 40, "top": 244}, "進捗確認": {"left": 40, "top": 354}, "フィードバック": {"left": 40, "top": 464}};
+const edges     = [["コードベース説明", "初タスクアサイン", "seq"], ["初タスクアサイン", "進捗確認", "seq"], ["環境構築支援", "コードベース説明", "seq"], ["進捗確認", "フィードバック", "seq"]];
 
 const W = 200, H = 54;
 const canvas     = document.getElementById("canvas");
@@ -1055,7 +1100,7 @@ const COLOR = new Proxy({}, {
 const NS  = "http://www.w3.org/2000/svg";
 const svg = document.createElementNS(NS, "svg");
 svg.classList.add("arrows-layer");
-svg.setAttribute("viewBox", "0 0 420 322");
+svg.setAttribute("viewBox", "0 0 280 542");
 
 const defs = document.createElementNS(NS, "defs");
 [["arrowhead", COLOR.EDGE_SEQ], ["arrowhead-skip", COLOR.EDGE_SKIP], ["arrowhead-hl", COLOR.EDGE_HIGHLIGHT]].forEach(([id, color]) => {
