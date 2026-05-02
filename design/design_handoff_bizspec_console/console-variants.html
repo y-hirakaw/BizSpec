@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Engineering Console — variations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; font-family: 'Inter', sans-serif; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="data.js"></script>
+<script src="data-dag.js"></script>
+<script src="data-leverage.js"></script>
+<script src="i18n.js"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="console-tokens.jsx"></script>
+<script type="text/babel" src="va-balanced.jsx"></script>
+<script type="text/babel" src="va-detail-dag.jsx"></script>
+<script type="text/babel" src="va-heatmap.jsx"></script>
+<script type="text/babel" src="vb-document.jsx"></script>
+<script type="text/babel" src="vc-compact.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+function App() {
+  const [tw, setTweak] = useTweaks(/*EDITMODE-BEGIN*/{
+    "lang": "ja"
+  }/*EDITMODE-END*/);
+
+  // Sync tweak → i18n module
+  React.useEffect(() => {
+    if (window.setLang && window.__lang !== tw.lang) window.setLang(tw.lang);
+  }, [tw.lang]);
+
+  return (
+    <React.Fragment>
+      <DesignCanvas title="Engineering Console — refined variations" subtitle="3 つの派生案 × Light / Dark。すべて青+紫+灰のパレット、JetBrains Mono ベース。">
+
+      <DCSection id="va-heatmap" title="A · Leverage Heatmap — 改善優先度の可視化" subtitle="cost × ease × gap で算出するレバレッジスコア。2D heatmap (Cost × Difficulty) + Top 10 ランキングの併存案。">
+        <DCArtboard id="va-heatmap-light" label="Heatmap · light" width={1200} height={760}><VAHeatmap mode="light" /></DCArtboard>
+        <DCArtboard id="va-heatmap-dark"  label="Heatmap · dark"  width={1200} height={760}><VAHeatmap mode="dark"  /></DCArtboard>
+      </DCSection>
+
+      <DCSection id="va-dag" title="A · Balanced + DAG detail — 分岐に対応した詳細" subtitle="分岐 (parallel / conditional / ref) を含む DAG ビュー。テスト実施が分岐ノードの例。">
+        <DCArtboard id="va-dag-light" label="DAG detail · light" width={1200} height={760}><VADetailDAG mode="light" /></DCArtboard>
+        <DCArtboard id="va-dag-dark"  label="DAG detail · dark"  width={1200} height={760}><VADetailDAG mode="dark"  /></DCArtboard>
+      </DCSection>
+
+      <DCSection id="va" title="A · Balanced — 一覧 + 線形詳細 (参考)" subtitle="一覧画面と、フローが直線のときの詳細表示 (旧)。">
+        <DCArtboard id="va-light-index"  label="Overview · light"  width={1200} height={760}><VAIndex  mode="light" /></DCArtboard>
+        <DCArtboard id="va-light-detail" label="Unit detail · light (linear)" width={1200} height={760}><VADetail mode="light" /></DCArtboard>
+        <DCArtboard id="va-dark-index"   label="Overview · dark"   width={1200} height={760}><VAIndex  mode="dark"  /></DCArtboard>
+        <DCArtboard id="va-dark-detail"  label="Unit detail · dark (linear)"  width={1200} height={760}><VADetail mode="dark"  /></DCArtboard>
+      </DCSection>
+
+      <DCSection id="vb" title="B · Document — 読み物に寄せる" subtitle="Notion 的な見出し階層・大きめ活字・余白。PdM や非エンジニアが読み解きやすい。">
+        <DCArtboard id="vb-light-index"  label="Atlas · light"      width={1200} height={760}><VBIndex  mode="light" /></DCArtboard>
+        <DCArtboard id="vb-light-detail" label="Article · light"    width={1200} height={760}><VBDetail mode="light" /></DCArtboard>
+        <DCArtboard id="vb-dark-index"   label="Atlas · dark"       width={1200} height={760}><VBIndex  mode="dark"  /></DCArtboard>
+        <DCArtboard id="vb-dark-detail"  label="Article · dark"     width={1200} height={760}><VBDetail mode="dark"  /></DCArtboard>
+      </DCSection>
+
+      <DCSection id="vc" title="C · Compact Power — 高密度ツール" subtitle="Linear 的な情報密度。zebra 行・ソート・モノスペース統計。エンジニアが速く扱える。">
+        <DCArtboard id="vc-light-index"  label="Table · light"      width={1200} height={760}><VCIndex  mode="light" /></DCArtboard>
+        <DCArtboard id="vc-light-detail" label="Unit · light"       width={1200} height={760}><VCDetail mode="light" /></DCArtboard>
+        <DCArtboard id="vc-dark-index"   label="Table · dark"       width={1200} height={760}><VCIndex  mode="dark"  /></DCArtboard>
+        <DCArtboard id="vc-dark-detail"  label="Unit · dark"        width={1200} height={760}><VCDetail mode="dark"  /></DCArtboard>
+      </DCSection>
+
+    </DesignCanvas>
+    <TweaksPanel title="Tweaks">
+      <TweakSection title="表示">
+        <TweakRadio label="言語 / Language" value={tw.lang} onChange={(v) => setTweak("lang", v)}
+          options={[{value:"ja",label:"日本語"},{value:"en",label:"English"}]} />
+      </TweakSection>
+    </TweaksPanel>
+    </React.Fragment>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
