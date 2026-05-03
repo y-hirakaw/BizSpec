@@ -34,7 +34,7 @@ executor:
 depends_on:             # cross-process dependencies
   - other-process:UnitName  # format: process-name:unit-name
 effort:
-  duration: 0.5         # hours per execution (Fibonacci: 0.25/0.5/1/2/3/5/8/13/21)
+  duration: 0.5         # hours per execution (Fibonacci: 0/0.25/0.5/1/2/3/5/8/13/21)
   frequency: 4          # monthly execution count (positive integer)
 automation:
   difficulty: medium    # low / medium / high — how hard to automate

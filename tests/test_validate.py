@@ -287,11 +287,11 @@ class TestAutomationOptionalFields:
         errors, _ = _check_file(tmp_path / "UnitA.yaml")
         assert any(e.field == "effort.duration" for e in errors)
 
-    def test_effort_duration_zero_fails(self, tmp_path):
+    def test_effort_duration_zero_passes(self, tmp_path):
         content = make_unit("UnitA") + "effort:\n  duration: 0\n"
         write_unit(tmp_path, "UnitA", content)
         errors, _ = _check_file(tmp_path / "UnitA.yaml")
-        assert any(e.field == "effort.duration" for e in errors)
+        assert not any(e.field == "effort.duration" for e in errors)
 
     def test_effort_not_dict_fails(self, tmp_path):
         content = make_unit("UnitA") + "effort: invalid\n"

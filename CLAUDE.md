@@ -82,7 +82,7 @@ depends_on:              # 他プロセスの unit への依存（省略可）
   - other-process:UnitName  # 形式: プロセス名:unit名
 # オプションフィールド（省略可）
 effort:
-  duration: 0.5           # 1回あたりの所要時間（時間単位、フィボナッチ数列: 0.25/0.5/1/2/3/5/8/13/21）
+  duration: 0.5           # 1回あたりの所要時間（時間単位、フィボナッチ数列: 0/0.25/0.5/1/2/3/5/8/13/21）
   frequency: 4            # 月間実行回数（1以上の整数）
 automation:
   difficulty: low | medium | high

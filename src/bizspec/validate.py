@@ -17,7 +17,7 @@ VALID_DIFFICULTY        = {"low", "medium", "high"}
 VALID_AUTO_STATUS       = {"manual", "partially-automated", "automated"}
 VALID_LIFECYCLE_STATUS  = {"draft", "review", "stable", "deprecated"}
 RECOMMENDED_PHASES      = {"spec", "dev", "test", "release", "ops"}
-FIBONACCI_HOURS         = {0.25, 0.5, 1, 2, 3, 5, 8, 13, 21}
+FIBONACCI_HOURS         = {0, 0.25, 0.5, 1, 2, 3, 5, 8, 13, 21}
 NON_EMPTY_LIST_FIELDS   = ["scope", "rule"]
 
 
@@ -171,7 +171,7 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
             dur = eff["duration"]
             if isinstance(dur, bool) or not isinstance(dur, (int, float)):
                 errors.append(VError(path, "effort.duration",
-                    "数値（時間単位）でなければなりません（例: 0.5 / 1 / 2 / 3 / 5 / 8 / 13 / 21）"))
+                    "数値（時間単位）でなければなりません（例: 0 / 0.25 / 0.5 / 1 / 2 / 3 / 5 / 8 / 13 / 21）"))
             elif dur not in FIBONACCI_HOURS:
                 errors.append(VError(path, "effort.duration",
                     f"フィボナッチ数列 {sorted(FIBONACCI_HOURS)} のいずれかでなければなりません（現在: {dur}）"))
