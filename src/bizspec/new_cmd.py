@@ -29,7 +29,7 @@ executor:
 #   - other-process:UnitName # 形式: プロセス名:unit名
 # --- optional ---
 # effort:
-#   duration: 0.5       # 1回あたりの所要時間（単位: 時間。30分=0.5）フィボナッチ数列のみ
+#   duration: 0.5       # 1回あたりの所要時間（単位: 時間。15分=0.25 / 30分=0.5）フィボナッチ数列のみ
 #   frequency: 4        # 月間実行回数（1以上の整数）
 # automation:
 #   difficulty: medium  # low / medium / high

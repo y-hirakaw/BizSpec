@@ -17,7 +17,7 @@ VALID_DIFFICULTY        = {"low", "medium", "high"}
 VALID_AUTO_STATUS       = {"manual", "partially-automated", "automated"}
 VALID_LIFECYCLE_STATUS  = {"draft", "review", "stable", "deprecated"}
 RECOMMENDED_PHASES      = {"spec", "dev", "test", "release", "ops"}
-FIBONACCI_HOURS         = {0.5, 1, 2, 3, 5, 8, 13, 21}
+FIBONACCI_HOURS         = {0.25, 0.5, 1, 2, 3, 5, 8, 13, 21}
 NON_EMPTY_LIST_FIELDS   = ["scope", "rule"]
 
 
