@@ -1,9 +1,6 @@
 unit: Create release branch
 aim: main ブランチからリリース用ブランチを作成し、バージョンタグを付与する
 phase: release
-scope:
-- リリース用ブランチとセマンティックバージョンタグの整備
-- CHANGELOG の更新
 rule:
 - バージョン番号はセマンティックバージョニング（major.minor.patch）に従う
 - リリースブランチへの直接コミットはホットフィックスのみ許可

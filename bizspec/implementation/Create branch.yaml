@@ -1,9 +1,6 @@
 unit: Create branch
 aim: 対応する issue に紐づいた作業ブランチを作成する
 phase: dev
-scope:
-- 命名規則に沿った作業ブランチの用意
-- リモート追跡ブランチの設定
 rule:
 - ブランチ名は `feature/<issue番号>-<概要>` の形式にする
 - main/develop から最新を取得してから分岐する

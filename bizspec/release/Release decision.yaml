@@ -1,9 +1,6 @@
 unit: Release decision
 aim: リリース基準を満たしているか確認し、GO/NOGO を判断する
 phase: release
-scope:
-- リリース基準チェックリストに基づく GO/NOGO の判断
-- 関係者への判定結果の通知
 rule:
 - Critical バグが未解決の場合は NOGO
 - 承認者が未承認の場合は NOGO

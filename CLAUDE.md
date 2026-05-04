@@ -65,7 +65,6 @@ Skills のコマンド名は `bizspec-` prefix で統一（CLI の `bizspec xxxx
 unit: 〇〇判定
 aim: 目的
 phase: spec | dev | test | release | ops  # 自由記述だが推奨語彙あり
-scope: [この unit が責任を持つ範囲・成果物（名詞句）]
 rule: [制約・判断基準]
 link:
   up: [実行順序として前に来る unit]   # データ依存ではなく実行順序
@@ -78,8 +77,7 @@ io:
 executor:
   type: script | ai_agent | manual
   reason: なぜその主体を選んだかの根拠
-depends_on:              # 他プロセスの unit への依存（省略可）
-  - other-process:UnitName  # 形式: プロセス名:unit名
+status: draft | review | stable | deprecated  # ライフサイクル状態
 # オプションフィールド（省略可）
 effort:
   duration: 0.5           # 1回あたりの所要時間（時間単位、フィボナッチ数列: 0/0.25/0.5/1/2/3/5/8/13/21）
@@ -87,21 +85,15 @@ effort:
 automation:
   difficulty: low | medium | high
   status: manual | partially-automated | automated
-status: draft | review | stable | deprecated  # ライフサイクル状態（省略可）
 deprecated_reason: 廃止理由  # status: deprecated のときのみ（省略可）
-execution:                 # 実行制御ヒント（省略可）
-  parallel_with:           # 並行実行できる unit 名のリスト
-    - AnotherUnit
 ```
 
 フィールドの補足：
 - `core: undetermined` — ユーザー確認が必要な場合に使用
 - `phase` — 自由記述。フォルダではなくフィールドで管理。推奨語彙は `spec` / `dev` / `test` / `release` / `ops`（外れた値は `bizspec validate` で warn 表示、エラーにはならない）
-- `depends_on` — 他プロセスの unit への依存を `プロセス名:unit名` 形式で記述（省略可）
-- `effort` / `automation` / `status` — 省略可。`bizspec list` の列と `bizspec viz` 詳細パネルに表示
+- `effort` / `automation` — 省略可。`bizspec list` の列と `bizspec viz` 詳細パネルに表示
 - `effort.duration × effort.frequency` — 月間コストを算出し viz ヒートマップに反映
-- `status` — viz でノード色分けに使用（draft=黄、review=橙、stable=緑、deprecated=グレー）
-- `execution.parallel_with` — 並行実行できる unit 名のリスト（省略可）。viz で緑の点線エッジとして可視化
+- `status` — 必須。viz でノード色分けに使用（draft=黄、review=橙、stable=緑、deprecated=グレー）
 
 ## 開発環境
 
@@ -113,18 +105,15 @@ execution:                 # 実行制御ヒント（省略可）
 
 ## フィールド責務ルーブリック
 
-`scope` / `rule` / `io.process` への書き分け基準：
+`rule` / `io.process` への書き分け基準：
 
 | フィールド | 責務 | ここには書かない |
 |-----------|------|----------------|
 | `aim` | この unit が達成する目的を 1 文で | 手順・制約・データ |
-| `scope` | この unit が責任を持つ範囲・成果物（名詞句で表現する責務スコープ） | アクション手順・制約 |
 | `rule` | 守るべき制約・判断基準・ガイドライン | 作業手順・データ |
 | `io.in` | この unit が受け取る入力データ（モノ） | アクション・制約 |
 | `io.process` | 入力 → 出力への処理ステップ（IPO の P。動詞句） | 制約・判断基準 |
 | `io.out` | この unit が渡す出力データ（モノ） | アクション・制約 |
-
-`scope` と `io.process` は抽象度で分離する：`scope` は **何に責任を持つか**（名詞句）、`io.process` は **どう変換するか**（動詞句）。
 
 ## Skills の設計方針
 

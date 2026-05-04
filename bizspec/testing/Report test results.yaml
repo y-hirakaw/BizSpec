@@ -1,9 +1,6 @@
 unit: Report test results
 aim: テスト完了後に結果サマリーをステークホルダーに報告する
 phase: test
-scope:
-- PASS/FAIL・カバレッジ・未解決バグを含むサマリーの作成
-- リリース判定に必要な情報の明示と報告
 rule:
 - Critical・High の未解決バグがある場合はリリース保留を推奨する
 - 数値は客観的に記録し、意見は別セクションに分ける

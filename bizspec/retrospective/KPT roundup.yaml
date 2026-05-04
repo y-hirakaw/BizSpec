@@ -1,9 +1,6 @@
 unit: KPT roundup
 aim: チームで Keep・Problem・Try を洗い出し、議論を構造化する
 phase: spec
-scope:
-- チームによる Keep・Problem・Try の発散
-- グルーピングと優先度付きテーマへの収束
 rule:
 - 発言は非難なし・特定個人への言及を避ける
 - Keep は次もやるべきことの確認として必ず行う（Problem だけに終わらない）

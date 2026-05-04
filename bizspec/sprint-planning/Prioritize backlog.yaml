@@ -1,9 +1,6 @@
 unit: Prioritize backlog
 aim: スプリントに取り込む PBI の優先順位を最新状態で確認する
 phase: spec
-scope:
-- 最新の事業優先度に基づくバックログの並び替え
-- 上位 PBI の Ready 状態・依存関係・サイズの確認
 rule:
 - 優先順位はビジネス価値・リスク・依存関係を考慮して決める
 - 未 Ready の PBI は上位に置かない

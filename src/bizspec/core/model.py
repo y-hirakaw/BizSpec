@@ -60,24 +60,23 @@ class _UnitRequired(TypedDict):
     unit: str
     aim: str
     phase: str
-    scope: list[str]
     rule: list[str]
     link: Link
     core: Union[bool, str]  # bool または "undetermined"
     io: IO
     executor: Executor
+    status: str  # "draft" | "review" | "stable" | "deprecated"
 
 
 class Unit(_UnitRequired, total=False):
     """BizSpec unit YAML 1 件分の論理構造。
 
     必須フィールドに加え、オプショナルフィールド（``effort``, ``automation``,
-    ``status``, ``deprecated_reason``, ``execution``, ``depends_on``）を含む。
+    ``deprecated_reason``, ``execution``, ``depends_on``）を含む。
     """
     depends_on: list[str]
     effort: Effort
     automation: Automation
-    status: str  # "draft" | "review" | "stable" | "deprecated"
     deprecated_reason: str
     execution: Execution
 

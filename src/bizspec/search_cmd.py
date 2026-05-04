@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .core.loader import load_units_with_paths
 
-_ALL_FIELDS = ("unit", "aim", "scope", "rule", "io", "executor", "depends_on")
+_ALL_FIELDS = ("unit", "aim", "rule", "io", "executor", "depends_on")
 FIELD_CHOICES = list(_ALL_FIELDS)
 
 

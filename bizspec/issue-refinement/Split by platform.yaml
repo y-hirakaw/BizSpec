@@ -1,9 +1,6 @@
 unit: Split by platform
 aim: 複数プラットフォームにまたがるPBIをプラットフォーム単位の子PBIに分割する
 phase: spec
-scope:
-- プラットフォーム単位の実装スコープ定義
-- 子PBI 間の依存順序の明記
 rule:
 - 各子PBIは単一プラットフォームの実装のみを含む
 - バックエンドAPIを先行PBIとして切り出す場合はその旨を依存関係に明記する
@@ -26,6 +23,7 @@ io:
 executor:
   type: ai_agent
   reason: プラットフォーム間の依存関係と実装スコープの分離には推論が必要なため
+status: stable
 effort:
   duration: 1
   frequency: 5

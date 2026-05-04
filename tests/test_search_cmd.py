@@ -7,11 +7,10 @@ from bizspec.search_cmd import run_search, _search_process, _extract_texts, _ALL
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-def make_unit_data(name="UnitA", aim="テスト", scope=None, rule=None, io_process=None) -> dict:
+def make_unit_data(name="UnitA", aim="テスト", rule=None, io_process=None) -> dict:
     return {
         "unit": name,
         "aim": aim,
-        "scope": scope or ["責務範囲"],
         "rule": rule or ["制約"],
         "io": {
             "in": ["入力"],
@@ -43,12 +42,12 @@ class TestExtractTexts:
         texts = dict(_extract_texts(data, ("aim",)))
         assert texts.get("aim") == "テスト用 aim"
 
-    def test_extracts_job_list(self):
-        data = make_unit_data(scope=["作業A", "作業B"])
-        pairs = _extract_texts(data, ("scope",))
+    def test_extracts_rule_list(self):
+        data = make_unit_data(rule=["制約A", "制約B"])
+        pairs = _extract_texts(data, ("rule",))
         values = [t for _, t in pairs]
-        assert "作業A" in values
-        assert "作業B" in values
+        assert "制約A" in values
+        assert "制約B" in values
 
     def test_extracts_io_subfields(self):
         data = make_unit_data(io_process=["Google Drive にアップロード"])

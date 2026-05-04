@@ -11,14 +11,14 @@ from .core.errors import VError
 
 _PREFIX_RE = re.compile(r"^\d+_")
 
-REQUIRED_FIELDS = ["unit", "aim", "phase", "scope", "rule", "link", "core", "io", "executor"]
+REQUIRED_FIELDS = ["unit", "aim", "phase", "rule", "link", "core", "io", "executor", "status"]
 VALID_EXECUTOR_TYPES    = {"script", "ai_agent", "manual"}
 VALID_DIFFICULTY        = {"low", "medium", "high"}
 VALID_AUTO_STATUS       = {"manual", "partially-automated", "automated"}
 VALID_LIFECYCLE_STATUS  = {"draft", "review", "stable", "deprecated"}
 RECOMMENDED_PHASES      = {"spec", "dev", "test", "release", "ops"}
 FIBONACCI_HOURS         = {0, 0.25, 0.5, 1, 2, 3, 5, 8, 13, 21}
-NON_EMPTY_LIST_FIELDS   = ["scope", "rule"]
+NON_EMPTY_LIST_FIELDS   = ["rule"]
 
 
 __all__ = [
@@ -194,7 +194,7 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
                 errors.append(VError(path, "automation.status",
                     f"{sorted(VALID_AUTO_STATUS)} のいずれかでなければなりません（現在: {aut['status']!r}）"))
 
-    # lifecycle (optional)
+    # lifecycle status (必須)
     if "status" in data:
         st = data["status"]
         if st not in VALID_LIFECYCLE_STATUS:
@@ -218,7 +218,7 @@ def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
                 if not isinstance(pw, list):
                     errors.append(VError(path, "execution.parallel_with", "リストである必要があります"))
 
-    # scope / rule の空リスト
+    # rule の空リスト
     for key in NON_EMPTY_LIST_FIELDS:
         if key in data and isinstance(data[key], list) and len(data[key]) == 0:
             errors.append(VError(path, key, "空リストは許可されていません"))

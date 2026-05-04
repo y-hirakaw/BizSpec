@@ -1,9 +1,6 @@
 unit: Define OpenAPI spec
 aim: 承認済み設計をもとに OpenAPI Specification を作成する
 phase: spec
-scope:
-- OpenAPI 3.x 仕様の作成と Lint 通過の保証
-- サンプルリクエスト・レスポンスの整備
 rule:
 - 'バージョンは openapi: "3.1.0" を使う'
 - $ref を活用してスキーマの重複を排除する

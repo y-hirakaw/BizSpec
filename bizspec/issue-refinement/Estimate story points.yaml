@@ -1,8 +1,5 @@
 unit: Estimate story points
 aim: PBI の複雑度・不確実性・規模をもとに SP を算出する
-scope:
-- 複雑度・不確実性・規模に基づく SP 値の算出
-- 算出根拠の明示
 rule:
 - Ready 判定結果に依存せず算出する（Not Ready でも見積もれる範囲で算出する）
 - SP はリリーススケジュール策定の前提となるため必須
@@ -24,6 +21,7 @@ io:
 executor:
   type: ai_agent
   reason: 複雑度・不確実性の推論が必要なため
+status: stable
 effort:
   duration: 1
   frequency: 20

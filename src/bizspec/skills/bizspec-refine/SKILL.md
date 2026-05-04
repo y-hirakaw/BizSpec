@@ -78,19 +78,13 @@ AIが独断で `core` を確定させてはいけない。
 | フィールド | 責務 | ここには書かない |
 |-----------|------|----------------|
 | `aim` | この unit が達成する目的を **1文で** | 手順・制約・データ |
-| `scope` | この unit が **責任を持つ範囲・成果物**（責務スコープを名詞句で 1〜数個） | アクション手順・制約 |
 | `rule` | 守るべき **制約・判断基準・ガイドライン** | 作業手順・データ |
 | `io.in` | この unit が受け取る **入力データ（モノ）** | アクション・制約 |
 | `io.process` | 入力 → 出力への **処理ステップ**（IPO の P。手順・動詞句） | 制約・判断基準 |
 | `io.out` | この unit が渡す **出力データ（モノ）** | アクション・制約 |
 
-`scope` と `io.process` の違いは抽象度:
-- `scope`（責務スコープ）= **何に責任を持つか** を名詞句で表す（例: "OpenAPI 3.x 仕様の作成と Lint 通過の保証"）
-- `io.process`（処理手順）= **どう変換するか** を動詞句で表す（例: "設計書を入力 → エンドポイント定義を抽出 → OpenAPI YAML を生成 → Lint で検証"）
-
 **迷ったときの判別:**
 - 「〇〇しなければならない / 〇〇の場合は…」→ `rule`
-- 「〇〇に責任を持つ / 〇〇を保証する」という名詞句 → `scope`
 - 「〇〇する / 〇〇を行う」という手順 → `io.process`
 - 名詞（ドキュメント・リスト・結果・フラグ）→ `io.in` / `io.out`
 
@@ -104,8 +98,6 @@ AIが独断で `core` を確定させてはいけない。
 unit: <動詞+目的語で簡潔に>
 aim: <この unit が達成する目的>
 phase: <このunitが属する工程フェーズ（例: spec / dev / test / release）>
-scope:
-  - <責任を持つ範囲・成果物（名詞句）>
 rule:
   - <制約・判断基準>
 link:
@@ -124,6 +116,7 @@ io:
 executor:
   type: script | ai_agent | manual
   reason: <選んだ根拠（1行）>
+status: draft | review | stable | deprecated
 ```
 
 ### 拡張フィールド（条件付きで埋める）
@@ -134,7 +127,7 @@ executor:
 ```yaml
 # 月間コストが算出可能なとき → effort を埋める
 effort:
-  duration: 0.5      # 1回あたりの所要時間（時間単位、フィボナッチ: 0.5/1/2/3/5/8/13/21）
+  duration: 0.5      # 1回あたりの所要時間（時間単位、フィボナッチ: 0/0.25/0.5/1/2/3/5/8/13/21）
   frequency: 4       # 月間実行回数（1以上の整数）
 
 # 自動化の現状と難易度が分かるとき → automation を埋める
@@ -142,18 +135,8 @@ automation:
   difficulty: low | medium | high                          # 自動化の技術的難しさ
   status: manual | partially-automated | automated         # 現在の対応状況
 
-# unit のライフサイクル状態を持たせたいとき → status を埋める
-status: draft | review | stable | deprecated
-deprecated_reason: <廃止理由>   # status: deprecated のときのみ
-
-# 他プロセスの unit に依存するとき → depends_on を埋める
-depends_on:
-  - <other-process>:<UnitName>
-
-# 並列実行可能な unit があるとき → execution.parallel_with を埋める
-execution:
-  parallel_with:
-    - <SiblingUnit>
+# status: deprecated のときのみ
+deprecated_reason: <廃止理由>
 ```
 
 **埋めるヒューリスティクス:**
@@ -163,11 +146,9 @@ execution:
 | 「30 分くらいかかる」「週 2 回やる」など時間・頻度に言及 | `effort.duration` / `effort.frequency` |
 | 「今は手作業」「自動化したい」「半自動」など現状言及 | `automation.status` |
 | 「スクリプト化は難しい」「API があるから簡単」など難易度言及 | `automation.difficulty` |
-| 「まだドラフト」「廃止予定」などライフサイクル言及 | `status` |
-| 「別プロセスの〇〇の出力を使う」「△△が終わってから」 | `depends_on` |
-| 「これと並行で進められる」「同時に走らせる」 | `execution.parallel_with` |
+| 「まだドラフト」「廃止予定」などライフサイクル言及 | `status` の値を変更 |
 
-埋めるかどうか不明なら省略してよい（必須ではない）。
+埋めるかどうか不明なら省略してよい（effort / automation）。
 
 ## 利用できる CLI コマンド
 
@@ -203,7 +184,7 @@ YAML を直接手で書き換えるより、コマンドを使うほうが参照
 1. `bizspec validate <プロセス名>` — CLI がインストール済みの場合
 2. `python3 -m bizspec.cli validate <プロセス名>` — BizSpec リポジトリ内で作業している場合
 3. **手動検証** — 上記がいずれも使えない場合、以下を自分でチェックする：
-   - 必須フィールド（unit / aim / phase / scope / rule / link / core / io / executor）の存在
+   - 必須フィールド（unit / aim / phase / rule / link / core / io / executor / status）の存在
    - `core` が `true` / `false` のいずれかであること
    - `executor.type` が `script` / `ai_agent` / `manual` のいずれかであること
    - `link.up/down` の参照先ファイルがすべて存在すること
@@ -216,9 +197,15 @@ YAML を直接手で書き換えるより、コマンドを使うほうが参照
 1. 不明な点があれば確認してから分解を開始する。曖昧な部分・矛盾・前提不明な箇所は積極的に掘り下げて質問する。すでに明確な情報については質問しない
 2. 分解結果を YAML で提示し、`core: undetermined` の unit についてユーザーに確認する
 3. ユーザーの回答を反映して YAML を確定する
-4. 粒度の調整（分割 or 統合）の提案は必要に応じて行う
-5. すべての unit が確定したら `bizspec/` に保存する
-6. **保存後に検証を実行し、結果をユーザーに報告する**（「検証方法」セクション参照）
+4. **各 unit の失敗モードを掘り起こす**（`rule` の充実）
+   YAML 提示後、unit ごとに以下を聞く（まとめて聞いてもよい）:
+   - 「このステップで一番よくある失敗・詰まりポイントは何ですか？」
+   - 「新しい人がここで間違えやすいことは？」
+   - 「緊急時・特定の相手・特定の時期など、手順が変わるケースはありますか？」
+   得られた回答を `rule` に追加する。既存の一般論より具体的な内容が出たら差し替えを提案する。
+5. 粒度の調整（分割 or 統合）の提案は必要に応じて行う
+6. すべての unit が確定したら `bizspec/` に保存する
+7. **保存後に検証を実行し、結果をユーザーに報告する**（「検証方法」セクション参照）
 
 ### 既存プロセスへの unit 追加・変更の場合
 

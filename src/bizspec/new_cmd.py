@@ -7,8 +7,6 @@ SKELETON = """\
 unit: {name}
 aim: TODO
 phase: {phase}
-scope:
-  - TODO
 rule:
   - TODO
 link:
@@ -25,8 +23,7 @@ io:
 executor:
   type: {executor}
   reason: TODO
-# depends_on:                # 他プロセスの unit への依存（省略可）
-#   - other-process:UnitName # 形式: プロセス名:unit名
+status: draft
 # --- optional ---
 # effort:
 #   duration: 0.5       # 1回あたりの所要時間（単位: 時間。無視できる=0 / 15分=0.25 / 30分=0.5）フィボナッチ数列のみ

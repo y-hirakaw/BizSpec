@@ -15,7 +15,6 @@ def write_unit(directory: Path, name: str, up: list[str], down: list[str]) -> No
         f"unit: {name}\n"
         f"aim: test\n"
         f"phase: spec\n"
-        f"scope:\n  - 作業\n"
         f"rule:\n  - 制約\n"
         f"link:\n"
         f"  up:{chr(10) + up_yaml if up_yaml else ' []'}\n"
@@ -23,6 +22,7 @@ def write_unit(directory: Path, name: str, up: list[str], down: list[str]) -> No
         f"core: true\n"
         f"io:\n  in:\n    - 入力\n  process:\n    - 手順\n  out:\n    - 出力\n"
         f"executor:\n  type: script\n  reason: 定型処理\n"
+        f"status: stable\n"
     )
     (directory / f"{name}.yaml").write_text(content, encoding="utf-8")
 
@@ -259,11 +259,12 @@ class TestRenameFailures:
         pd_b.mkdir()
         (pd_b / "P.yaml").write_text(
             "unit: P\naim: t\nphase: spec\n"
-            "scope:\n  - x\nrule:\n  - r\n"
+            "rule:\n  - r\n"
             "link:\n  up: []\n  down: []\n"
             "core: true\n"
             "io:\n  in:\n    - i\n  process:\n    - r\n  out:\n    - o\n"
             "executor:\n  type: script\n  reason: r\n"
+            "status: stable\n"
             "depends_on:\n  - proc-a:X\n",
             encoding="utf-8",
         )
@@ -318,11 +319,12 @@ class TestRmFailures:
         pd_b.mkdir()
         (pd_b / "P.yaml").write_text(
             "unit: P\naim: t\nphase: spec\n"
-            "scope:\n  - x\nrule:\n  - r\n"
+            "rule:\n  - r\n"
             "link:\n  up: []\n  down: []\n"
             "core: true\n"
             "io:\n  in:\n    - i\n  process:\n    - r\n  out:\n    - o\n"
             "executor:\n  type: script\n  reason: r\n"
+            "status: stable\n"
             "depends_on:\n  - proc-a:X\n",
             encoding="utf-8",
         )

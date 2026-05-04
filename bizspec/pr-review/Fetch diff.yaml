@@ -1,9 +1,6 @@
 unit: Fetch diff
 aim: レビュー対象の変更内容を取得する
 phase: dev
-scope:
-- PR 差分テキストの取得
-- 変更ファイル一覧と増減行数のまとめ
 rule:
 - 差分が 500 行を超える場合はレビュー依頼前に分割を促す
 link:
@@ -24,6 +21,7 @@ io:
 executor:
   type: script
   reason: GitHub API の定型呼び出しで完結するため
+status: stable
 depends_on:
 - issue-refinement:Ready decision
 - implementation:Open PR

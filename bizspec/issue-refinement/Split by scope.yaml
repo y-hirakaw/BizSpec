@@ -1,9 +1,6 @@
 unit: Split by scope
 aim: 独立して実装・テスト可能なスコープ単位にPBIを分割する
 phase: spec
-scope:
-- 独立してテスト可能なスコープ単位への分割
-- 子PBI 間の依存関係の明確化
 rule:
 - 各子PBIは単独でテスト可能なスコープを持つこと
 - 正常系を先行PBIとして切り出すことを優先する
@@ -26,6 +23,7 @@ io:
 executor:
   type: ai_agent
   reason: スコープの境界判断と分割後の独立性評価には推論が必要なため
+status: stable
 effort:
   duration: 1
   frequency: 5

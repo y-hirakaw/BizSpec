@@ -43,10 +43,10 @@ class TestEndToEndHtmlGeneration:
         from bizspec.viz.builder import _generate_html
         units = [
             {"unit": "A", "aim": "a", "phase": "spec", "core": True,
-             "scope": [], "rule": [], "io": {}, "executor": {"type": "script", "reason": ""},
+             "rule": [], "io": {}, "executor": {"type": "script", "reason": ""},
              "link": {"up": [], "down": ["B"]}},
             {"unit": "B", "aim": "b", "phase": "spec", "core": True,
-             "scope": [], "rule": [], "io": {}, "executor": {"type": "script", "reason": ""},
+             "rule": [], "io": {}, "executor": {"type": "script", "reason": ""},
              "link": {"up": ["A"], "down": []}},
         ]
         html = _generate_html("proc", units)
@@ -59,7 +59,7 @@ class TestEndToEndHtmlGeneration:
     def test_generate_index_html_does_not_leak_placeholders(self):
         from bizspec.viz.builder import _generate_index_html
         units_a = [{"unit": "X", "aim": "x", "phase": "spec", "core": True,
-                    "scope": [], "rule": [], "io": {},
+                    "rule": [], "io": {},
                     "executor": {"type": "script", "reason": ""},
                     "link": {"up": [], "down": []}}]
         html = _generate_index_html({"proc-a": units_a})

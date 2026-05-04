@@ -21,15 +21,14 @@ def make_unit(
     core=True,
     executor_type: str = "script",
     executor_reason: str = "定型処理のため",
-    scope: list | None = None,
     rule: list | None = None,
     io_in: list | None = None,
     io_process: list | None = None,
     io_out: list | None = None,
+    status: str = "stable",
 ) -> str:
     up    = up    if up    is not None else []
     down  = down  if down  is not None else []
-    scope  = scope if scope is not None else ["責務範囲"]
     rule   = rule  if rule  is not None else ["制約"]
     io_in  = io_in  if io_in  is not None else ["入力"]
     io_process = io_process if io_process is not None else ["実行手順"]
@@ -46,7 +45,6 @@ def make_unit(
         f"unit: {name}\n"
         f"aim: テスト用 unit\n"
         f"phase: spec\n"
-        f"scope:{_list_yaml(scope)}\n"
         f"rule:{_list_yaml(rule)}\n"
         f"link:\n"
         f"  up:{_list_yaml(up)}\n"
@@ -59,6 +57,7 @@ def make_unit(
         f"executor:\n"
         f"  type: {executor_type}\n"
         f"  reason: {executor_reason}\n"
+        f"status: {status}\n"
     )
 
 
@@ -121,11 +120,6 @@ class TestCheckFile:
         write_unit(tmp_path, "TestUnit", content)
         errors, _ = _check_file(tmp_path / "TestUnit.yaml")
         assert any(e.field == "executor.reason" for e in errors)
-
-    def test_empty_job(self, tmp_path):
-        write_unit(tmp_path, "TestUnit", make_unit("TestUnit", scope=[]))
-        errors, _ = _check_file(tmp_path / "TestUnit.yaml")
-        assert any(e.field == "scope" for e in errors)
 
     def test_empty_rule(self, tmp_path):
         write_unit(tmp_path, "TestUnit", make_unit("TestUnit", rule=[]))
@@ -412,12 +406,12 @@ class _ValidateArgs:
 _INVALID_UNIT = (  # missing required field 'aim'
     "unit: BadUnit\n"
     "phase: spec\n"
-    "scope:\n  - x\n"
     "rule:\n  - y\n"
     "link:\n  up: []\n  down: []\n"
     "core: true\n"
     "io:\n  in:\n    - i\n  process:\n    - r\n  out:\n    - o\n"
     "executor:\n  type: script\n  reason: r\n"
+    "status: stable\n"
 )
 
 

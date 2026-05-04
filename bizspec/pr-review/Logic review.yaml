@@ -1,9 +1,6 @@
 unit: Logic review
 aim: 実装ロジックの正しさと設計の妥当性を評価する
 phase: dev
-scope:
-- 実装ロジックの正しさとリスク（バグ・境界値漏れ・副作用）の指摘
-- 命名・責務分割の妥当性評価
 rule:
 - 指摘は「問題点・理由・改善案」の 3 点セットで記述する
 - 軽微なスタイル指摘は nit: プレフィックスをつける
@@ -25,6 +22,7 @@ io:
 executor:
   type: ai_agent
   reason: コードの意図理解と設計判断に自然言語推論が必要なため
+status: stable
 effort:
   duration: 2
   frequency: 40

@@ -1,7 +1,5 @@
 unit: Fetch PBI
 aim: GitHub から PBI の本文・ラベル・マイルストーン等を取得する
-scope:
-- GitHub からの PBI データ（本文・ラベル・担当者・マイルストーン）取得
 rule:
 - 本文・ラベル・担当者・マイルストーンをすべて取得する
 - 取得失敗時はエラーを返し後続処理を止める
@@ -21,6 +19,7 @@ io:
 executor:
   type: script
   reason: gh CLI で一意に取得できる定型処理のため
+status: stable
 effort:
   duration: 0.5
   frequency: 20

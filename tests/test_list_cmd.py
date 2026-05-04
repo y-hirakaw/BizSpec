@@ -22,11 +22,12 @@ def make_yaml(name: str, core: bool = True, executor_type: str = "script",
     down_yaml = "\n".join(f"    - {d}" for d in (down or []))
     return (
         f"unit: {name}\naim: テスト\nphase: spec\n"
-        f"scope:\n  - 作業\nrule:\n  - 制約\n"
+        f"rule:\n  - 制約\n"
         f"link:\n  up:\n{up_yaml or '    []'}\n  down:\n{down_yaml or '    []'}\n"
         f"core: {core_str}\n"
         f"io:\n  in:\n    - 入力\n  process:\n    - 実行\n  out:\n    - 出力\n"
         f"executor:\n  type: {executor_type}\n  reason: 理由\n"
+        f"status: stable\n"
     )
 
 

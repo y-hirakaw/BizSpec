@@ -1,8 +1,5 @@
 unit: Ready decision
 aim: PBI が開発着手可能な状態かを判定する
-scope:
-- Ready / Not Ready 判定と判定根拠の明示
-- Not Ready 時の必要事項リストの作成
 rule:
 - 概要・スコープ・受入基準がすべて OK でなければ Ready にしない
 - 不足事項は「何を・誰が・いつまでに」の粒度で示す
@@ -23,6 +20,7 @@ io:
 executor:
   type: ai_agent
   reason: 複数評価結果の統合判断が必要なため
+status: stable
 effort:
   duration: 0.5
   frequency: 20
