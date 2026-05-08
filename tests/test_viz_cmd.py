@@ -656,3 +656,74 @@ class TestIndexHtmlStructure:
             ".node.core-true", ".node.core-false",
         ):
             assert cls in html, f"missing CSS class: {cls}"
+
+
+# ── process.html: Review フィルタの構造契約 ───────────────────────────────────
+# 「要レビュー unit を絞り込む」UI の DOM/JS 契約。判定基準は
+#   status ∈ {draft, review} ∨ core = "undetermined" ∨ executor.reason が空。
+
+class TestProcessHtmlReviewFilter:
+    def test_review_filter_group_present(self):
+        html = _generate_html("proc", [make_unit("A")])
+        # フィルタグループ本体と、トグルボタン2種、件数表示が揃っていること
+        assert 'id="review-filter-group"' in html
+        assert 'data-filter="review" data-val="all"' in html
+        assert 'data-filter="review" data-val="needs"' in html
+        assert 'id="review-count"' in html
+
+    def test_needs_review_function_present(self):
+        """要レビュー判定関数が JS に含まれること。"""
+        html = _generate_html("proc", [make_unit("A")])
+        assert "function needsReview(" in html
+        # 3 つの判定基準が関数内に書かれている
+        assert '"draft"' in html and '"review"' in html
+        assert '"undetermined"' in html
+        assert "executor" in html and "reason" in html
+
+    def test_filter_state_includes_review(self):
+        """filterState に review キーが追加されていること。"""
+        html = _generate_html("proc", [make_unit("A")])
+        assert "review:" in html and 'review: "all"' in html
+
+    def test_review_count_aggregation_present(self):
+        """要レビュー数を集計し、必要時にグループを表示するロジックがあること。"""
+        html = _generate_html("proc", [make_unit("A")])
+        assert "Object.values(units).filter(needsReview)" in html
+
+
+# ── index.html: Review フィルタの構造契約 ────────────────────────────────────
+# index ビュー内のフロー画面でも同じ「要レビュー絞り込み」が動くこと。
+
+class TestIndexHtmlReviewFilter:
+    def _procs(self):
+        return {"proc-a": [make_unit("X", down=["Y"]), make_unit("Y", up=["X"])]}
+
+    def test_review_filter_group_present(self):
+        html = _generate_index_html(self._procs())
+        assert 'id="idx-review-filter"' in html
+        assert 'data-filter="review" data-val="all"' in html
+        assert 'data-filter="review" data-val="needs"' in html
+        assert 'id="idx-review-count"' in html
+
+    def test_needs_review_function_present(self):
+        html = _generate_index_html(self._procs())
+        assert "function needsReview(" in html
+
+    def test_filter_state_includes_review(self):
+        html = _generate_index_html(self._procs())
+        assert 'review: "all"' in html
+
+    def test_review_count_per_process_recompute(self):
+        """プロセス切替時に要レビュー数を再集計するロジックがあること。"""
+        html = _generate_index_html(self._procs())
+        assert "Object.values(proc.units).filter(needsReview)" in html
+
+    def test_review_badge_in_sidebar_and_overview(self):
+        """サイドバー・概要カードに各プロセスの要レビュー数バッジが入ること。"""
+        html = _generate_index_html(self._procs())
+        # サイドバー側のバッジ
+        assert 'class="sb-review"' in html
+        # 概要カード側のバッジ
+        assert 'class="proc-card-review"' in html
+        # CSS 定義
+        assert ".sb-review" in html and ".proc-card-review" in html

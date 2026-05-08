@@ -809,6 +809,11 @@ svg.arrows-layer {
     <span class="filter-label">Status</span>
     <button class="filter-btn active" data-filter="status" data-val="all">all</button>
   </div>
+  <div class="filter-group" id="review-filter-group" style="display:none;">
+    <span class="filter-label">Review</span>
+    <button class="filter-btn active" data-filter="review" data-val="all">all</button>
+    <button class="filter-btn" data-filter="review" data-val="needs">needs review (<span id="review-count">0</span>)</button>
+  </div>
   <div class="filter-group">
     <span class="filter-label">Search</span>
     <input type="search" class="filter-search" id="filter-search" placeholder="unit / aim…">
@@ -830,10 +835,7 @@ const units     = {
     "aim": "テストケースに従って動作確認を行い、結果を記録する",
     "phase": "test",
     "core": true,
-    "scope": [
-      "テストケース実行と PASS/FAIL の記録",
-      "FAIL 時の再現手順・実際結果・期待結果の記録"
-    ],
+    "scope": [],
     "rule": [
       "テスト環境はテスト計画書で指定した環境を使う",
       "FAIL は握りつぶさずすべて記録する"
@@ -882,10 +884,7 @@ const units     = {
     "aim": "テスト中に発見した不具合を issue として起票する",
     "phase": "test",
     "core": false,
-    "scope": [
-      "再現手順・結果・環境情報を含むバグ issue の起票",
-      "優先度・重要度の付与とトリアージ"
-    ],
+    "scope": [],
     "rule": [
       "再現手順は第三者が追えるレベルで記述する",
       "スクリーンショット・ログを添付する",
@@ -931,10 +930,7 @@ const units     = {
     "aim": "リリース対象の機能に対するテスト方針・スコープ・スケジュールを決定する",
     "phase": "test",
     "core": true,
-    "scope": [
-      "リスクエリアに基づくテスト対象・レベル・スコープの定義",
-      "スケジュールと担当の割り当て"
-    ],
+    "scope": [],
     "rule": [
       "リスクの高い機能（新規・変更箇所・外部連携）を優先的にカバーする",
       "スケジュールにバッファを 20% 設ける"
@@ -979,10 +975,7 @@ const units     = {
     "aim": "テスト完了後に結果サマリーをステークホルダーに報告する",
     "phase": "test",
     "core": true,
-    "scope": [
-      "PASS/FAIL・カバレッジ・未解決バグを含むサマリーの作成",
-      "リリース判定に必要な情報の明示と報告"
-    ],
+    "scope": [],
     "rule": [
       "Critical・High の未解決バグがある場合はリリース保留を推奨する",
       "数値は客観的に記録し、意見は別セクションに分ける"
@@ -1029,10 +1022,7 @@ const units     = {
     "aim": "テスト計画に基づいてテストケースを作成する",
     "phase": "test",
     "core": true,
-    "scope": [
-      "テストケース一覧の作成と網羅性の担保",
-      "テストデータの整備"
-    ],
+    "scope": [],
     "rule": [
       "テストケースは再現可能で独立していること",
       "期待結果を事前に明記する（テスト後に決めない）"
@@ -1397,7 +1387,17 @@ function jumpTo(name) {
 }
 
 // ── Filter ───────────────────────────────────────────────
-const filterState = { core: "all", executor: "all", phase: "all", status: "all", search: "" };
+const filterState = { core: "all", executor: "all", phase: "all", status: "all", review: "all", search: "" };
+
+function needsReview(u) {
+  if (!u) return false;
+  const s = u.lifecycle_status;
+  if (s === "draft" || s === "review") return true;
+  if (u.core === "undetermined") return true;
+  const reason = u.executor && u.executor.reason;
+  if (!reason || !String(reason).trim()) return true;
+  return false;
+}
 
 function applyFilter() {
   const q = filterState.search.toLowerCase();
@@ -1410,6 +1410,7 @@ function applyFilter() {
       (filterState.executor === "all" || u.executor.type === filterState.executor) &&
       (filterState.phase    === "all" || u.phase === filterState.phase) &&
       (filterState.status   === "all" || (u.lifecycle_status || "") === filterState.status) &&
+      (filterState.review   === "all" || (filterState.review === "needs" && needsReview(u))) &&
       (!q || name.toLowerCase().includes(q) || u.aim.toLowerCase().includes(q));
     el.style.opacity       = match ? "1" : "0.1";
     el.style.pointerEvents = match ? "" : "none";
@@ -1451,6 +1452,13 @@ if (statuses.length) {
     btn.className = "filter-btn"; btn.dataset.filter = "status"; btn.dataset.val = s; btn.textContent = s;
     sg.appendChild(btn);
   });
+}
+
+// Review filter — show only when at least one unit needs review
+const reviewCount = Object.values(units).filter(needsReview).length;
+if (reviewCount > 0) {
+  document.getElementById("review-filter-group").style.display = "";
+  document.getElementById("review-count").textContent = reviewCount;
 }
 
 // ── Theme toggle (light/dark) ─────────────────────────────
