@@ -101,3 +101,49 @@ def load_process_meta(process_dir: Path) -> dict:
     except yaml.YAMLError:
         return {}
     return data if isinstance(data, dict) else {}
+
+
+def load_process_defaults(process_dir: Path) -> dict:
+    """プロセス直下の ``_defaults.yaml`` を読む（無ければ空 dict）。
+
+    読み出した dict を ``apply_defaults`` で個々の unit にマージすると、
+    unit YAML 側に書かれていない共通フィールドを補完できる。
+    """
+    path = process_dir / "_defaults.yaml"
+    if not path.exists():
+        return {}
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except yaml.YAMLError:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _deep_merge(base: dict, override: dict) -> dict:
+    """``base`` に ``override`` を再帰的にマージする。``override`` が勝つ。
+
+    - dict 同士のキー衝突は再帰的にマージ
+    - dict と非 dict の衝突、および list / scalar の衝突は ``override`` 側で置換
+    - 入力は変更しない（新しい dict を返す）
+    """
+    result: dict = {}
+    for k in set(base) | set(override):
+        if k in override and k in base and isinstance(base[k], dict) and isinstance(override[k], dict):
+            result[k] = _deep_merge(base[k], override[k])
+        elif k in override:
+            result[k] = override[k]
+        else:
+            result[k] = base[k]
+    return result
+
+
+def apply_defaults(unit: dict, defaults: dict) -> dict:
+    """``defaults`` を ``unit`` にマージする。``unit`` が同名キーを持てば ``unit`` が勝つ。
+
+    既存フィールドは全て unit が優先。dict 型のフィールド（``executor`` /
+    ``automation`` / ``effort`` 等）は再帰的にマージされる。
+    入力は変更しない（新しい dict を返す）。
+    """
+    if not defaults:
+        return unit
+    return _deep_merge(defaults, unit)

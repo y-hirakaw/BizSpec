@@ -10,12 +10,14 @@ loader は使わず独自実装を保持している。
 from .config import DEFAULT_CONFIG, load_config
 from .errors import VError
 from .loader import (
+    apply_defaults,
     iter_processes,
     iter_unit_files,
     load_unit,
     load_units,
     load_units_with_paths,
     load_units_by_name,
+    load_process_defaults,
     load_process_meta,
 )
 from .model import (
@@ -36,12 +38,14 @@ __all__ = [
     # errors
     "VError",
     # loader
+    "apply_defaults",
     "iter_processes",
     "iter_unit_files",
     "load_unit",
     "load_units",
     "load_units_with_paths",
     "load_units_by_name",
+    "load_process_defaults",
     "load_process_meta",
     # model
     "IO",

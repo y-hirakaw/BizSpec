@@ -6,7 +6,22 @@ from pathlib import Path
 
 import yaml
 
-from .core.loader import load_units as _load_units
+from .core.loader import (
+    apply_defaults as _apply_defaults,
+    load_process_defaults as _load_process_defaults,
+    load_units as _load_units,
+)
+
+
+def _load_units_merged(process_dir: Path) -> list[dict]:
+    """unit を読み、_defaults.yaml が在ればマージした実効値を返す。"""
+    units = _load_units(process_dir)
+    if not units:
+        return units
+    defaults = _load_process_defaults(process_dir)
+    if not defaults:
+        return units
+    return [_apply_defaults(u, defaults) for u in units]
 
 
 def _unit_to_refactor_entry(u: dict) -> dict:
@@ -63,7 +78,7 @@ def _print_refactor_text(all_data: list[dict]) -> None:
 def _run_list_refactor(process_dirs: list[Path], fmt: str) -> int:
     all_data = []
     for process_dir in process_dirs:
-        units = _load_units(process_dir)
+        units = _load_units_merged(process_dir)
         if not units:
             continue
         all_data.append({
@@ -107,7 +122,7 @@ def run_list(args) -> int:
         return _run_list_refactor(process_dirs, fmt)
 
     for process_dir in process_dirs:
-        units = _load_units(process_dir)
+        units = _load_units_merged(process_dir)
         if not units:
             continue
 

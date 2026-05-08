@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 from ..core.config import load_config
-from ..core.loader import load_units, load_process_meta
+from ..core.loader import apply_defaults, load_units, load_process_defaults, load_process_meta
 from .builder import _generate_html, _generate_index_html
 
 
@@ -41,6 +41,9 @@ def run_viz(args) -> int:
         units = load_units(process_dir)
         if not units:
             continue
+        defaults = load_process_defaults(process_dir)
+        if defaults:
+            units = [apply_defaults(u, defaults) for u in units]
         meta = load_process_meta(process_dir)
         display_name = meta.get("name") or None
         html = _generate_html(process_dir.name, units, display_name=display_name, config=config)

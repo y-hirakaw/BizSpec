@@ -14,6 +14,7 @@ def test_expected_skills_present():
     names = {d.name for d in init_cmd._SKILLS_SRC.iterdir() if d.is_dir()}
     assert "bizspec-refine" in names
     assert "bizspec-refactor" in names
+    assert "bizspec-review" in names
 
 
 def test_all_skills_have_skill_md():
@@ -46,7 +47,7 @@ def test_init_local_default(monkeypatch, tmp_path):
     assert result == 0
     assert dest.is_dir()
     installed = {d.name for d in dest.iterdir()}
-    assert "bizspec-refine" in installed
+    assert {"bizspec-refine", "bizspec-refactor", "bizspec-review"} <= installed
 
 
 def test_init_local_explicit(monkeypatch, tmp_path):
@@ -56,7 +57,8 @@ def test_init_local_explicit(monkeypatch, tmp_path):
     monkeypatch.setattr("builtins.input", lambda _: "1")
     result = init_cmd.run_init(None)
     assert result == 0
-    assert "bizspec-refine" in {d.name for d in dest.iterdir()}
+    installed = {d.name for d in dest.iterdir()}
+    assert {"bizspec-refine", "bizspec-refactor", "bizspec-review"} <= installed
 
 
 def test_init_global(monkeypatch, tmp_path):
@@ -67,7 +69,8 @@ def test_init_global(monkeypatch, tmp_path):
     result = init_cmd.run_init(None)
     assert result == 0
     assert dest.is_dir()
-    assert "bizspec-refine" in {d.name for d in dest.iterdir()}
+    installed = {d.name for d in dest.iterdir()}
+    assert {"bizspec-refine", "bizspec-refactor", "bizspec-review"} <= installed
 
 
 def test_init_invalid_choice(monkeypatch, capsys):

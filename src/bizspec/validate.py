@@ -8,6 +8,7 @@ from typing import Optional
 import yaml
 
 from .core.errors import VError
+from .core.loader import apply_defaults, load_process_defaults
 
 _PREFIX_RE = re.compile(r"^\d+_")
 
@@ -79,17 +80,23 @@ def _yaml_parse_message(path: Path, exc: yaml.YAMLError) -> str:
     return f"{base}  ヒント: {hint}" if hint else base
 
 
-def _check_file(path: Path) -> tuple[list[VError], Optional[dict]]:
-    """単一ファイルを検証する。(errors, data) を返す。"""
+def _check_file(path: Path, defaults: Optional[dict] = None) -> tuple[list[VError], Optional[dict]]:
+    """単一ファイルを検証する。(errors, data) を返す。
+
+    ``defaults`` を渡すと unit YAML にマージしてから検証する（``_defaults.yaml`` 由来の
+    フィールド継承を考慮した「実効値」の検証）。返す ``data`` もマージ後のもの。
+    """
     errors: list[VError] = []
 
     try:
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
     except yaml.YAMLError as e:
         return [VError(path, "parse", _yaml_parse_message(path, e))], None
 
-    if not isinstance(data, dict):
+    if not isinstance(raw, dict):
         return [VError(path, "format", "トップレベルはマッピングである必要があります")], None
+
+    data = apply_defaults(raw, defaults) if defaults else raw
 
     # 必須フィールド
     for f in REQUIRED_FIELDS:
@@ -245,9 +252,10 @@ def _check_process(process_dir: Path, bizspec_dir: Optional[Path] = None) -> lis
     errors: list[VError] = []
     units: dict[str, dict] = {}
     unit_paths: dict[str, Path] = {}
+    defaults = load_process_defaults(process_dir)
 
     for path in yaml_files:
-        file_errors, data = _check_file(path)
+        file_errors, data = _check_file(path, defaults)
         errors.extend(file_errors)
         if data is not None and isinstance(data.get("unit"), str):
             units[data["unit"]] = data

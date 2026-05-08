@@ -548,3 +548,67 @@ class TestRunValidateJson:
         data = json.loads(out)
         assert data["ok"] is False
         assert "missing" in data["error"]
+
+
+# ── _defaults.yaml 由来のフィールドが必須チェックを満たすこと ──────────────
+# unit YAML に書かれていなくても _defaults.yaml で補完されていれば
+# 「必須フィールド欠落」エラーが出ないこと。
+
+class TestValidateWithDefaults:
+    def _setup(self, tmp_path, defaults_yaml: str, unit_yaml: str):
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        (proc / "_defaults.yaml").write_text(defaults_yaml, encoding="utf-8")
+        (proc / "U1.yaml").write_text(unit_yaml, encoding="utf-8")
+        return tmp_path
+
+    def test_phase_inherited_from_defaults(self, tmp_path, capsys):
+        """unit に phase が無くても _defaults.yaml にあれば検証パス。"""
+        defaults = "phase: spec\n"
+        unit = (
+            "unit: U1\n"
+            "aim: aim\n"
+            "rule:\n  - r\n"
+            "link:\n  up: []\n  down: []\n"
+            "core: true\n"
+            "io:\n  in:\n    - i\n  process:\n    - p\n  out:\n    - o\n"
+            "executor:\n  type: script\n  reason: r\n"
+            "status: stable\n"
+        )
+        result = run_validate(_ValidateArgs(self._setup(tmp_path, defaults, unit)))
+        assert result == 0
+
+    def test_executor_inherited_from_defaults(self, tmp_path, capsys):
+        """unit に executor が無くても _defaults.yaml にあれば検証パス。"""
+        defaults = "executor:\n  type: script\n  reason: 共通\n"
+        unit = (
+            "unit: U1\n"
+            "aim: aim\n"
+            "phase: spec\n"
+            "rule:\n  - r\n"
+            "link:\n  up: []\n  down: []\n"
+            "core: true\n"
+            "io:\n  in:\n    - i\n  process:\n    - p\n  out:\n    - o\n"
+            "status: stable\n"
+        )
+        result = run_validate(_ValidateArgs(self._setup(tmp_path, defaults, unit)))
+        assert result == 0
+
+    def test_required_field_still_missing_after_merge(self, tmp_path, capsys):
+        """defaults でも補えていない必須フィールドはエラーになる。"""
+        defaults = "phase: spec\n"
+        # aim が unit にも defaults にもない
+        unit = (
+            "unit: U1\n"
+            "rule:\n  - r\n"
+            "link:\n  up: []\n  down: []\n"
+            "core: true\n"
+            "io:\n  in:\n    - i\n  process:\n    - p\n  out:\n    - o\n"
+            "executor:\n  type: script\n  reason: r\n"
+            "status: stable\n"
+        )
+        result = run_validate(_ValidateArgs(self._setup(tmp_path, defaults, unit)))
+        err = capsys.readouterr().out + capsys.readouterr().err
+        assert result == 1
+        # aim が未設定なので必須フィールド欠落エラーが残る
+        assert "aim" in err or "aim" in capsys.readouterr().out

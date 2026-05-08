@@ -171,3 +171,105 @@ class TestEmptyAndMissing:
         result = run_list(_ListArgs(tmp_path))
         # behavior: returns error code or prints warning, but does not raise
         assert result is None or isinstance(result, int)
+
+
+# ── _defaults.yaml 継承 ───────────────────────────────────────────────────────
+# プロセス直下の _defaults.yaml に書いた共通フィールドが、unit YAML に書かれて
+# いない場合だけ補完される。unit 側に同名フィールドがあれば unit が勝つ。
+# unit ファイル自体は書き換わらない（読み出し時にのみマージされる）。
+
+from bizspec.core import apply_defaults, load_process_defaults
+
+
+def _minimal_unit(name: str, **overrides: str) -> str:
+    """defaults からの継承を観察するため、最低限必要なフィールドだけ書いた YAML。"""
+    body = (
+        f"unit: {name}\n"
+        f"aim: aim\n"
+        f"rule:\n  - r\n"
+        f"link:\n  up: []\n  down: []\n"
+        f"core: true\n"
+        f"io:\n  in:\n    - i\n  process:\n    - r\n  out:\n    - o\n"
+    )
+    # 上書きしたい項目があれば末尾に足す
+    for k, v in overrides.items():
+        body += f"{k}: {v}\n"
+    return body
+
+
+class TestProcessDefaults:
+    def test_apply_defaults_unit_wins(self):
+        """unit 側に同名フィールドがあれば unit が勝つ。"""
+        merged = apply_defaults(
+            {"phase": "dev", "executor": {"type": "ai_agent"}},
+            {"phase": "spec", "executor": {"type": "script", "reason": "default"}},
+        )
+        assert merged["phase"] == "dev"
+        # nested dict は再帰マージされ、unit が持たないキー（reason）は default が補完
+        assert merged["executor"] == {"type": "ai_agent", "reason": "default"}
+
+    def test_apply_defaults_returns_unit_when_no_defaults(self):
+        u = {"phase": "spec"}
+        assert apply_defaults(u, {}) is u
+
+    def test_load_process_defaults_missing(self, tmp_path):
+        """_defaults.yaml が無ければ空 dict。"""
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        assert load_process_defaults(proc) == {}
+
+    def test_load_process_defaults_invalid(self, tmp_path):
+        """壊れた _defaults.yaml は黙殺して空 dict（loader の既存契約に揃える）。"""
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        (proc / "_defaults.yaml").write_text(": : :\n  bad", encoding="utf-8")
+        assert load_process_defaults(proc) == {}
+
+    def test_list_inherits_executor_from_defaults(self, tmp_path, capsys):
+        """unit に executor を書かなくても _defaults.yaml の値で list が動くこと。"""
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        (proc / "_defaults.yaml").write_text(
+            "phase: spec\n"
+            "executor:\n  type: ai_agent\n  reason: 共通\n"
+            "status: stable\n",
+            encoding="utf-8",
+        )
+        _write(proc, "U1", _minimal_unit("U1"))
+        result = run_list(_ListArgs(tmp_path))
+        out = capsys.readouterr().out
+        assert result is None or result == 0
+        assert "U1" in out
+        # list は unit 名と executor.type を表示する
+        assert "ai_agent" in out
+
+    def test_unit_field_overrides_defaults(self, tmp_path, capsys):
+        """unit 側に書かれたフィールドは defaults より優先。"""
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        (proc / "_defaults.yaml").write_text(
+            "phase: spec\n"
+            "executor:\n  type: ai_agent\n  reason: default\n"
+            "status: stable\n",
+            encoding="utf-8",
+        )
+        # U1 は executor.type を script で上書き
+        body = _minimal_unit("U1") + "executor:\n  type: script\n  reason: 個別\n" + "status: stable\n"
+        _write(proc, "U1", body)
+        run_list(_ListArgs(tmp_path))
+        out = capsys.readouterr().out
+        assert "script" in out
+        assert "ai_agent" not in out
+
+    def test_defaults_file_not_loaded_as_unit(self, tmp_path, capsys):
+        """_defaults.yaml は unit ファイルとして読まれない（_ プレフィックスの既存契約）。"""
+        proc = tmp_path / "bizspec" / "proc-a"
+        proc.mkdir(parents=True)
+        (proc / "_defaults.yaml").write_text("phase: spec\n", encoding="utf-8")
+        _write(proc, "U1", _minimal_unit("U1") + "phase: dev\nexecutor:\n  type: script\n  reason: r\nstatus: stable\n")
+        run_list(_ListArgs(tmp_path))
+        out = capsys.readouterr().out
+        # unit U1 のみが出力に現れる
+        assert "U1" in out
+        # _defaults.yaml は unit として表示されない
+        assert "_defaults" not in out

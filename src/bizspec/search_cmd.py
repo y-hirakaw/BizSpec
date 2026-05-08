@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from .core.loader import load_units_with_paths
+from .core.loader import apply_defaults, load_process_defaults, load_units_with_paths
 
 _ALL_FIELDS = ("unit", "aim", "rule", "io", "executor", "depends_on")
 FIELD_CHOICES = list(_ALL_FIELDS)
@@ -44,13 +44,15 @@ def _extract_texts(data: dict, fields: tuple[str, ...]) -> list[tuple[str, str]]
 
 
 def _search_process(process_dir: Path, keyword: str, fields: tuple[str, ...]) -> list[dict]:
-    """マッチした unit の情報を返す。"""
+    """マッチした unit の情報を返す。_defaults.yaml の値も検索対象に含む。"""
     hits: list[dict] = []
     kw_lower = keyword.lower()
+    defaults = load_process_defaults(process_dir)
     for path, data in load_units_with_paths(process_dir):
-        unit_name = str(data.get("unit", path.stem))
+        merged = apply_defaults(data, defaults) if defaults else data
+        unit_name = str(merged.get("unit", path.stem))
         matched: list[tuple[str, str]] = []
-        for field_path, text in _extract_texts(data, fields):
+        for field_path, text in _extract_texts(merged, fields):
             if kw_lower in text.lower():
                 matched.append((field_path, text))
         if matched:

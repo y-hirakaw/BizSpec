@@ -14,8 +14,10 @@ BizSpec は、既存の業務プロセスを AI-Native 形式にリファクタ�
 .claude/skills/
   bizspec-refine/SKILL.md       # /bizspec-refine スキル（プロセス分解 → YAML生成・更新）
   bizspec-refactor/SKILL.md     # /bizspec-refactor スキル（横断リファクタリング提案）
+  bizspec-review/SKILL.md       # /bizspec-review スキル（意味整合レビュー → Markdownレポート）
 bizspec/
   <プロセス名>/                  # プロセスごとにフォルダを切る
+    _defaults.yaml              # （省略可）プロセス内の unit に共通する既定値
     <unit名>.yaml               # unit ごとに1ファイル
   _viz/                         # 生成物（bizspec viz の HTML 出力先）
     index.html                  # 全プロセス統合ビュー（引数なし時のみ生成）
@@ -34,6 +36,7 @@ src/bizspec/
   skills/                       # パッケージ同梱スキル（bizspec init でコピー元になる）
     bizspec-refine/SKILL.md
     bizspec-refactor/SKILL.md
+    bizspec-review/SKILL.md
 BizSpec_要求仕様.md              # 要件定義書
 ```
 
@@ -102,6 +105,29 @@ deprecated_reason: 廃止理由  # status: deprecated のときのみ（省略�
 - **テスト実行:** `uv run --with pytest pytest tests/ -v`
 - **動作確認:** `uv run bizspec validate`
 - **CI:** GitHub Actions（`.github/workflows/test.yml`）— main への push と PR で自動テスト
+
+## `_defaults.yaml`（プロセス共通の既定値）
+
+`bizspec/<プロセス名>/_defaults.yaml` を置くと、同プロセス内の unit YAML に
+書かれていないフィールドが自動で補完される。`bizspec viz` / `list` / `search` /
+`validate` は補完後の「実効値」で動作するが、**unit ファイル自体は書き換わらない**。
+
+```yaml
+# 例: pr-review プロセスは大半が ai_agent / spec フェーズなので共通化
+phase: spec
+executor:
+  type: ai_agent
+  reason: 自然言語の判断が必要
+status: stable
+```
+
+**マージ規則:**
+- unit YAML 側にフィールドがあれば unit が勝つ
+- dict 型のフィールド（`executor` / `automation` / `effort` 等）は再帰的にマージ
+- list / scalar は unit が持つ場合まるごと unit が勝つ
+
+**書き込み系コマンド（`new` / `rename` / `rm` / `renumber`）は raw のまま扱う**ため、
+defaults を materialize して unit ファイルを膨らませることはない。
 
 ## フィールド責務ルーブリック
 
