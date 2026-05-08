@@ -1,0 +1,3 @@
+No,プロセス名,ユニット名,説明,duration,frequency,difficulty
+例,自由記述,自由記述,1行で何をしているか,時間/回（0.25 / 0.5 / 1 / 2 / 3 / 5 / 8 / 13 / 21）,月間実行回数（整数）,low / medium / high
+1,onboarding,Setup environment,新メンバーの開発環境・アクセス権・ツールのセットアップ,3,1,medium
