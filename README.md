@@ -11,6 +11,12 @@ English | [日本語](README.ja.md)
 
 > **Work in progress.** This project is at an early, experimental stage. APIs and file formats may change.
 
+> ⚠️ **Direction is currently being reworked (May 2026).**
+> The original "decompose every process into YAML" approach is being narrowed.
+> The new direction is **CSV-first inventory (`bizspec/portfolio.csv`) for triage, with YAML reserved for units that actually escalate to AI-executable specs**.
+> The screenshots and skill descriptions below still reflect the YAML-first design and will be updated once the new model is validated by dogfooding.
+> Background and rationale: see [`BizSpec_設計メモ_2026-05-08.md`](BizSpec_設計メモ_2026-05-08.md) (Japanese).
+
 **BizSpec** decomposes a business workflow into the smallest executable units (YAML), tags each one as `script` / `ai_agent` / `manual`, and visualizes the flow as clickable HTML. Pair it with Claude Code skills (`/bizspec-refine`, `/bizspec-refactor`) to refine processes interactively.
 
 ![Leverage heatmap — units sorted by cost × ease × automation gap. The top-left "Quick Win" cell is high-cost, easy-to-automate, manual work.](design/readme1.png)
